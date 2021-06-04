@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= productName %></title>
+
+    <meta charset="utf-8">
+    <meta name="description" content="<%= productDescription %>">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+
+    <link rel="icon" type="image/png" sizes="128x128" href="icons/favicon-128x128.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="icons/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
+    <link rel="icon" type="image/ico" href="favicon.ico">
+    <style>
+         @font-face {
+      font-family: 'Raleway';
+      font-style: normal;
+      font-weight: 200;
+      src: url('../statics/fonts/raleway-v14-latin-200.eot');
+      /* IE9 Compat Modes */
+      src: local('Raleway ExtraLight'), local('Raleway-ExtraLight'),
+        url('../statics/fonts/raleway-v14-latin-200.eot?#iefix') format('embedded-opentype'),
+        /* IE6-IE8 */
+        url('../statics/fonts/raleway-v14-latin-200.woff2') format('woff2'),
+        /* Super Modern Browsers */
+        url('../statics/fonts/raleway-v14-latin-200.woff') format('woff'),
+        /* Modern Browsers */
+        url('../statics/fonts/raleway-v14-latin-200.ttf') format('truetype'),
+        /* Safari, Android, iOS */
+        url('../statics/fonts/raleway-v14-latin-200.svg#Raleway') format('svg');
+      /* Legacy iOS */
+    }
+
+    /* raleway-300 - latin */
+    @font-face {
+      font-family: 'Raleway';
+      font-style: normal;
+      font-weight: 300;
+      src: url('../statics/fonts/raleway-v14-latin-300.eot');
+      /* IE9 Compat Modes */
+      src: local('Raleway Light'), local('Raleway-Light'),
+        url('../statics/fonts/raleway-v14-latin-300.eot?#iefix') format('embedded-opentype'),
+        /* IE6-IE8 */
+        url('../statics/fonts/raleway-v14-latin-300.woff2') format('woff2'),
+        /* Super Modern Browsers */
+        url('../statics/fonts/raleway-v14-latin-300.woff') format('woff'),
+        /* Modern Browsers */
+        url('../statics/fonts/raleway-v14-latin-300.ttf') format('truetype'),
+        /* Safari, Android, iOS */
+        url('../statics/fonts/raleway-v14-latin-300.svg#Raleway') format('svg');
+      /* Legacy iOS */
+    }
+
+    /* raleway-regular - latin */
+    @font-face {
+      font-family: 'Raleway';
+      font-style: normal;
+      font-weight: 400;
+      src: url('../statics/fonts/raleway-v14-latin-regular.eot');
+      /* IE9 Compat Modes */
+      src: local('Raleway'), local('Raleway-Regular'),
+        url('../statics/fonts/raleway-v14-latin-regular.eot?#iefix') format('embedded-opentype'),
+        /* IE6-IE8 */
+        url('../statics/fonts/raleway-v14-latin-regular.woff2') format('woff2'),
+        /* Super Modern Browsers */
+        url('../statics/fonts/raleway-v14-latin-regular.woff') format('woff'),
+        /* Modern Browsers */
+        url('../statics/fonts/raleway-v14-latin-regular.ttf') format('truetype'),
+        /* Safari, Android, iOS */
+        url('../statics/fonts/raleway-v14-latin-regular.svg#Raleway') format('svg');
+      /* Legacy iOS */
+    }
+
+    /* raleway-500 - latin */
+    @font-face {
+      font-family: 'Raleway';
+      font-style: normal;
+      font-weight: 500;
+      src: url('../statics/fonts/raleway-v14-latin-500.eot');
+      /* IE9 Compat Modes */
+      src: local('Raleway Medium'), local('Raleway-Medium'),
+        url('../statics/fonts/raleway-v14-latin-500.eot?#iefix') format('embedded-opentype'),
+        /* IE6-IE8 */
+        url('../statics/fonts/raleway-v14-latin-500.woff2') format('woff2'),
+        /* Super Modern Browsers */
+        url('../statics/fonts/raleway-v14-latin-500.woff') format('woff'),
+        /* Modern Browsers */
+        url('../statics/fonts/raleway-v14-latin-500.ttf') format('truetype'),
+        /* Safari, Android, iOS */
+        url('../statics/fonts/raleway-v14-latin-500.svg#Raleway') format('svg');
+      /* Legacy iOS */
+    }
+    </style>
+  </head>
+  <body>
+    <!-- DO NOT touch the following DIV -->
+    <div id="q-app"></div>
+  </body>
+
+      <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+      <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css">
+      <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+      <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+</html>

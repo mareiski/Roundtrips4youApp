@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Roundtrips4you</string>
+    <string name="title_activity_main">Roundtrips4you</string>
+    <string name="package_name">org.capacitor.roundtrips4you.app</string>
+    <string name="custom_url_scheme">org.capacitor.roundtrips4you.app</string>
+</resources>

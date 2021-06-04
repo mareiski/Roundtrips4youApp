@@ -1,0 +1,101 @@
+// app global css in SCSS form
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'raleway';
+    color: $secondary;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.align-center {
+    align-items: center;
+}
+
+.width-80-percent {
+    width: 80%;
+}
+
+.position-absolute {
+    position: absolute;
+}
+
+.q-page {
+    padding-top: 20px;
+
+    &>* {
+        margin-bottom: 20px;
+    }
+}
+
+.flex-direction-col {
+    flex-direction: column;
+}
+
+.center-content-horizontal {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.center-text {
+    text-align: center;
+}
+
+.raleway {
+    font-family: 'raleway';
+}
+
+.color-grey {
+    color: $secondary;
+}
+
+.background-light-grey {
+    background-color: $secondary-light;
+}
+
+.q-card__actions .q-btn {
+    min-width: 80% !important;
+}
+
+.bold {
+    font-weight: 500;
+}
+
+footer {
+    a {
+        text-decoration: none;
+    }
+
+    .router-link-exact-active>i {
+        -webkit-text-stroke: none;
+        color: $primary;
+    }
+
+    .add-btn {
+        position: absolute;
+        margin-bottom: 40px;
+        z-index: 1;
+        color: white;
+    }
+
+    .shadow-15-orange {
+        box-shadow:
+            0 8px 9px -5px rgb(213 96 38 / 30%),
+            0 15px 22px 2px rgb(213 96 38 / 24%),
+            0 6px 28px 5px rgb(213 96 38 / 22%)
+    }
+
+    .icon-outline {
+        -webkit-text-stroke: $primary 2.2px;
+        color: white;
+    }
+
+    .q-layout__shadow:after {
+        border-radius: 10px 10px 0 0;
+    }
+}

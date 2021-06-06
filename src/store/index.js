@@ -1,10 +1,11 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from "vue";
+import Vuex from "vuex";
 
-import tripList from './trip-list'
-import user from './user'
+import tripList from "./trip-list";
+import user from "./user";
+import api from "./api";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 /*
  * If not building with SSR mode, you can
@@ -15,17 +16,18 @@ Vue.use(Vuex)
  * with the Store instance.
  */
 
-export default function (/* { ssrContext } */) {
+export default function(/* { ssrContext } */) {
   const Store = new Vuex.Store({
     modules: {
       tripList,
-      user
-    },
+      user,
+      api
+    }
 
     // enable strict mode (adds overhead!)
     // for dev mode only
     //strict: process.env.DEBUGGING
-  })
+  });
 
-  return Store
+  return Store;
 }

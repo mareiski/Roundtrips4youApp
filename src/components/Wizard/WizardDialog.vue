@@ -38,9 +38,13 @@
           >
         </q-card-actions>
       </q-tab-panel>
-      <q-tab-panel :name="2">
+      <q-tab-panel :name="2" class="flex justify-between flex-direction-col">
         <q-card-section>
-          <geocoder></geocoder>
+          <geocoder @inputCountry="e => (country = e)"></geocoder>
+          <public-trip-list
+            :country="country"
+            :title="title"
+          ></public-trip-list>
         </q-card-section>
 
         <q-card-actions
@@ -61,6 +65,7 @@
 </template>
 <script>
 import geocoder from "components/Geocoder.vue";
+import PublicTripList from "../PublicTripList.vue";
 export default {
   props: ["stepNum", "titleProp"],
   model: {
@@ -69,7 +74,14 @@ export default {
   },
   name: "WizardDialog",
   components: {
-    geocoder
+    geocoder,
+    PublicTripList
+  },
+  data() {
+    return {
+      title: this.titleProp,
+      country: null
+    };
   },
   computed: {
     step: {
@@ -82,11 +94,6 @@ export default {
         }
       }
     }
-  },
-  data() {
-    return {
-      title: this.titleProp
-    };
   },
   methods: {
     titleChanged() {

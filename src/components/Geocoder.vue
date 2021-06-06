@@ -15,11 +15,24 @@ export default {
 
     geocoder.addTo("#geocoder");
 
+    let context = this;
     // Add geocoder result to container.
-    geocoder.on("result", function(e) {});
+    geocoder.on("result", function(e) {
+      let country;
+      if (e.result.place_name.includes(",")) {
+        let locationParts = e.result.place_name.split(",");
+        country = locationParts[locationParts.length - 1];
+      } else {
+        counry = e.result.place_Name;
+      }
+
+      context.$emit("inputCountry", country);
+    });
 
     // Clear results container when search is cleared.
-    geocoder.on("clear", function() {});
+    geocoder.on("clear", function() {
+      context.$emit("input", null);
+    });
   }
 };
 </script>

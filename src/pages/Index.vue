@@ -5,8 +5,8 @@
     </div>
     <q-list bordered padding class="rounded-borders width-80-percent">
       <q-intersection
-        v-for="roundtripID in 5"
-        :key="roundtripID"
+        v-for="trip in trips"
+        :key="trip.RTId"
         once
         transition="flip-right"
       >
@@ -19,7 +19,7 @@
 
           <q-item-section>
             <q-item-label lines="1" class="text-secondary bold"
-              >Titel</q-item-label
+              >trip.titel</q-item-label
             >
             <q-item-label caption>
               11.05.2021
@@ -40,6 +40,9 @@
           </q-item-section>
         </q-item>
       </q-intersection>
+      <q-item v-ripple clickable v-if="!trips || trips.length === 0">
+        <p class="text-secondary">Du hast noch keine Reise erstellt</p>
+      </q-item>
     </q-list>
     <q-btn
       color="primary"
@@ -56,6 +59,21 @@
 
 <script>
 export default {
-  name: "PageIndex"
+  name: "PageIndex",
+  data() {
+    return {
+      trips: []
+    };
+  },
+  methods: {
+    fetchTrips() {
+      this.$store.dispatch("tripList/fetchAllUserTrips").then(trips => {
+        this.trips = trips;
+      });
+    }
+  },
+  created() {
+    this.fetchTrips();
+  }
 };
 </script>

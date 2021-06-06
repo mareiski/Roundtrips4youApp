@@ -82,6 +82,7 @@ import WizardDialog from "src/components/Wizard/WizardDialog.vue";
 import CloseButton from "src/components/CloseButton.vue";
 import Notifications from "src/components/Notifications.vue";
 import BackButton from "src/components/BackButton.vue";
+import { Loading } from "quasar";
 
 export default {
   components: { WizardDialog, CloseButton, Notifications, BackButton },
@@ -93,6 +94,9 @@ export default {
       wizardStep: 1,
       wizardTitle: null
     };
+  },
+  mounted() {
+    Loading.hide();
   }
 };
 </script>

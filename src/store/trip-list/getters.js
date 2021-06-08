@@ -28,10 +28,10 @@ export default {
       return null;
     }
   },
-  getSingleTrip: state => roundtripId => {
-    let index = state.roundtrips.findIndex(x => x.RTId === roundtripId);
+  getSingleTrip: state => tripId => {
+    let index = state.TripList.findIndex(x => x.TripId === tripId);
     try {
-      return state.roundtrips[index];
+      return state.TripList[index];
     } catch (e) {
       console.log(e);
       return null;

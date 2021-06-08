@@ -1,23 +1,24 @@
+import pointLocation from "./pointLocation";
 import Stop from "./stop";
 
 export default class hotel extends Stop {
-  bookingComLink: String;
-  generalLink: String;
-  expediaLink: String;
-  hotelStars: Number;
-  hotelPrice: Number;
-  stopKind: String;
+  bookingComLink: string;
+  generalLink: string;
+  expediaLink: string;
+  hotelStars: number;
+  hotelPrice: number;
+  stopKind: string;
 
   constructor(
-    stopId,
-    startDate,
-    dayDuration,
-    location,
-    bookingComLink,
-    generalLink,
-    expediaLink,
-    hotelStars,
-    hotelPrice
+    stopId: number,
+    startDate: Date,
+    dayDuration: number,
+    location: pointLocation,
+    bookingComLink: string,
+    generalLink: string,
+    expediaLink: string,
+    hotelStars: number,
+    hotelPrice: number
   ) {
     super(stopId, startDate, dayDuration, location);
 

@@ -22,13 +22,13 @@ export default {
    */
   removeTrip: (state, roundtripDocId) => {
     if (state.TripList) {
-      let index = state.TripList.findIndex(x => x.RTId === roundtripDocId);
+      let index = state.TripList.findIndex(x => x.TripId === roundtripDocId);
       state.TripList.splice(index, 1);
     }
   },
   setStopList: (state, payload) => {
     let index = state.TripList.findIndex(
-      x => x.RTId === payload.roundtripDocId
+      x => x.TripId === payload.roundtripDocId
     );
     state.TripList[index].StopList = payload.stopList;
   }

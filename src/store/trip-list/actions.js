@@ -11,7 +11,7 @@ export default {
   fetchSingleTrip({ commit, getters }, payload) {
     return new Promise((resolve, reject) => {
       // check if this trip already exists
-      let trip = getters.getSingleTrip(payload.RTId);
+      let trip = getters.getSingleTrip(payload.TripId);
       if (trip) {
         resolve(trip);
       } else {
@@ -22,13 +22,13 @@ export default {
         if (payload.isUserTrip) {
           roundtripsRef = db
             .collection("Trips")
-            .where("RTId", "==", payload.RTId)
+            .where("TripId", "==", payload.TripId)
             .where("userId", "==", auth.user().uid)
             .limit(1);
         } else {
           roundtripsRef = db
             .collection("Trips")
-            .where("RTId", "==", payload.RTId)
+            .where("TripId", "==", payload.TripId)
             .where("public", "==", true)
             .limit(1);
         }
@@ -39,7 +39,7 @@ export default {
             snapshot.forEach(doc => {
               if (snapshot.empty) resolve(null);
 
-              trip = new Trip(doc.data());
+              trip = Trip.fromObject(doc.data());
 
               // add trip to trip list
               commit("addTrip", trip);
@@ -64,9 +64,11 @@ export default {
 
       let tripArr = [];
 
+      console.log();
+
       let roundtripsRef = db
         .collection("Trips")
-        .where("UserId", "==", auth.user().uid)
+        .where("userId", "==", auth.user().uid)
         .orderBy("createdAt")
         .limit(20);
       roundtripsRef
@@ -77,14 +79,14 @@ export default {
           // cancel here if no trips created yet
           if (snapshot.size === 0) resolve(null);
 
-          snapshot.forEach(doc => {
+          snapshot.docs.forEach(doc => {
             // add trip
-            tripArr.push(new Trip(doc.data()));
+            tripArr.push(Trip.fromObject(doc.data()));
 
             index++;
 
             // its last trip > finished
-            if (index === snapshot.size - 1) {
+            if (index === snapshot.size) {
               commit("addTrips", tripArr);
               resolve(tripArr);
             }
@@ -119,7 +121,7 @@ export default {
 
         snapshot.forEach(doc => {
           // add trip
-          tripArr.push(new Trip(doc.data()));
+          tripArr.push(Trip.fromObject(doc.data()));
 
           index++;
 
@@ -155,10 +157,10 @@ export default {
     return new Promise(resolve => {
       try {
         let timeStamp = Date.now();
-        let tempRTId = Math.floor(Math.random() * 10000000000000);
+        let tempTripId = Math.floor(Math.random() * 10000000000000);
 
         let newTripObject = new Trip(
-          tempRTId,
+          tempTripId,
           payload.title,
           "Beschreibe deine Reise",
           auth.user().uid,
@@ -188,24 +190,24 @@ export default {
           );
         }
 
-        // add new trip with new temp RTId
+        // add new trip with new temp TripId
         db.collection("Trips")
           .add(newTripObject.toObject())
           .then(() => {
-            // get create trip and change RTId to doc id
+            // get create trip and change TripId to doc id
             let roundtripsRef = db
               .collection("Trips")
-              .where("RTId", "==", tempRTId)
+              .where("TripId", "==", tempTripId)
               .limit(1);
             roundtripsRef.get().then(snapshot => {
               snapshot.forEach(doc => {
                 db.collection("Trips")
                   .doc(doc.id)
                   .update({
-                    RTId: doc.id
+                    TripId: doc.id
                   })
                   .then(() => {
-                    newTripObject.RTId = doc.id;
+                    newTripObject.TripId = doc.id;
                     commit("addTrip", newTripObject);
                     resolve(doc.id);
                   });
@@ -218,14 +220,14 @@ export default {
       }
     });
   },
-  deleteTrip({ commit }, RTId) {
+  deleteTrip({ commit }, TripId) {
     return new Promise(resolve => {
       db.collection("Trips")
-        .doc(RTId)
+        .doc(TripId)
         .where("UserId", "==", auth.user().uid)
         .delete()
         .then(function() {
-          commit("removeRoundtrip", RTId);
+          commit("removeRoundtrip", TripId);
           resolve(true);
         })
         .catch(function(error) {

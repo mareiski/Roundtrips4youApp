@@ -1,6 +1,6 @@
 <template>
   <div class="public-trip-list">
-    <q-card flat bordere v-for="trip in publicTrips" :key="trip.RTId">
+    <q-card flat bordere v-for="trip in publicTrips" :key="trip.TripId">
       <q-card-section horizontal>
         <q-card-section class="col-5 flex flex-center">
           <q-img

@@ -10,18 +10,39 @@ export default class Stop {
   images: Array<string>;
   stopKind: string;
 
-  constructor(stopId, startDate, dayDuration, location) {
+  /**
+   * @returns new stop created from a object
+   */
+  static fromDBObject(obj: any) {
+    return new this(
+      obj.stopId,
+      obj.startDate,
+      obj.dayDuration,
+      PointLocation.fromObject(obj.location)
+    );
+  }
+
+  /**
+   * @param obj
+   * must contain stop id, start date, day duration and location
+   */
+  constructor(
+    stopId: number,
+    startDate: Date,
+    dayDuration: number,
+    location: PointLocation
+  ) {
     this.stopId = stopId;
     this.startDate = startDate;
     this.dayDuration = dayDuration;
     this.location = location;
 
     // set title to same name as location
-    if (location && location.label) {
-      if (location.label.includes(",")) {
-        this.title = location.label.split(",")[0];
+    if (this.location && this.location.label) {
+      if (this.location.label.includes(",")) {
+        this.title = this.location.label.split(",")[0];
       } else {
-        this.title = location.label;
+        this.title = this.location.label;
       }
     } else {
       this.title = "1. Stopp";

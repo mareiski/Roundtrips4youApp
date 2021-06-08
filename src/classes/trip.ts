@@ -1,8 +1,9 @@
 import Stop from "./stop";
 import PointLocation from "./pointLocation";
+import { date } from "quasar";
 
 export default class Trip {
-  private RTId: number;
+  private TripId: number;
   description: string;
   private userId: string;
   title: string;
@@ -18,7 +19,7 @@ export default class Trip {
   offerEndPeriod: Date;
   offerStartPeriod: Date;
   offerWholeYear: boolean;
-  createdAt: Date;
+  createdAt: Date | any;
   private stopList: Array<Stop>;
   depatureDate: Date;
   transportProfile: string;
@@ -31,13 +32,52 @@ export default class Trip {
   adults: number;
   childrenAges: Array<number>;
 
-  getRTId() {
-    return this.RTId;
+  getTripId() {
+    return this.TripId;
+  }
+
+  /**
+   * @param pattern format of the date like "DD.MM.YYYY HH:mm"
+   * @returns created at timestemp as a string
+   */
+  getCreatedAtString(pattern: string) {
+    let dateToConvert;
+    if (this.createdAt instanceof Date) {
+      dateToConvert = this.createdAt;
+    } else {
+      dateToConvert = new Date(this.createdAt.seconds * 1000);
+    }
+
+    return date.formatDate(dateToConvert, pattern);
+  }
+
+  static fromObject(obj: any) {
+    // create trip object
+    let trip = new this(
+      obj.TripId,
+      obj.title,
+      obj.description,
+      obj.userId,
+      obj.createdAt
+    );
+
+    // override all values
+    trip.overrideFromObject(obj);
+
+    // todo set share values etc
+
+    return trip;
   }
 
   // constructor only takes neccessary values
-  constructor(RTId, title, description, userId, timeStamp) {
-    this.RTId = RTId;
+  constructor(
+    TripId: number,
+    title: string,
+    description: string,
+    userId: string,
+    timeStamp: string | number | Date
+  ) {
+    this.TripId = TripId;
     this.title = title;
     this.description = description;
     this.userId = userId;
@@ -74,16 +114,64 @@ export default class Trip {
   }
 
   /**
-   * returns a simple object of all values set on this trip
+   *  override all values with those from the given object
+   */
+  overrideFromObject(obj: any) {
+    this.TripId = obj.TripId;
+    this.description = obj.description;
+    this.userId = obj.userId;
+    this.title = obj.title;
+    this.countries = obj.countries;
+    this.participants = obj.participants;
+    this.titleImageUrl = obj.titleImageUrl;
+    this.days = obj.days;
+    this.published = obj.published;
+    this.price = obj.price;
+    this.highlights = obj.highlights;
+    this.stars = obj.stars;
+    this.tags = obj.tags;
+    this.offerEndPeriod = obj.offerEndPeriod;
+    this.offerStartPeriod = obj.offerStartPeriod;
+    this.offerWholeYear = obj.offerWholeYear;
+    this.createdAt = obj.createdAt;
+    this.depatureDate = obj.depatureDate;
+    this.transportProfile = obj.transportProfile;
+    this.origin = obj.origin;
+    this.destination = obj.destination;
+    this.returnDate = obj.returnDate;
+    this.travelClass = obj.travelClass;
+    this.nonStop = obj.nonStop;
+    this.rooms = obj.rooms;
+    this.adults = obj.adults;
+    this.childrenAges = obj.childrenAges;
+
+    this.stopList = [];
+
+    obj.stopList.forEach((stop: any) => {
+      this.stopList.push(Stop.fromDBObject(stop));
+    });
+  }
+
+  /**
+   * @returns a simple object of all values set on this trip
    */
   toObject() {
-    let stopListArray = [];
+    let stopListArray: {
+      stopId: number;
+      startDate: Date;
+      dayDuration: number;
+      location: { lat: Number; lng: Number; label: String };
+      title: string;
+      notes: string;
+      images: string[];
+      stopKind: string;
+    }[] = [];
     this.stopList.forEach(stop => {
       stopListArray.push(stop.toObject());
     });
 
     return {
-      RTId: this.RTId,
+      TripId: this.TripId,
       description: this.description,
       userId: this.userId,
       title: this.title,
@@ -118,14 +206,14 @@ export default class Trip {
    * sets the values to share a trip (when user publishes it)
    */
   setShareValues(
-    price,
-    published,
-    highlights,
-    stars,
-    offerEndPeriod,
-    offerStartPeriod,
-    offerWholeYear,
-    tags
+    price: number,
+    published: boolean,
+    highlights: string[],
+    stars: number,
+    offerEndPeriod: Date,
+    offerStartPeriod: Date,
+    offerWholeYear: boolean,
+    tags: string[]
   ) {
     this.price = price;
     this.published = published;
@@ -138,16 +226,16 @@ export default class Trip {
   }
 
   setArrivalDeparture(
-    depatureDate,
-    transportProfile,
-    origin,
-    destination,
-    returnDate,
-    travelClass,
-    nonStop,
-    rooms,
-    adults,
-    childrenAges
+    depatureDate: Date,
+    transportProfile: string,
+    origin: any,
+    destination: any,
+    returnDate: Date,
+    travelClass: string,
+    nonStop: boolean,
+    rooms: number,
+    adults: number,
+    childrenAges: number[]
   ) {
     this.depatureDate = depatureDate;
     this.transportProfile = transportProfile;
@@ -165,19 +253,26 @@ export default class Trip {
    * adds a default stop when stop list is empty
    * !important does nothing if there is already a stop
    */
-  addFallbackStop(payloadDepartureDate, timeStamp) {
+  addFallbackStop(
+    payloadDepartureDate: string,
+    timeStamp: string | number | Date
+  ) {
     if (this.stopList.length === 0) {
       let depatureDate = null;
       if (payloadDepartureDate) {
         const dateParts = payloadDepartureDate.split(".");
-        depatureDate = new Date(dateParts[2], dateParts[1] - 1, dateParts[0]);
+        depatureDate = new Date(
+          parseInt(dateParts[2]),
+          parseInt(dateParts[1]) - 1,
+          parseInt(dateParts[0])
+        );
       }
 
       let stop = new Stop(
         0,
         depatureDate || new Date(timeStamp),
         1,
-        new PointLocation("52.5170365", "13.3888599", "Berlin, 10117, Germany")
+        new PointLocation(52.5170365, 13.3888599, "Berlin, 10117, Germany")
       );
 
       this.addStop(stop);
@@ -196,7 +291,7 @@ export default class Trip {
    * sets a new stop list
    * @param {Stop[]} stopList
    */
-  setStopList(stopList) {
+  setStopList(stopList: Stop[]) {
     this.stopList = stopList;
   }
 
@@ -204,7 +299,7 @@ export default class Trip {
    * addst new stop to stop list
    * @param {Stop} stop
    */
-  addStop(stop) {
+  addStop(stop: Stop) {
     this.stopList.push(stop);
   }
 }

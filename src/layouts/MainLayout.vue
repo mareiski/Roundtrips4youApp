@@ -79,9 +79,9 @@
 
 <script>
 import WizardDialog from "src/components/Wizard/WizardDialog.vue";
-import CloseButton from "src/components/CloseButton.vue";
+import CloseButton from "src/components/Buttons/CloseButton.vue";
 import Notifications from "src/components/Notifications.vue";
-import BackButton from "src/components/BackButton.vue";
+import BackButton from "src/components/Buttons/BackButton.vue";
 import { Loading } from "quasar";
 
 export default {
@@ -92,7 +92,9 @@ export default {
       showNotifications: false,
       showWizardDialog: false,
       wizardStep: 1,
-      wizardTitle: null
+      wizardTitle: null,
+      redirectionFinished: false,
+      mountFinished: false
     };
   },
   mounted() {

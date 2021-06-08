@@ -1,6 +1,8 @@
 import { auth } from "app/src/firebaseInit.js";
 //const getLeaflet = () => import('leaflet')
 import { AddressbarColor, Loading } from "quasar";
+import RoutePermissions from "../router/routePermissions.js";
+
 // import vue from "vue";
 // import StoryblokVue from "storyblok-vue";
 // import VueLazyload from "vue-lazyload";
@@ -27,6 +29,8 @@ export default async ({ app, store, router }) => {
   //   })
   // })
   AddressbarColor.set("#D56026");
+
+  RoutePermissions.manageRoutes(router);
 
   // getClickOutside().then(vClickOutside => vue.use(vClickOutside));
   // vue.use(StoryblokVue);

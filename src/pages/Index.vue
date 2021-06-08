@@ -6,11 +6,15 @@
     <q-list bordered padding class="rounded-borders width-80-percent">
       <q-intersection
         v-for="trip in trips"
-        :key="trip.RTId"
+        :key="trip.TripId"
         once
         transition="flip-right"
       >
-        <q-item v-ripple clickable>
+        <q-item
+          v-ripple
+          clickable
+          @click="$router.push('Karte/' + trip.TripId)"
+        >
           <q-item-section avatar top>
             <q-avatar class="background-light-grey">
               <img style="width:30px" src="../assets/aircraft.svg" />
@@ -18,20 +22,23 @@
           </q-item-section>
 
           <q-item-section>
-            <q-item-label lines="1" class="text-secondary bold"
-              >trip.titel</q-item-label
-            >
+            <q-item-label lines="1" class="text-secondary bold">{{
+              trip.title
+            }}</q-item-label>
             <q-item-label caption>
-              11.05.2021
+              {{ trip.getCreatedAtString("DD.MM.YYYY") }}
               <q-tooltip>
-                erstellt am 11.05.2021
+                erstellt am {{ trip.getCreatedAtString("DD.MM.YYYY") }}
               </q-tooltip>
             </q-item-label>
           </q-item-section>
 
           <q-item-section side>
-            <q-item-label lines="1" class="text-primary"
-              >öffentlich</q-item-label
+            <q-item-label
+              lines="1"
+              :class="trip.published ? 'text-primary' : 'text-secondary'"
+            >
+              {{ trip.published ? "öffentlich" : "privat" }}</q-item-label
             >
           </q-item-section>
 
@@ -40,7 +47,7 @@
           </q-item-section>
         </q-item>
       </q-intersection>
-      <q-item v-ripple clickable v-if="!trips || trips.length === 0">
+      <q-item v-if="!trips || trips.length === 0">
         <p class="text-secondary">Du hast noch keine Reise erstellt</p>
       </q-item>
     </q-list>
@@ -58,6 +65,7 @@
 </template>
 
 <script>
+import Trip from "../classes/trip.ts";
 export default {
   name: "PageIndex",
   data() {

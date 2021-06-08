@@ -16,6 +16,10 @@ h6 {
     align-items: center;
 }
 
+.align-right {
+    align-items: flex-end;
+}
+
 .width-80-percent {
     width: 80%;
 }
@@ -64,6 +68,10 @@ h6 {
 
 .bold {
     font-weight: 500;
+}
+
+.rotate {
+    transform: rotate(180deg);
 }
 
 footer {

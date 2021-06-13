@@ -16,11 +16,13 @@
         <back-button
           v-show="wizardStep > 1"
           @click="wizardStep--"
+          style="z-index: 2;"
+          :top="10"
         ></back-button>
         <h6
           v-show="wizardStep > 1"
-          class="position-absolute text-center text-primary"
-          style="z-index: 1; width:100%"
+          class="position-absolute text-center text-primary full-width"
+          style="z-index: 1;"
         >
           {{ wizardTitle }}
         </h6>
@@ -83,6 +85,8 @@ import CloseButton from "src/components/Buttons/CloseButton.vue";
 import Notifications from "src/components/Notifications.vue";
 import BackButton from "src/components/Buttons/BackButton.vue";
 import { Loading } from "quasar";
+import { auth } from "../firebaseInit.js";
+import routePermissions from "../router/routePermissions.js";
 
 export default {
   components: { WizardDialog, CloseButton, Notifications, BackButton },
@@ -96,6 +100,13 @@ export default {
       redirectionFinished: false,
       mountFinished: false
     };
+  },
+  created() {
+    let loggedIn = auth.user() !== null;
+
+    if (!loggedIn) {
+      this.$router.push("Registrieren");
+    }
   },
   mounted() {
     Loading.hide();

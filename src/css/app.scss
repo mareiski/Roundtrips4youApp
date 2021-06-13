@@ -40,6 +40,10 @@ h6 {
     flex-direction: column;
 }
 
+.flex-nowrap {
+    flex-wrap: nowrap;
+}
+
 .center-content-horizontal {
     display: flex;
     flex-direction: column;

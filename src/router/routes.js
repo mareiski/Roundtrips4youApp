@@ -12,7 +12,7 @@ const routes = [
         }
       },
       {
-        path: "",
+        path: "Login",
         component: () => import("pages/Login.vue"),
         meta: {
           guestOnly: true
@@ -21,6 +21,10 @@ const routes = [
       {
         path: "/Karte/:tripId",
         component: () => import("src/pages/Map.vue")
+      },
+      {
+        path: "/Liste/:tripId",
+        component: () => import("src/pages/StopList.vue")
       },
       {
         path: "/Profil",

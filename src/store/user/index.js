@@ -1,21 +1,12 @@
-import state from './state'
-import { auth } from '../../firebaseInit.js'
+import state from "./state";
+import getters from "./getters";
+import mutations from "./mutations";
+import actions from "./actions";
 
 export default {
   namespaced: true,
-  state,
-  getters: {
-    user: state => state.user,
-    isLogged: state => (state.user !== null)
-  },
-  mutations: {
-    setUser: (state, user) => {
-      state.user = user
-    }
-  },
-  actions: {
-    setCurrentUser: ({ commit }) => {
-      commit('setUser', auth.user())
-    }
-  }
-}
+  mutations,
+  actions,
+  getters,
+  state
+};

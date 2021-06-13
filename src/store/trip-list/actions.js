@@ -1,5 +1,6 @@
 import { db, auth } from "../../firebaseInit.js";
 import Trip from "../../classes/trip.ts";
+import sharedMethods from "app/sharedMethods.js";
 
 export default {
   /**
@@ -64,7 +65,7 @@ export default {
 
       let tripArr = [];
 
-      console.log();
+      if (!auth.user()) resolve(null);
 
       let roundtripsRef = db
         .collection("Trips")
@@ -134,11 +135,11 @@ export default {
       });
     });
   },
-  addTripFromTemplate({ commit }, payload) {
+  addTripFromTemplate({ dispatch }, payload) {
     return new Promise(resolve => {
-      this.fetchSingleTrip({ commit }, payload)
+      dispatch("fetchSingleTrip", payload)
         .then(templateTrip => {
-          this.addTrip({ commit }, templateTrip)
+          dispatch("addTrip", templateTrip)
             .then(newTrip => {
               resolve(newTrip);
             })
@@ -153,10 +154,10 @@ export default {
         });
     });
   },
-  addTrip({ commit }, payload) {
+  addTrip({}, payload) {
     return new Promise(resolve => {
       try {
-        let timeStamp = Date.now();
+        const timeStamp = Date.now();
         let tempTripId = Math.floor(Math.random() * 10000000000000);
 
         let newTripObject = new Trip(
@@ -171,7 +172,7 @@ export default {
         if (payload.stopList) {
           newTripObject.setStopList(payload.stopList);
         } else {
-          newTripObject.addFallbackStop(payload.depatureDate, timeStamp);
+          newTripObject.addFallbackStop(payload.depatureDate);
         }
 
         // add arrival departure
@@ -208,7 +209,6 @@ export default {
                   })
                   .then(() => {
                     newTripObject.TripId = doc.id;
-                    commit("addTrip", newTripObject);
                     resolve(doc.id);
                   });
               });
@@ -218,6 +218,69 @@ export default {
         console.log(e);
         resolve(null);
       }
+    });
+  },
+  setNewStopList({}, payload) {
+    return new Promise(resolve => {
+      db.collection("Trips")
+        .doc(payload.TripId)
+        .update({
+          stopList: payload.newStopList
+        })
+        .then(function() {
+          resolve(true);
+        })
+        .catch(e => {
+          console.log(e);
+          resolve(false);
+        });
+    });
+  },
+  addStop({ dispatch }, payload) {
+    console.log("add stop now!");
+    return new Promise(resolve => {
+      dispatch("fetchSingleTrip", payload).then(trip => {
+        trip.addStop(payload.stop);
+
+        let stopListPayload = {
+          newStopList: trip.toObject().stopList,
+          TripId: trip.TripId
+        };
+
+        dispatch("setNewStopList", stopListPayload).then(success => {
+          if (!success) {
+            sharedMethods.showErrorNotification(
+              "Stop konnte nicht hinzugefügt werden"
+            );
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        });
+      });
+    });
+  },
+  deleteStop({ dispatch }, payload) {
+    return new Promise(resolve => {
+      dispatch("fetchSingleTrip", payload).then(trip => {
+        trip.removeStop(payload.stopId);
+
+        let stopListPayload = {
+          newStopList: trip.toObject().stopList,
+          TripId: trip.TripId
+        };
+
+        dispatch("setNewStopList", stopListPayload).then(success => {
+          if (!success) {
+            sharedMethods.showErrorNotification(
+              "Stop konnte nicht gelöscht werden"
+            );
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        });
+      });
     });
   },
   deleteTrip({ commit }, TripId) {

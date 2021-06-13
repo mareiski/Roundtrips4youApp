@@ -1,6 +1,6 @@
 <template>
   <div class="public-trip-list">
-    <q-card flat bordere v-for="trip in publicTrips" :key="trip.TripId">
+    <q-card flat bordered v-for="trip in publicTrips" :key="trip.TripId">
       <q-card-section horizontal>
         <q-card-section class="col-5 flex flex-center">
           <q-img
@@ -51,6 +51,7 @@
 </template>
 
 <script setup>
+import sharedMethods from "app/sharedMethods";
 export default {
   props: {
     country: String,
@@ -58,7 +59,8 @@ export default {
   },
   data() {
     return {
-      publicTrips: []
+      publicTrips: [],
+      disableAdding: false
     };
   },
   methods: {
@@ -70,11 +72,16 @@ export default {
         });
     },
     createEmptyTrip() {
-      this.$store
-        .dispatch("tripList/addTrip", { title: this.title })
-        .then(trips => {
-          this.publicTrips = trips;
-        });
+      if (!this.disableAdding) {
+        this.disableAdding = true;
+        sharedMethods.showSuccessNotification("Reise wird erstellt");
+
+        this.$store
+          .dispatch("tripList/addTrip", { title: this.title })
+          .then(TripId => {
+            this.$router.push("/Karte/" + TripId);
+          });
+      }
     }
   },
   created() {

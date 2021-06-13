@@ -2,38 +2,41 @@ import PointLocation from "./pointLocation";
 
 export default class Stop {
   private stopId: number;
-  startDate: Date;
   dayDuration: number;
   location: PointLocation;
   title: string;
   notes: string;
   images: Array<string>;
   stopKind: string;
+  profile: string;
+  children: Array<Stop>;
 
   /**
    * @returns new stop created from a object
    */
   static fromDBObject(obj: any) {
-    return new this(
+    let stop = new this(
       obj.stopId,
-      obj.startDate,
       obj.dayDuration,
       PointLocation.fromObject(obj.location)
     );
+
+    stop.title = obj.title;
+    stop.notes = obj.notes;
+    stop.images = obj.images;
+    stop.stopKind = obj.stopKind;
+    stop.profile = obj.profile;
+    stop.children = obj.children;
+
+    return stop;
   }
 
   /**
    * @param obj
    * must contain stop id, start date, day duration and location
    */
-  constructor(
-    stopId: number,
-    startDate: Date,
-    dayDuration: number,
-    location: PointLocation
-  ) {
+  constructor(stopId: number, dayDuration: number, location: PointLocation) {
     this.stopId = stopId;
-    this.startDate = startDate;
     this.dayDuration = dayDuration;
     this.location = location;
 
@@ -52,6 +55,8 @@ export default class Stop {
     this.images = [];
 
     this.stopKind = "stop";
+    this.profile = "driving";
+    this.children = [];
   }
 
   getStopId() {
@@ -61,13 +66,14 @@ export default class Stop {
   toObject() {
     return {
       stopId: this.stopId,
-      startDate: this.startDate,
       dayDuration: this.dayDuration,
       location: this.location.toObject(),
       title: this.title,
       notes: this.notes,
       images: this.images,
-      stopKind: this.stopKind
+      stopKind: this.stopKind,
+      profile: this.profile,
+      children: this.children
     };
   }
 }

@@ -18,8 +18,11 @@
     "firebase": "^8.6.3",
     "mapbox-gl": "^2.3.0",
     "quasar": "^1.0.0",
+    "turf": "^3.0.14",
     "vue-mapbox": "^0.4.1",
     "vue-mapbox-geocoder": "^0.2.0",
+    "vue-uuid": "^2.0.2",
+    "vuedraggable": "^2.24.3",
     "vuefire": "^2.2.5"
   },
   "devDependencies": {

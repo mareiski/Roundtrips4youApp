@@ -20,9 +20,9 @@ export default {
   /**
    * @param {Number} roundtripDocId
    */
-  removeTrip: (state, roundtripDocId) => {
+  removeTrip: (state, TripId) => {
     if (state.TripList) {
-      let index = state.TripList.findIndex(x => x.TripId === roundtripDocId);
+      let index = state.TripList.findIndex(x => x.TripId === TripId);
       state.TripList.splice(index, 1);
     }
   },

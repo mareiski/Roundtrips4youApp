@@ -23,7 +23,7 @@ export default {
         let locationParts = e.result.place_name.split(",");
         country = locationParts[locationParts.length - 1];
       } else {
-        counry = e.result.place_Name;
+        country = e.result.place_name;
       }
 
       context.$emit("inputCountry", country);
@@ -37,4 +37,6 @@ export default {
 };
 </script>
 
-<style></style>
+<style lang="scss">
+@import url("../css/map.scss");
+</style>

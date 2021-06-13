@@ -20,7 +20,7 @@ export default class Trip {
   offerStartPeriod: Date;
   offerWholeYear: boolean;
   createdAt: Date | any;
-  private stopList: Array<Stop>;
+  stopList: Array<Stop>;
   depatureDate: Date;
   transportProfile: string;
   origin: any;
@@ -31,6 +31,7 @@ export default class Trip {
   rooms: number;
   adults: number;
   childrenAges: Array<number>;
+  startDate: Date;
 
   getTripId() {
     return this.TripId;
@@ -61,10 +62,8 @@ export default class Trip {
       obj.createdAt
     );
 
-    // override all values
+    // override all values (also share, arrival departure etc)
     trip.overrideFromObject(obj);
-
-    // todo set share values etc
 
     return trip;
   }
@@ -98,11 +97,12 @@ export default class Trip {
     this.offerStartPeriod = new Date(timeStamp);
     this.offerWholeYear = true;
     this.createdAt = new Date(timeStamp);
+    this.startDate = new Date(timeStamp);
     this.stopList = [];
 
     // arrival departure default values
     this.depatureDate = new Date(timeStamp);
-    this.transportProfile = "";
+    this.transportProfile = "driving";
     this.origin = null;
     this.destination = null;
     this.returnDate = new Date(timeStamp);
@@ -144,6 +144,7 @@ export default class Trip {
     this.rooms = obj.rooms;
     this.adults = obj.adults;
     this.childrenAges = obj.childrenAges;
+    this.startDate = obj.startDAte;
 
     this.stopList = [];
 
@@ -158,7 +159,6 @@ export default class Trip {
   toObject() {
     let stopListArray: {
       stopId: number;
-      startDate: Date;
       dayDuration: number;
       location: { lat: Number; lng: Number; label: String };
       title: string;
@@ -166,10 +166,10 @@ export default class Trip {
       images: string[];
       stopKind: string;
     }[] = [];
+
     this.stopList.forEach(stop => {
       stopListArray.push(stop.toObject());
     });
-
     return {
       TripId: this.TripId,
       description: this.description,
@@ -198,7 +198,8 @@ export default class Trip {
       nonStop: this.nonStop,
       rooms: this.rooms,
       adults: this.adults,
-      childrenAges: this.childrenAges
+      childrenAges: this.childrenAges,
+      startDate: this.startDate
     };
   }
 
@@ -253,10 +254,7 @@ export default class Trip {
    * adds a default stop when stop list is empty
    * !important does nothing if there is already a stop
    */
-  addFallbackStop(
-    payloadDepartureDate: string,
-    timeStamp: string | number | Date
-  ) {
+  addFallbackStop(payloadDepartureDate: string) {
     if (this.stopList.length === 0) {
       let depatureDate = null;
       if (payloadDepartureDate) {
@@ -270,7 +268,6 @@ export default class Trip {
 
       let stop = new Stop(
         0,
-        depatureDate || new Date(timeStamp),
         1,
         new PointLocation(52.5170365, 13.3888599, "Berlin, 10117, Germany")
       );
@@ -287,6 +284,10 @@ export default class Trip {
     return this.userId;
   }
 
+  getStopList() {
+    return this.stopList;
+  }
+
   /**
    * sets a new stop list
    * @param {Stop[]} stopList
@@ -301,5 +302,10 @@ export default class Trip {
    */
   addStop(stop: Stop) {
     this.stopList.push(stop);
+  }
+
+  removeStop(stopId: number) {
+    let index = this.stopList.findIndex(x => x.getStopId() === stopId);
+    if (index >= 0) this.stopList.splice(index, 1);
   }
 }

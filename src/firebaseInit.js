@@ -72,7 +72,7 @@ const auth = {
       .signOut()
       .then(r => {
         store.dispatch("tripList/resetCachedTrips");
-        router.push("/");
+        router.push("/Login");
       });
   },
   authRef() {

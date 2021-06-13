@@ -11,7 +11,6 @@ export default class hotel extends Stop {
 
   constructor(
     stopId: number,
-    startDate: Date,
     dayDuration: number,
     location: pointLocation,
     bookingComLink: string,
@@ -20,7 +19,7 @@ export default class hotel extends Stop {
     hotelStars: number,
     hotelPrice: number
   ) {
-    super(stopId, startDate, dayDuration, location);
+    super(stopId, dayDuration, location);
 
     this.bookingComLink = bookingComLink;
     this.generalLink = generalLink;

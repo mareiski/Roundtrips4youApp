@@ -1,10 +1,13 @@
 <template>
   <q-card
     style="height:100%; width:100%; padding-top:80px;"
-    class="flex justify-between flex-direction-col"
+    class="flex justify-between flex-direction-col flex-nowrap"
   >
     <q-tab-panels v-model="step" animated class="shadow-2 rounded-borders fit">
-      <q-tab-panel :name="1" class="flex justify-between flex-direction-col">
+      <q-tab-panel
+        :name="1"
+        class="flex justify-between flex-direction-col flex-nowrap"
+      >
         <div>
           <q-card-section>
             <div class="flex justify-center">
@@ -38,7 +41,10 @@
           >
         </q-card-actions>
       </q-tab-panel>
-      <q-tab-panel :name="2" class="flex justify-between flex-direction-col">
+      <q-tab-panel
+        :name="2"
+        class="flex justify-between flex-direction-col flex-nowrap"
+      >
         <q-card-section>
           <geocoder @inputCountry="e => (country = e)"></geocoder>
           <public-trip-list
@@ -46,19 +52,6 @@
             :title="title"
           ></public-trip-list>
         </q-card-section>
-
-        <q-card-actions
-          class="flex justify-center"
-          style="padding-bottom:30px;"
-        >
-          <q-btn
-            :disable="title == null || title.length <= 0"
-            color="primary"
-            outline
-            @click="step = 2"
-            >Fertig</q-btn
-          >
-        </q-card-actions>
       </q-tab-panel>
     </q-tab-panels>
   </q-card>

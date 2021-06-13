@@ -3,14 +3,11 @@ export default {
   manageRoutes(router) {
     return new Promise(resolve => {
       try {
-        let loggedIn = auth.user() !== null;
-
-        if (!loggedIn) {
-          router.push("/login");
-        }
-
         auth.authRef().onAuthStateChanged(() => {
           router.beforeEach((to, from, next) => {
+            // leave this here, its not working elsewhere
+            let loggedIn = auth.user() !== null;
+
             let requireAuth = to.matched.some(
               record => record.meta.requireAuth
             );

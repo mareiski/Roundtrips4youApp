@@ -7,6 +7,7 @@
         arrows
         infinite
         v-model="slideNum"
+        v-show="data.buttons"
         height="100px"
       >
         <q-carousel-slide
@@ -20,13 +21,18 @@
       </q-carousel>
       <q-card :class="max ? 'dialog-max-height' : 'dialog-min-height'">
         <q-card-section class="column" style="height: 120px">
-          <div class="row flex justify-between no-wrap" @click="max = !max">
+          <div
+            class="row flex justify-between no-wrap"
+            @click="data.buttons ? (max = !max) : false"
+          >
             <div>
               <div class="text-weight-bold text-secondary">
                 {{ data.title }}
               </div>
               <div class="text-grey">
-                <q-icon name="location_on" />{{ data.subtitle }}
+                <q-icon v-show="data.locationIcon" name="location_on" />{{
+                  data.subtitle
+                }}
               </div>
             </div>
             <q-icon
@@ -34,10 +40,12 @@
               style="transition: 0.2s all;"
               name="expand_less"
               size="sm"
+              v-show="data.buttons"
             />
           </div>
           <div class="flex justify-end" style="margin-top:10px;">
             <q-btn
+              v-show="data.buttons"
               style="margin-right:5px"
               flat
               color="secondary"
@@ -45,17 +53,44 @@
             >
               <q-menu>
                 <q-list style="min-width: 100px" class="text-secondary">
-                  <q-item clickable v-close-popup>
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="addStop()"
+                    v-show="data.alreadyAdded"
+                  >
                     <q-item-section>Erneut hinzufügen</q-item-section>
+                  </q-item>
+                  <q-item
+                    clickable
+                    v-close-popup
+                    @click="$router.push('/Liste/' + data.TripId)"
+                  >
+                    <q-item-section>Neu anordnen</q-item-section>
                   </q-item>
                   <q-item clickable v-close-popup @click="max = !max">
                     <q-item-section>Infos</q-item-section>
                   </q-item>
+                  <q-item
+                    v-show="data.alreadyAdded"
+                    @click="deleteStop(data.stopId)"
+                    clickable
+                    v-close-popup
+                  >
+                    <q-item-section>Löschen</q-item-section>
+                  </q-item>
                 </q-list>
               </q-menu>
             </q-btn>
-            <!-- add or delete depending if already added -->
-            <q-btn icon="add" outline color="primary" label="Hinzufügen" />
+            <!-- add or edit depending if already added -->
+            <q-btn
+              icon="add"
+              outline
+              color="primary"
+              v-show="data.buttons"
+              @click="addStop()"
+              :label="data.alreadyAdded ? 'Bearbeiten' : 'Hinzufügen'"
+            />
           </div>
         </q-card-section>
         <q-card-section
@@ -78,7 +113,13 @@
 </template>
 
 <script>
+import Stop from "src/classes/stop";
 import ImageDialog from "../ImageDialog.vue";
+import PointLocation from "src/classes/pointLocation";
+import { uuid } from "vue-uuid";
+
+let timeStamp;
+
 export default {
   components: { ImageDialog },
   props: {
@@ -101,6 +142,29 @@ export default {
     showImageDialog(src) {
       this.imageDialogSrc = src;
       this.imageDialogShowed = true;
+    },
+    addStop() {
+      timeStamp = Date.now();
+
+      // stop id ist time in millis
+      let stop = new Stop(
+        uuid.v4() + timeStamp,
+        1,
+        PointLocation.fromObject(this.data.location)
+      );
+      this.$store.dispatch("tripList/addStop", {
+        stop: stop,
+        TripId: this.data.TripId,
+        isUserTrip: true
+      });
+    },
+    deleteStop(stopId) {
+      this.$store.dispatch("tripList/deleteStop", {
+        stopId: stopId,
+        TripId: this.data.TripId,
+        isUserTrip: true
+      });
+      this.dialogShowed = false;
     }
   },
   computed: {

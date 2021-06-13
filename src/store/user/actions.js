@@ -1,5 +1,5 @@
 import { auth } from "../../firebaseInit.js";
-import sharedMethods from "sharedMethods.js";
+import sharedMethods from "../../../sharedMethods.js";
 const getFirebase = () => import("firebase");
 
 export default {
@@ -7,25 +7,29 @@ export default {
     commit("setUser", auth.user());
   },
   login: ({ commit }, payload) => {
-    auth
-      .authRef()
-      .signInWithEmailAndPassword(payload.email, payload.password)
-      .then(function() {
-        commit("demoSession/resetRoundtrip");
-        payload.context.$router.replace({ path: "/meine-rundreisen" });
-      })
-      .catch(function(error) {
-        console.log(error);
-        if (error.code === "auth/user-not-found") {
-          sharedMethods.showErrorNotification(
-            "Dieser Benutzer existiert nicht"
-          );
-        } else {
-          sharedMethods.showErrorNotification(
-            "Das Passwort oder der Benutzername ist leider falsch"
-          );
-        }
-      });
+    return new Promise(resolve => {
+      auth
+        .authRef()
+        .signInWithEmailAndPassword(payload.email, payload.password)
+        .then(function() {
+          commit("demoSession/resetRoundtrip");
+          resolve(true);
+          payload.context.$router.replace({ path: "/" });
+        })
+        .catch(function(error) {
+          console.log(error);
+          resolve(false);
+          if (error.code === "auth/user-not-found") {
+            sharedMethods.showErrorNotification(
+              "Dieser Benutzer existiert nicht"
+            );
+          } else {
+            sharedMethods.showErrorNotification(
+              "Das Passwort oder der Benutzername ist leider falsch"
+            );
+          }
+        });
+    });
   },
   signInOrUpWithGoogle(payload) {
     return new Promise(resolve => {
@@ -47,7 +51,7 @@ export default {
             auth
               .signInWithCredential(credential)
               .then(function() {
-                payload.context.$router.replace("meine-rundreisen");
+                payload.context.$router.replace("/");
                 resolve(true);
               })
               .catch(function(error) {
@@ -104,7 +108,7 @@ export default {
 
             if (payload.context.$store.getters["demoSession/isInDemoSession"]) {
               payload.context.$store
-                .dispatch("demoSession/saveRoundtrip", user.user.uid)
+                .dispatch("demoSession/saveRoundtrip", user.user().uid)
                 .then(newTripId => {
                   // evt.target.submit()
                   payload.context.$router.replace(
@@ -114,7 +118,7 @@ export default {
                 });
             } else {
               evt.target.submit();
-              payload.context.$router.replace("meine-rundreisen");
+              payload.context.$router.replace("/");
               resolve(true);
             }
           },
@@ -130,11 +134,13 @@ export default {
     });
   },
   createUserEntry(user) {
+    const timeStamp = Date.now();
+
     db.collection("User").add({
       Reputation: 0,
       UserImage: user.user.photoURL,
       UserName: user.user.displayName,
-      UserUID: user.user.uid,
+      UserUID: user.user().uid,
       createdAt: new Date(timeStamp)
     });
 

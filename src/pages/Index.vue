@@ -65,7 +65,6 @@
 </template>
 
 <script>
-import Trip from "../classes/trip.ts";
 export default {
   name: "PageIndex",
   data() {

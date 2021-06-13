@@ -4,11 +4,12 @@
       color="white"
       text-color="secondary"
       icon="layers"
+      round
       style="position:absolute; right:9px; top:175px;"
     >
       <q-tooltip>Kartendesign</q-tooltip>
       <q-menu>
-        <q-list style="min-width: 100px">
+        <q-list style="min-width: 100px" class="text-secondary">
           <q-item clickable @click="switchMapStyle(null)" v-close-popup>
             <q-item-section>Standard</q-item-section>
           </q-item>

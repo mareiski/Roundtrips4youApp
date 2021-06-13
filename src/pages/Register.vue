@@ -1,7 +1,9 @@
 <template>
   <div class="register q-px-lg q-pb-md">
-    <h1>Registrieren</h1>
-    <p style="text-align:center; font-size:20px; padding-bottom:10px;">
+    <div class="width-80-percent">
+      <h4>Registrieren</h4>
+    </div>
+    <p style="padding-bottom:10px;" class="text-secondary align-center">
       {{
         !isInDemoSession
           ? "Starte jetzt durch und nutze all unsere Funktionen komplett kostenlos"
@@ -12,7 +14,6 @@
       @submit="signUp"
       bordered
       class="q-gutter-md rounded-borders flex column"
-      style="align-items:center;"
     >
       <!-- add this above for auto mailchimp subcribtion action="https://roundtrips4you.us18.list-manage.com/subscribe/post?u=ca8f607f808c8e5a9812aec8f&id=c64c971288&gdpr[71542]=true" -->
       <q-input
@@ -27,6 +28,7 @@
         label="Email"
         lazy-rules
         name="EMAIL"
+        style="padding:0;"
       />
       <q-input
         v-model="password"
@@ -34,6 +36,7 @@
         :type="isPwd ? 'password' : 'text'"
         label="neues Passwort"
         lazy-rules
+        style="padding:0;"
         :rules="[
           val =>
             (val !== null && val !== '') || 'Bitte gib dein neues Passwort ein'
@@ -53,6 +56,7 @@
         :type="isPwdRepeat ? 'password' : 'text'"
         label="neues Passwort wiederholen"
         lazy-rules
+        style="padding:0;"
         :rules="[
           val =>
             (val !== null && val !== '') || 'Bitte wiederhole dein Passwort',
@@ -75,8 +79,9 @@
           label="Registrieren"
           class="q-mt-md"
           color="primary"
+          outline
           text-color="white"
-          style="width:300px;"
+          style="width:300px; margin:0;"
         >
           <template v-slot:loading>
             <q-spinner />
@@ -85,12 +90,16 @@
       </div>
     </q-form>
     <div class="google-form">
-      <span style="text-align:center;">oder</span><br />
+      <div class="flex justify-center">
+        <span class="text-secondary">oder</span>
+      </div>
+      <br />
       <q-btn
         :loading="googleLoading"
         label="google konto verwenden"
-        class="q-mt-md google-btn"
-        style="width:300px;"
+        class="q-mt-md google-btn text-secondary"
+        style="width:300px; margin:0;"
+        outline
         icon="fab fa-google"
         @click="signUpWithGoogle()"
       >
@@ -99,18 +108,26 @@
         </template>
       </q-btn>
     </div>
-    <p style="text-align:center;">
-      Mit der Registrierung stimmst du zu das wir dir Emails an deine angegebene
-      Adresse senden dürfen.
-    </p>
     <br />
-    <div class="legal-container">
+    <div class="text-secondary">
+      Du hast bereits einen Account?
+      <router-link to="/Login" class="text-secondary"
+        >Jetzt anmelden</router-link
+      >
+    </div>
+    <br />
+    <div style="padding-top:30px">
+      <p class="text-secondary">
+        Mit der Registrierung stimmst du zu das wir dir Emails an deine
+        angegebene Adresse senden dürfen.
+      </p>
       <q-list bordered>
         <q-expansion-item
+          class="text-secondary"
           label=" Warum muss man sich bei Roundtrips4you registrieren?"
         >
           <q-card>
-            <q-card-section>
+            <q-card-section class="text-secondary">
               <p>
                 Bei uns musst du dich nur Registrieren, damit wir deine Reisen
                 auch dir zuordnen können.
@@ -135,11 +152,6 @@
           </q-card>
         </q-expansion-item>
       </q-list>
-    </div>
-    <br />
-    <div style="font-size:18px; text-align:center;">
-      Du hast bereits einen Account?
-      <router-link to="/login">Jetzt Anmelden</router-link>
     </div>
     <q-dialog v-model="showCancelDialog" persistent>
       <q-card style="min-width: 350px">

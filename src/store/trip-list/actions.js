@@ -13,7 +13,7 @@ export default {
     return new Promise((resolve, reject) => {
       // check if this trip already exists
       let trip = getters.getSingleTrip(payload.TripId);
-      if (trip) {
+      if (trip && !payload.forceRefresh) {
         resolve(trip);
       } else {
         // fetch this trip only

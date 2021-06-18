@@ -15,7 +15,12 @@ export default {
    * @param {Trip} trip
    */
   addTrip: (state, trip) => {
-    state.TripList.push(trip);
+    let index = state.TripList.findIndex(x => x.TripId === trip.TripId);
+    if (index === -1) {
+      state.TripList.push(trip);
+    } else {
+      state.TripList[index] = trip;
+    }
   },
   /**
    * @param {Number} roundtripDocId

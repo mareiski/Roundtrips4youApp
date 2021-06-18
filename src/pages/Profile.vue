@@ -19,51 +19,34 @@
       <q-separator />
 
       <q-tab-panels v-model="tab" keep-alive animated>
-        <q-tab-panel name="publicProfile">
+        <q-tab-panel
+          name="publicProfile"
+          class="text-secondary"
+          style="height:400px"
+        >
+          Coming soon
           <public-user-profile></public-user-profile>
         </q-tab-panel>
         <q-tab-panel name="settings">
           <h5>Einstellungen</h5>
-          <q-form
-            @submit="onSaveUserSettings"
+          <q-list
             bordered
-            class="q-gutter-md rounded-borders"
+            class="rounded-borders"
+            style="padding:10px; margin-bottom:30px;"
           >
-            <q-list
-              bordered
-              class="rounded-borders"
-              style="padding:10px; margin-bottom:30px;"
-            >
-              <q-input
-                v-model="userDisplayName"
-                outlined
-                :rules="[
-                  val =>
-                    (val !== null &&
-                      val !== '' &&
-                      (user.displayName === val || uniqueUserName(val))) ||
-                    'Bitte wähle einen Benutzernamen'
-                ]"
-                label="Benutzername"
-                lazy-rules
-              />
-
-              <div class="row">
-                <q-btn
-                  type="submit"
-                  :loading="submitting"
-                  label="Speichern"
-                  class="q-mt-md"
-                  color="primary"
-                  text-color="white"
-                >
-                  <template v-slot:loading>
-                    <q-spinner />
-                  </template>
-                </q-btn>
-              </div>
-            </q-list>
-          </q-form>
+            <q-input
+              v-model="userDisplayName"
+              outlined
+              :rules="[
+                val =>
+                  (val !== null && val !== '' && user.displayName === val) ||
+                  'Bitte wähle einen anderen Benutzernamen'
+              ]"
+              label="Benutzername"
+              @blur="userNameChanged()"
+              lazy-rules
+            />
+          </q-list>
           <q-form
             @submit="onSaveUserPass"
             bordered
@@ -79,7 +62,7 @@
               >
                 <template v-slot:header>
                   <q-item-section style="align-items: center;">
-                    <span>Passwort ändern</span>
+                    <span class="text-secondary">Passwort ändern</span>
                   </q-item-section>
                 </template>
                 <div style="padding:10px;">
@@ -130,8 +113,8 @@
                       :loading="submitting"
                       label="Speichern"
                       class="q-mt-md"
-                      color="primary"
-                      text-color="white"
+                      color="secondary"
+                      outline
                     >
                       <template v-slot:loading>
                         <q-spinner />
@@ -142,23 +125,33 @@
               </q-expansion-item>
             </q-list>
           </q-form>
-          <h5>Logout</h5>
-          <q-btn label="Logout" @click="logOut()" />
-          <h5>Danger Zone</h5>
+          <q-toggle
+            label="Dark Mode"
+            v-model="darkModeEnabled"
+            @input="$q.dark.set(darkModeEnabled)"
+          ></q-toggle>
+          <h5 style="padding-top:25px;">Logout</h5>
+          <q-btn
+            class="text-secondary full-width"
+            outline
+            label="Logout"
+            @click="logOut()"
+          />
+          <h5 style="padding-top:30px;">Danger Zone</h5>
           <q-list
             bordered
             class="rounded-borders"
             style="padding:10px; border-color:red;"
           >
-            <p style="font-size:18px;">
+            <p class="text-secondary">
               Dieses Konto und alle enthaltenen Inhalte löschen
             </p>
             <q-btn
+              outline
               :loading="deleting"
               label="Löschen"
               class="q-mt-md"
-              color="primary"
-              text-color="white"
+              color="secondary"
               @click="deleteDialog = true"
             >
               <template v-slot:loading>
@@ -178,7 +171,7 @@
                 <q-card-actions align="right">
                   <q-btn flat label="Abbrechen" color="primary" v-close-popup />
                   <q-btn
-                    flat
+                    outline
                     label="Konto Löschen"
                     @click="deleteAccount()"
                     color="primary"
@@ -195,7 +188,7 @@
 </template>
 
 <script>
-import { auth, storage, db } from "../firebaseInit.js";
+import { auth, db } from "../firebaseInit.js";
 import sharedMethods from "../../sharedMethods.js";
 
 export default {
@@ -212,21 +205,19 @@ export default {
   name: "profile",
   data() {
     return {
-      UserDisplayName: "",
-      UserEmail: "",
+      userDisplayName: "",
+      userEmail: "",
       submitting: false,
-      titleImgUrl: "",
+      imageUrl: "",
       password: "",
       isPwd: true,
       passwordRepeat: "",
       isPwdRepeat: true,
       deleteDialog: false,
       deleting: false,
-      CompanyWebsite: null,
-      companyProfile: false,
-      companyDescription: null,
       tab: "settings",
-      addExpanded: false
+      addExpanded: false,
+      darkModeEnabled: false
     };
   },
   computed: {
@@ -240,7 +231,47 @@ export default {
   methods: {
     logOut() {
       auth.logout(this.$router, this.$store);
+    },
+    onSaveUserPass() {
+      auth
+        .user()
+        .updatePassword(this.password)
+        .then(function() {
+          sharedMethods.showSuccessNotification("Passwort geändert");
+        })
+        .catch(function(error) {
+          console.log(error);
+          if (error.code === "auth/requires-recent-login") {
+            sharedMethods.showSuccessNotification(
+              "Bitte melde dich erneut an, bevor du dein Passwort änderst"
+            );
+          } else {
+            sharedMethods.showSuccessNotification(
+              "Es ist ein Fehler aufgetreten, bitte versuche es erneut"
+            );
+          }
+        });
+    },
+    userNameChanged() {
+      auth.user().updateProfile({
+        displayName: this.userDisplayName
+      });
+    },
+    userImageChange(url) {
+      auth.user().updateProfile({
+        photoURL: url
+      });
+    },
+    deleteAccount() {
+      this.$store.dispatch("user/deleteAccount", this);
     }
+  },
+  // todo user name should be unique https://stackoverflow.com/questions/35243492/firebase-android-make-username-unique
+  created() {
+    auth.authRef().onAuthStateChanged(() => {
+      this.userDisplayName = auth.user().displayName;
+      this.imageUrl = auth.user().photoURL;
+    });
   }
 };
 </script>

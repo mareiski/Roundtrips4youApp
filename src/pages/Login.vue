@@ -1,5 +1,5 @@
 <template>
-  <div class="login q-px-lg" style="overflow:hidden;">
+  <q-page class="flex justify-start flex-direction-col q-px-lg">
     <h4>Anmelden</h4>
     <p style="padding-bottom:10px;" class="text-secondary">
       Willkommen zurück, logge dich ein um deine Reisen zu bearbeiten
@@ -39,41 +39,51 @@
           />
         </template>
       </q-input>
-      <div style="padding:10px;">
-        <q-btn
-          type="submit"
-          :loading="loginLoading"
-          label="Login"
-          class="q-mt-md"
-          color="primary"
-          outline
-          style="width:300px;"
-        >
-          <template v-slot:loading>
-            <q-spinner />
-          </template>
-        </q-btn>
-      </div>
-    </q-form>
-    <div class="flex justify-center">
       <q-btn
-        label="Passwort vergessen"
-        class="q-mt-md text-secondary"
-        style="width:300px;"
+        type="submit"
+        :loading="loginLoading"
+        label="Login"
+        class="q-mt-md"
+        color="primary"
         outline
-        @click="showResetPasswordDialog = true"
+        style="width:300px;"
       >
+        <template v-slot:loading>
+          <q-spinner />
+        </template>
       </q-btn>
+    </q-form>
+    <q-btn
+      :loading="googleLoading"
+      outline
+      label="Anmelden mit Google"
+      class="q-mt-md google-btn text-secondary"
+      style="width:300px; text-transform:none; margin-top: 0"
+      icon="fab fa-google"
+      @click="signInWithGoogle()"
+    >
+      <template v-slot:loading>
+        <q-spinner />
+      </template>
+    </q-btn>
+    <div class="flex justify-center">
+      <p
+        @click="showResetPasswordDialog = true"
+        class="q-mt-md text-secondary underlined"
+      >
+        Passwort vergessen
+      </p>
     </div>
     <q-dialog v-model="showResetPasswordDialog">
-      <q-card>
-        <q-card-section class="row items-center">
+      <q-card style="width:100%; max-width:100vh;">
+        <q-card-section class="flex justify-center">
           <q-input
             v-model="userEmail"
             outlined
             type="email"
             outline
             lazy-rules
+            style="width:100%;"
             :rules="[
               val => (val !== null && val !== '') || 'Bitte gib eine Email an',
               val =>
@@ -84,10 +94,10 @@
           />
         </q-card-section>
 
-        <q-card-actions align="right">
+        <q-card-actions align="right" class="flex">
           <q-btn
             outline
-            label="Passwort zurücksetzen"
+            label="Zurücksetzen"
             @click="resetPassword()"
             color="primary"
             v-close-popup
@@ -96,24 +106,6 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-    <div class="google-form" style="padding-top:10px;">
-      <div class="flex justify-center">
-        <span class="text-secondary">oder</span>
-      </div>
-      <q-btn
-        :loading="googleLoading"
-        outline
-        label="Anmelden mit Google"
-        class="q-mt-md google-btn text-secondary"
-        style="width:300px; text-transform:none;"
-        icon="fab fa-google"
-        @click="signInWithGoogle()"
-      >
-        <template v-slot:loading>
-          <q-spinner />
-        </template>
-      </q-btn>
-    </div>
     <br />
     <div class="text-secondary" style="text-align:center; width:100%;">
       Du hast noch kein Konto?
@@ -121,7 +113,7 @@
         >Jetzt registrieren</router-link
       >
     </div>
-  </div>
+  </q-page>
 </template>
 <script>
 import sharedMethods from "../../sharedMethods.js";

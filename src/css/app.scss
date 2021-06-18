@@ -28,6 +28,11 @@ h6 {
     position: absolute;
 }
 
+.q-item--active {
+    background: $primary;
+    color: white;
+}
+
 .q-page {
     padding-top: 20px;
 
@@ -76,6 +81,25 @@ h6 {
 
 .rotate {
     transform: rotate(180deg);
+}
+
+a {
+    text-decoration: none;
+}
+
+.underlined {
+    text-decoration: underline;
+}
+
+.fa-google {
+    content: url("../assets/google.svg");
+}
+
+.ellipsis-8-lines {
+    -webkit-line-clamp: 8;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
 }
 
 footer {

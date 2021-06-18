@@ -8,6 +8,7 @@
       @click="$emit('click')"
       color="secondary"
       icon="chevron_left"
+      size="lg"
       flat
       :ripple="false"
     >

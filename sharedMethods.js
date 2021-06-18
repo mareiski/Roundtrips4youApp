@@ -1,5 +1,7 @@
 import { Notify } from "quasar";
 const getAxios = () => import("axios");
+import wiki from "wikijs";
+import { Loader } from "@googlemaps/js-api-loader";
 
 export default {
   /**
@@ -67,6 +69,108 @@ export default {
       }
     }
     return false;
+  },
+  /**
+   * gets data from wikivoyage/wikipedia for a given page name
+   * @param {string} pageName the page name to get data from
+   * @returns {object} object that contains mainImage, shortDescription, description and imgSrcs for the given page
+   */
+  getWikivoyageData(pageName) {
+    let returnData = {};
+    let promiseList = [];
+
+    return new Promise((resolve, reject) => {
+      wiki({ apiUrl: "https://de.wikipedia.org/w/api.php" })
+        .find(pageName)
+        .then(page => {
+          promiseList.push(
+            page.categories().then(categories => {
+              let category = categories[1].split("Kategorie:")[1];
+              returnData.shortDescription = category;
+            }),
+            page.summary().then(summary => {
+              returnData.description = summary;
+            }),
+            page.mainImage().then(mainImage => {
+              returnData.mainImage = mainImage;
+            }),
+            page.images().then(images => {
+              returnData.imgSrcs = images;
+            })
+          );
+
+          Promise.all(promiseList)
+            .then(() => {
+              let returnImgs = [];
+              returnData.imgSrcs.forEach((image, index) => {
+                // add only if not svg
+                if (image.match(/\.(jpeg|jpg|png)$/)) returnImgs.push(image);
+                if (index === returnData.imgSrcs.length - 1) {
+                  returnData.imgSrcs = returnImgs;
+                  resolve(returnData);
+                }
+              });
+            })
+            .catch(function(error) {
+              console.log("Error " + error);
+              resolve(null);
+            });
+        });
+    });
+  },
+  getGooglePlacesData(lat, lng, context) {
+    let key = context.$store.getters["api/getGooglePlacesKey"];
+    return new Promise(resolve => {
+      const loader = new Loader({
+        apiKey: key,
+        version: "weekly",
+        libraries: ["places"]
+      });
+
+      // google is available here
+      loader.load().then(() => {
+        // eslint-disable-next-line no-undef
+        let map = new google.maps.Map(document.createElement("div"), {});
+
+        // eslint-disable-next-line no-undef
+        let service = new google.maps.places.PlacesService(map);
+
+        let request = {
+          radius: 5000,
+          language: "de",
+          type: "tourist_attraction",
+          location: { lat: parseFloat(lat), lng: parseFloat(lng) }
+        };
+
+        service.nearbySearch(request, response => {
+          let returnDataArr = [];
+
+          response.forEach(poi => {
+            let returnData = {};
+            returnData.name = poi.name;
+            returnData.photoUrl = poi.photos
+              ? poi.photos[0].getUrl()
+              : "/statics/dummy-image-landscape-1-150x150.jpg";
+            returnData.placeId = poi.place_id;
+            returnData.rating = poi.rating;
+            returnData.totalRatings = poi.user_ratings_total;
+            returnData.location = poi.geometry.location;
+            returnData.location.lat = returnData.location.lat();
+            returnData.location.lng = returnData.location.lng();
+            returnData.nowOpen = poi.opening_hours
+              ? poi.opening_hours.open_now
+              : false;
+
+            returnData.location.label = poi.vicinity;
+            returnData.tags = poi.types;
+
+            returnDataArr.push(returnData);
+          });
+
+          resolve(returnDataArr);
+        });
+      });
+    });
   },
   /**
    * makes a new request to given url

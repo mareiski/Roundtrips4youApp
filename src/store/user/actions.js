@@ -45,7 +45,9 @@ export default {
               .GoogleAuthProvider()
               .credential(token);
 
-            if (payload.signUp) context.createUserEntry(result.user);
+            if (payload.signUp) {
+              dispatch("createUserEntry");
+            }
 
             // Sign in with credential from the Google user.
             auth
@@ -91,16 +93,14 @@ export default {
         });
     });
   },
-  signUp(payload) {
+  signUp({ dispatch }, payload) {
     return new Promise(resolve => {
-      let context = this;
-
       auth
         .authRef()
         .createUserWithEmailAndPassword(payload.email, payload.password)
         .then(
           user => {
-            context.createUserEntry(user);
+            dispatch("createUserEntry");
 
             sharedMethods.showSuccessNotification(
               "Juhuuu dein Konto wurde erfolgreich erstellt"
@@ -133,22 +133,57 @@ export default {
         );
     });
   },
-  createUserEntry(user) {
+  updateUserReputation(reputation) {
+    let roundtripsRef = db
+      .collection("User")
+      .where("UserUID", "==", auth.user().uid)
+      .limit(1);
+    roundtripsRef.get().then(snapshot => {
+      snapshot.forEach(doc => {
+        db.collection("User")
+          .doc(doc.id)
+          .update({ reputation: reputation });
+      });
+    });
+  },
+  deleteAccount(context) {
+    auth
+      .user()
+      .delete()
+      .then(function() {
+        sharedMethods.showSuccessNotification(
+          "Schade, dein Konto wurde gelöscht"
+        );
+        context.$router.push("/");
+      })
+      .catch(function(error) {
+        console.log(error);
+        if (error.code === "auth/requires-recent-login") {
+          sharedMethods.showSuccessNotification(
+            "Bitte melde dich erneut an, bevor du dein Konto löscht"
+          );
+        } else {
+          sharedMethods.showSuccessNotification(
+            "Es ist ein Fehler aufgetreten, dein Konto konnte nicht gelöscht werden"
+          );
+        }
+      });
+  },
+  createUserEntry() {
     const timeStamp = Date.now();
 
     db.collection("User").add({
-      Reputation: 0,
-      UserImage: user.user.photoURL,
-      UserName: user.user.displayName,
-      UserUID: user.user().uid,
+      reputation: 0,
+      userUID: auth.user().uid,
       createdAt: new Date(timeStamp)
     });
 
-    this.verifyMail(user.user);
+    dispatch("verifyMail");
   },
-  verifyMail(user) {
-    if (!user.emailVerified) {
-      user
+  verifyMail() {
+    if (!auth.user().emailVerified) {
+      auth
+        .user()
         .sendEmailVerification(actionCodeSettings)
         .then(function() {
           sharedMethods.showSuccessNotification(

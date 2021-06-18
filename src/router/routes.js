@@ -3,9 +3,10 @@ const routes = [
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
     children: [
-      { path: "", component: () => import("pages/Index.vue") },
+      { path: "", name: "index", component: () => import("pages/Index.vue") },
       {
         path: "/Registrieren",
+        name: "register",
         component: () => import("pages/Register.vue"),
         meta: {
           guestOnly: true
@@ -14,26 +15,34 @@ const routes = [
       {
         path: "Login",
         component: () => import("pages/Login.vue"),
+        name: "login",
         meta: {
           guestOnly: true
         }
       },
       {
         path: "/Karte/:tripId",
+        name: "map",
         component: () => import("src/pages/Map.vue")
       },
       {
         path: "/Liste/:tripId",
+        name: "list",
         component: () => import("src/pages/StopList.vue")
       },
       {
         path: "/Profil",
+        name: "profile",
         component: () => import("src/pages/Profile.vue"),
         meta: {
           requireAuth: true
         }
       },
-      { path: "/Suche", component: () => import("src/pages/TripSearch.vue") }
+      {
+        path: "/Inspiration",
+        name: "search",
+        component: () => import("src/pages/TripInspiration.vue")
+      }
     ]
   },
 

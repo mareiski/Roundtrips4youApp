@@ -1,15 +1,17 @@
 <template>
   <div style="overflow:hidden;" class="map fit">
-    <div
-      class="bg-white full-width flex justify-between text-secondary"
-      style="height:30px; padding: 5px 10px;"
-    >
-      <div>
-        <back-button :top="-1" @click="$router.push('/')"></back-button>
+    <q-pull-to-refresh @refresh="getTrip">
+      <div
+        class="bg-white full-width flex justify-between text-secondary"
+        style="height:35px; padding: 5px 10px;"
+      >
+        <div>
+          <back-button :top="-8" @click="$router.push('/')"></back-button>
+        </div>
+        <b class="raleway text-primary">{{ trip.title }}</b>
+        <q-icon name="settings" size="sm" />
       </div>
-      <b class="raleway text-primary">{{ trip.title }}</b>
-      <q-icon name="settings" size="sm" />
-    </div>
+    </q-pull-to-refresh>
     <q-inner-loading :showing="mapLoading" style="z-index: 1;">
       <q-spinner size="42px" color="primary"> </q-spinner>
       <p class="font-medium" style="margin-top:10px;">Karte wird geladen</p>
@@ -39,12 +41,16 @@
         text-color="secondary"
         icon="list"
         round
-        @click="$router.push('/Liste/' + trip.TripId)"
+        @click="[hideBottomDialog(), $router.push('/Liste/' + trip.TripId)]"
         style="position:absolute; right:9px; top:16px;"
       >
       </q-btn>
       <MglNavigationControl position="top-right" />
-      <MapLayerPlugin class="mapboxgl-ctrl" position="top-right" />
+      <MapLayerPlugin
+        @styleChanged="addAllRoutes()"
+        class="mapboxgl-ctrl"
+        position="top-right"
+      />
 
       <template v-if="trip">
         <MglMarker
@@ -153,6 +159,7 @@
     <bottom-dialog
       v-model="bottomDialogShowed"
       :data="dialogObject"
+      @poiClicked="flyTo($event)"
     ></bottom-dialog>
   </div>
 </template>
@@ -240,14 +247,7 @@ export default {
       });
 
       // recalculate all routes
-      if (newStopList) {
-        newStopList.forEach((stop, index) => {
-          // add route from last to this stop
-          if (index > 0) {
-            this.addRoute(this.trip.stopList[index - 1], stop, index);
-          }
-        });
-      }
+      this.addAllRoutes();
 
       // hide dialog always if a stop was added or removed
       this.hideBottomDialog();
@@ -267,8 +267,32 @@ export default {
       }, 1000);
 
       // try to get routes again
+      this.addAllRoutes();
+    },
+    flyTo(event) {
+      this.lastClickCoordinates = event;
+      this.showAddStopMarker = true;
+
+      setTimeout(
+        function() {
+          map.flyTo({
+            center: [event.lng, event.lat],
+            speed: 0.8,
+            curve: 1,
+            zoom: 14
+          });
+        },
+        map == null ? 3000 : 100
+      );
+    },
+    addAllRoutes() {
       if (this.trip && this.trip.stopList) {
+        this.bounds = [];
+
         this.trip.stopList.forEach((stop, index) => {
+          // ad bounds
+          this.bounds.push([stop.location.lng, stop.location.lat]);
+
           // add route from last to this stop
           if (index > 0) {
             this.addRoute(this.trip.stopList[index - 1], stop, index);
@@ -355,7 +379,9 @@ export default {
       //this.loadMarkerInfos(placeName)
       this.showBottomDialogFromLastClick();
     },
-    getTrip(userTrip) {
+    getTrip(done) {
+      let userTrip = auth.user() !== null;
+
       this.$store
         .dispatch("tripList/fetchSingleTrip", {
           isUserTrip: userTrip,
@@ -363,15 +389,8 @@ export default {
         })
         .then(fetchedTrip => {
           this.trip = fetchedTrip;
-
-          this.trip.stopList.forEach((stop, index) => {
-            this.bounds.push([stop.location.lng, stop.location.lat]);
-
-            // add route from last to this stop
-            if (index > 0) {
-              this.addRoute(this.trip.stopList[index - 1], stop, index);
-            }
-          });
+          this.addAllRoutes();
+          if (done) done();
         });
     },
     addRoute(startStop, endStop, index) {
@@ -557,12 +576,7 @@ export default {
         TripId: this.TripId,
         alreadyAdded: alreadyAdded,
         buttons: buttons,
-        locationIcon: subtitle === stop.location.label,
-        imgUrls: [
-          "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Forbisreisen.com%2Fwp-content%2Fuploads%2F2018%2F04%2Freisen.jpg&f=1&nofb=1",
-          "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Forbisreisen.com%2Fwp-content%2Fuploads%2F2018%2F04%2Freisen.jpg&f=1&nofb=1",
-          "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Forbisreisen.com%2Fwp-content%2Fuploads%2F2018%2F04%2Freisen.jpg&f=1&nofb=1"
-        ]
+        locationIcon: subtitle === stop.location.label
       };
 
       let context = this;
@@ -629,9 +643,8 @@ export default {
     map = null;
 
     this.TripId = this.$route.params.tripId;
-    let loggedIn = auth.user() !== null;
 
-    this.getTrip(loggedIn);
+    this.getTrip();
   }
 };
 </script>

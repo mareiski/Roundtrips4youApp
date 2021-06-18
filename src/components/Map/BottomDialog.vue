@@ -3,15 +3,15 @@
     <q-dialog seamless v-model="dialogShowed" position="bottom">
       <q-carousel
         animated
-        autoplay
+        :autoplay="7000"
         arrows
         infinite
         v-model="slideNum"
-        v-show="data.buttons"
+        v-show="data.buttons && imageSrcs.length > 0"
         height="100px"
       >
         <q-carousel-slide
-          v-for="(url, index) in data.imgUrls"
+          v-for="(url, index) in imageSrcs"
           :name="index"
           :key="index"
           :img-src="url"
@@ -20,7 +20,7 @@
         </q-carousel-slide>
       </q-carousel>
       <q-card :class="max ? 'dialog-max-height' : 'dialog-min-height'">
-        <q-card-section class="column" style="height: 120px">
+        <q-card-section class="column flex-nowrap" style="height: 120px">
           <div
             class="row flex justify-between no-wrap"
             @click="data.buttons ? (max = !max) : false"
@@ -95,13 +95,78 @@
         </q-card-section>
         <q-card-section
           class="row items-center no-wrap"
-          style="padding-top:30px;"
+          style="padding-top:30px; flex-direction:column;"
         >
-          <div>
-            <div class="text-secondary">
-              Beschreibung der stadt Sehenswürdigkeiten usw
-            </div>
+          <div
+            @click="textMax = !textMax"
+            :class="'text-secondary ' + (textMax ? '' : 'ellipsis-8-lines')"
+          >
+            {{ mainDescription }}
           </div>
+          <h6
+            class="bold text-secondary"
+            style="padding-top:20px; padding-bottom:10px;"
+          >
+            {{ suggestedPOIs.length }} Top Sehenswürdigkeiten
+          </h6>
+          <q-card
+            class="city-card cursor-pointer full-width"
+            style="margin-bottom:10px;"
+            v-for="(poi, index) in suggestedPOIs"
+            :key="index"
+            :id="'POI' + poi.name"
+            @click="
+              $emit('poiClicked', {
+                lat: poi.location.lat,
+                lng: poi.location.lng,
+                label: poi.name
+              })
+            "
+          >
+            <div>
+              <div>
+                <q-img
+                  :alt="'Bild von' + poi.name"
+                  v-if="poi.photoUrl"
+                  :src="poi.photoUrl"
+                  style="height:170px;"
+                  placeholder-src="statics/dummy-image-landscape-1-150x150.jpg"
+                >
+                  <div class="absolute-bottom text-h6 ellipsis">
+                    {{ poi.name }}
+                    <q-tooltip>{{ poi.name }}</q-tooltip>
+                  </div>
+                </q-img>
+              </div>
+
+              <div
+                class="text-secondary text-raleway"
+                style="padding-left:20px; padding-top:10px"
+              >
+                {{ poi.rating }}
+                <q-rating
+                  class="stars"
+                  :value="poi.rating"
+                  size="15px"
+                  color="gold"
+                  readonly
+                  style="margin-right:10px;"
+                />
+                ({{ poi.totalRatings }})
+              </div>
+              <a
+                :href="
+                  'https://www.google.com/maps/search/?api=1&query=' + poi.name
+                "
+                target="_blank"
+              >
+                <q-card-section class="text-secondary">
+                  <q-icon name="location_on" />
+                  {{ poi.location.label }}
+                </q-card-section>
+              </a>
+            </div>
+          </q-card>
         </q-card-section>
       </q-card>
     </q-dialog>
@@ -117,6 +182,7 @@ import Stop from "src/classes/stop";
 import ImageDialog from "../ImageDialog.vue";
 import PointLocation from "src/classes/pointLocation";
 import { uuid } from "vue-uuid";
+import sharedMethods from "../../../sharedMethods.js";
 
 let timeStamp;
 
@@ -130,9 +196,44 @@ export default {
     return {
       slideNum: 0,
       max: false,
+      imageSrcs: [],
       imageDialogShowed: false,
-      imageDialogSrc: ""
+      imageDialogSrc: "",
+      mainDescription: "",
+      textMax: false,
+      suggestedPOIs: []
     };
+  },
+  watch: {
+    showed: function(newState, oldState) {
+      if (!!newState) {
+        let title = this.data.title;
+
+        sharedMethods.getWikivoyageData(title).then(results => {
+          this.imageSrcs = results.imgSrcs;
+          this.imageSrcs[0] = results.mainImage;
+          this.mainDescription = results.description;
+        });
+      } else {
+        // reset data
+        this.imageSrcs = [];
+        this.mainDescription = "";
+      }
+    },
+    max: function(newState, oldState) {
+      if (!!newState) {
+        let location = PointLocation.fromObject(this.data.location);
+
+        let context = this;
+
+        sharedMethods
+          .getGooglePlacesData(location.lat, location.lng, context)
+          .then(result => {
+            context.suggestedPOIs = result;
+          });
+      } else {
+      }
+    }
   },
   model: {
     prop: "showed",
@@ -184,14 +285,14 @@ export default {
 <style lang="scss">
 .q-card {
   transition: all 0.5s !important;
-  overflow: hidden !important;
 }
 
 .dialog-max-height {
-  height: 60vh;
+  height: 50vh;
 }
 
 .dialog-min-height {
   height: 120px;
+  overflow: hidden !important;
 }
 </style>

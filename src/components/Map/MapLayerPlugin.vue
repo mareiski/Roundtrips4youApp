@@ -10,21 +10,41 @@
       <q-tooltip>Kartendesign</q-tooltip>
       <q-menu>
         <q-list style="min-width: 100px" class="text-secondary">
-          <q-item clickable @click="switchMapStyle(null)" v-close-popup>
+          <q-item
+            :active="styleName === null"
+            clickable
+            @click="switchMapStyle(null)"
+            v-close-popup
+          >
             <q-item-section>Standard</q-item-section>
           </q-item>
           <q-separator />
 
-          <q-item clickable @click="switchMapStyle('nav')" v-close-popup>
+          <q-item
+            :active="styleName === 'nav'"
+            clickable
+            @click="switchMapStyle('nav')"
+            v-close-popup
+          >
             <q-item-section>Navigation</q-item-section>
           </q-item>
           <q-separator />
-          <q-item clickable @click="switchMapStyle('sat')" v-close-popup>
+          <q-item
+            :active="styleName === 'sat'"
+            clickable
+            @click="switchMapStyle('sat')"
+            v-close-popup
+          >
             <q-item-section>Satellit</q-item-section>
           </q-item>
           <q-separator />
 
-          <q-item clickable @click="switchMapStyle('out')" v-close-popup>
+          <q-item
+            :active="styleName === 'out'"
+            clickable
+            @click="switchMapStyle('out')"
+            v-close-popup
+          >
             <q-item-section>Outdoor</q-item-section>
           </q-item>
         </q-list>
@@ -39,10 +59,17 @@ import sharedMethods from "../../../sharedMethods.js";
 export default {
   name: "MapLayerPlugin",
   inject: ["mapbox", "map", "actions"],
-
+  data() {
+    return {
+      styleName: null
+    };
+  },
   methods: {
     switchMapStyle(styleName) {
       let parent = sharedMethods.getParent("Map", this);
+
+      this.styleName = styleName;
+
       switch (styleName) {
         case "nav":
           parent.mapStyle =
@@ -61,7 +88,12 @@ export default {
             "mapbox://styles/mareiski/ck27d9xpx5a9s1co7c2golomn";
           break;
       }
-      parent.loadMap(this.map);
+
+      // wait to ensure style fully loaded
+      let context = this;
+      setTimeout(function() {
+        context.$emit("styleChanged");
+      }, 300);
     }
   }
 };

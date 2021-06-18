@@ -2,6 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-drawer v-model="showNotifications" overlay>
       <close-button
+        :top="0"
         @click="showNotifications = !showNotifications"
       ></close-button>
       <notifications></notifications>
@@ -10,6 +11,7 @@
     <q-dialog maximized v-model="showWizardDialog">
       <div>
         <close-button
+          :top="10"
           @click="showWizardDialog = !showWizardDialog"
           v-show="wizardStep === 1"
         ></close-button>
@@ -35,24 +37,23 @@
     </q-dialog>
 
     <q-page-container>
-      <router-view @showWizard="showWizardDialog = !showWizardDialog" />
+      <keep-alive>
+        <router-view
+          :key="$route.fullPath"
+          @showWizard="showWizardDialog = !showWizardDialog"
+        />
+      </keep-alive>
     </q-page-container>
 
     <q-footer
-      elevated
       style="height:60px;"
-      class="flex justify-around bg-white"
+      class="flex justify-around bg-white shadow-8"
     >
       <router-link to="/" class="center-content-horizontal">
         <q-icon class="icon-outline" size="md" name="home" />
       </router-link>
-      <router-link to="/Suche" class="center-content-horizontal">
-        <q-icon
-          :class="$route.path === '/Suche' ? 'icon-outline' : ''"
-          color="primary"
-          size="md"
-          name="search"
-        />
+      <router-link to="/Inspiration" class="center-content-horizontal">
+        <q-icon class="icon-outline" size="md" name="lightbulb" />
       </router-link>
       <router-link to="" class="center-content-horizontal" style="width:54px;">
         <q-btn

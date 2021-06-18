@@ -1,9 +1,9 @@
 <template>
-  <div class="register q-px-lg q-pb-md">
-    <div class="width-80-percent">
+  <q-page class="flex justify-start flex-direction-col q-px-lg">
+    <div class="width-80-percent" style="margin:0;">
       <h4>Registrieren</h4>
     </div>
-    <p style="padding-bottom:10px;" class="text-secondary align-center">
+    <p class="text-secondary align-center">
       {{
         !isInDemoSession
           ? "Starte jetzt durch und nutze all unsere Funktionen komplett kostenlos"
@@ -13,6 +13,7 @@
     <q-form
       @submit="signUp"
       bordered
+      style="margin-bottom:10px;"
       class="q-gutter-md rounded-borders flex column"
     >
       <!-- add this above for auto mailchimp subcribtion action="https://roundtrips4you.us18.list-manage.com/subscribe/post?u=ca8f607f808c8e5a9812aec8f&id=c64c971288&gdpr[71542]=true" -->
@@ -80,7 +81,6 @@
           class="q-mt-md"
           color="primary"
           outline
-          text-color="white"
           style="width:300px; margin:0;"
         >
           <template v-slot:loading>
@@ -89,7 +89,7 @@
         </q-btn>
       </div>
     </q-form>
-    <div class="google-form">
+    <div class="google-form" style="margin:0;">
       <div class="flex justify-center">
         <span class="text-secondary">oder</span>
       </div>
@@ -174,7 +174,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-  </div>
+  </q-page>
 </template>
 
 <script>

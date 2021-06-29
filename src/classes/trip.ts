@@ -297,13 +297,26 @@ export default class Trip {
   }
 
   /**
-   * addst new stop to stop list
+   * adds new stop to stop list
    * @param {Stop} stop
    */
   addStop(stop: Stop) {
     this.stopList.push(stop);
   }
 
+  /**
+   * updates stop with given object
+   */
+  updateStop(stop: Stop) {
+    let index = this.stopList.findIndex(
+      x => x.getStopId() === stop.getStopId()
+    );
+    if (index >= 0) this.stopList.splice(index, 1, stop);
+  }
+
+  /**
+   * removes stop for given id
+   */
   removeStop(stopId: number) {
     let index = this.stopList.findIndex(x => x.getStopId() === stopId);
     if (index >= 0) this.stopList.splice(index, 1);

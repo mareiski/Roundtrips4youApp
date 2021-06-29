@@ -51,7 +51,7 @@ export default class Stop {
       this.title = "1. Stopp";
     }
 
-    this.notes = "Notizen zu diesem Stopp";
+    this.notes = "";
     this.images = [];
 
     this.stopKind = "stop";

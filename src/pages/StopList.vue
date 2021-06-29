@@ -1,12 +1,16 @@
 <template>
-  <q-page>
+  <q-page style="padding-top:0;">
     <q-pull-to-refresh @refresh="fetchTrip">
       <div
         class="bg-white full-width flex justify-between text-secondary"
         style="height:35px; padding: 5px 10px; margin-bottom:70px"
       >
         <div>
-          <back-button :top="-8" @click="$router.push('/')"></back-button>
+          <close-button
+            :top="0"
+            size="md"
+            @click="$router.push('/')"
+          ></close-button>
         </div>
         <b class="raleway text-primary">{{ trip.title }}</b>
         <q-icon name="settings" size="sm" />
@@ -31,7 +35,7 @@
           handle=".handle"
         >
           <q-item
-            v-for="(stop, index) in trip.stopList"
+            v-for="stop in trip.stopList"
             :key="stop"
             v-ripple
             clickable
@@ -44,7 +48,7 @@
                 class="cursor-DandD handle"
               />
             </q-item-section>
-            <q-item-section @click="$emit('editStop', index)">
+            <q-item-section @click="showEditStopDialog(stop)">
               <q-item-label lines="1" class="text-secondary">{{
                 stop.title
               }}</q-item-label>
@@ -59,7 +63,7 @@
               </q-item-label>
             </q-item-section>
 
-            <q-item-section side top @click="$emit('editStop', index)">
+            <q-item-section side top @click="showEditStopDialog(stop)">
               <div
                 class="flex justify-center"
                 style="flex-direction:column; height:100%;"
@@ -71,11 +75,12 @@
             <q-item-section side top style="padding:0;">
               <div>
                 <q-btn
-                  @click="$emit('editStop', index)"
+                  @click="showEditStopDialog(stop)"
                   flat
                   round
                   size="md"
                   icon="edit"
+                  :ripple="false"
                 >
                   <q-tooltip>Optionen</q-tooltip>
                 </q-btn>
@@ -115,23 +120,40 @@
         >
       </div>
     </q-pull-to-refresh>
+    <q-dialog maximized v-model="editStopDialogVisible" @hide="updateStop()">
+      <div>
+        <close-button
+          :top="10"
+          @click="editStopDialogVisible = !editStopDialogVisible"
+        ></close-button>
+        <edit-stop-dialog
+          v-if="selectedStop"
+          v-model="selectedStop"
+        ></edit-stop-dialog>
+      </div>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
 import Trip from "src/classes/trip";
 import draggable from "vuedraggable";
-import BackButton from "src/components/Buttons/BackButton.vue";
+import CloseButton from "src/components/Buttons/CloseButton.vue";
+import Stop from "src/classes/stop";
+import EditStopDialog from "src/components/Wizard/EditStopDialog.vue";
 
 export default {
   name: "list",
   components: {
     draggable,
-    BackButton
+    CloseButton,
+    EditStopDialog
   },
   data() {
     return {
-      trip: Trip
+      trip: Trip,
+      editStopDialogVisible: false,
+      selectedStop: Stop
     };
   },
   created() {
@@ -153,12 +175,31 @@ export default {
           if (done) done();
         });
     },
+    showEditStopDialog(stop) {
+      this.selectedStop = stop;
+      this.editStopDialogVisible = true;
+    },
+    updateStop() {
+      this.$store.dispatch("tripList/updateStop", {
+        stop: this.selectedStop,
+        TripId: this.trip.TripId,
+        isUserTrip: true
+      });
+    },
     emitOnDragged() {
       let payload = {
         newStopList: this.trip.toObject().stopList,
         TripId: this.trip.TripId
       };
       this.$store.dispatch("tripList/setNewStopList", payload);
+    },
+    focusGeocoder() {
+      this.$router.push("/Karte/" + this.trip.TripId);
+      // wait to ensure we are on the map todo
+      let context = this;
+      setTimeout(function() {
+        context.$emit("clickActionButton");
+      }, 500);
     },
     deleteStop(stopId) {
       this.$store.dispatch("tripList/deleteStop", {

@@ -10,7 +10,7 @@
           />
         </q-card-section>
         <q-card-section class="q-pt-xs">
-          <div class="text-h5 q-mt-sm q-mb-xs text-secondary">Leer</div>
+          <div class="text-h5 q-mt-sm q-mb-xs text-secondary">Neue Reise</div>
           <div class="text-caption text-grey">8 Tage</div>
           <div class="text-secondary">
             Erstelle deine Reise von Anfang an ohne Einschränkungen oder
@@ -29,7 +29,7 @@
           />
         </q-card-section>
         <q-card-section class="q-pt-xs">
-          <div class="text-h5 q-mt-sm q-mb-xs text-secondary">Leer</div>
+          <div class="text-h5 q-mt-sm q-mb-xs text-secondary">Neue Reise</div>
           <div class="text-secondary">
             Erstelle deine Reise von Anfang an ohne Einschränkungen oder
             Vorgaben.

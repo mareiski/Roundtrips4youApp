@@ -1,6 +1,7 @@
 import { db, auth } from "../../firebaseInit.js";
 import Trip from "../../classes/trip.ts";
 import sharedMethods from "app/sharedMethods.js";
+import Stop from "../../classes/stop.ts";
 
 export default {
   /**
@@ -236,6 +237,29 @@ export default {
         });
     });
   },
+  updateStop({ dispatch }, payload) {
+    return new Promise(resolve => {
+      dispatch("fetchSingleTrip", payload).then(trip => {
+        trip.updateStop(payload.stop);
+
+        let stopListPayload = {
+          newStopList: trip.toObject().stopList,
+          TripId: trip.TripId
+        };
+
+        dispatch("setNewStopList", stopListPayload).then(success => {
+          if (!success) {
+            sharedMethods.showErrorNotification(
+              "Stopp konnte nicht geändert werden"
+            );
+            resolve(false);
+          } else {
+            resolve(true);
+          }
+        });
+      });
+    });
+  },
   addStop({ dispatch }, payload) {
     console.log("add stop now!");
     return new Promise(resolve => {
@@ -250,7 +274,7 @@ export default {
         dispatch("setNewStopList", stopListPayload).then(success => {
           if (!success) {
             sharedMethods.showErrorNotification(
-              "Stop konnte nicht hinzugefügt werden"
+              "Stopp konnte nicht hinzugefügt werden"
             );
             resolve(false);
           } else {

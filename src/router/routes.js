@@ -23,12 +23,18 @@ const routes = [
       {
         path: "/Karte/:tripId",
         name: "map",
-        component: () => import("src/pages/Map.vue")
+        component: () => import("src/pages/Map.vue"),
+        meta: {
+          actionButtonMethod: "focusGeocoder"
+        }
       },
       {
         path: "/Liste/:tripId",
         name: "list",
-        component: () => import("src/pages/StopList.vue")
+        component: () => import("src/pages/StopList.vue"),
+        meta: {
+          actionButtonMethod: "focusGeocoder"
+        }
       },
       {
         path: "/Profil",

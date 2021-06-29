@@ -36,11 +36,12 @@
       </div>
     </q-dialog>
 
-    <q-page-container>
+    <q-page-container ref="pages">
       <keep-alive>
         <router-view
           :key="$route.fullPath"
           @showWizard="showWizardDialog = !showWizardDialog"
+          @clickActionButton="actionButtonClicked()"
         />
       </keep-alive>
     </q-page-container>
@@ -62,7 +63,7 @@
           color="primary"
           round
           class="add-btn shadow-15-orange"
-          @click="showWizardDialog = !showWizardDialog"
+          @click="actionButtonClicked()"
         ></q-btn>
       </router-link>
       <router-link to="" class="center-content-horizontal">
@@ -87,7 +88,6 @@ import Notifications from "src/components/Notifications.vue";
 import BackButton from "src/components/Buttons/BackButton.vue";
 import { Loading } from "quasar";
 import { auth } from "../firebaseInit.js";
-import routePermissions from "../router/routePermissions.js";
 
 export default {
   components: { WizardDialog, CloseButton, Notifications, BackButton },
@@ -101,6 +101,23 @@ export default {
       redirectionFinished: false,
       mountFinished: false
     };
+  },
+  methods: {
+    actionButtonClicked() {
+      let actionButtonMethod = this.$router.currentRoute.meta
+        .actionButtonMethod;
+      if (actionButtonMethod) {
+        let name = this.$router.currentRoute.name
+        this.getChild(name)[actionButtonMethod]();
+      } else {
+        this.showWizardDialog = !this.showWizardDialog;
+      }
+    },
+    getChild(name) {
+      for (let child of this.$refs.pages.$children) {
+        if (child.$options.name == name) return child;
+      }
+    }
   },
   created() {
     let loggedIn = auth.user() !== null;

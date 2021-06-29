@@ -3,6 +3,8 @@ const getAxios = () => import("axios");
 import wiki from "wikijs";
 import { Loader } from "@googlemaps/js-api-loader";
 
+let cachedWikivoyageData = [];
+
 export default {
   /**
    * Display a quasar notify error message
@@ -79,43 +81,56 @@ export default {
     let returnData = {};
     let promiseList = [];
 
-    return new Promise((resolve, reject) => {
-      wiki({ apiUrl: "https://de.wikipedia.org/w/api.php" })
-        .find(pageName)
-        .then(page => {
-          promiseList.push(
-            page.categories().then(categories => {
-              let category = categories[1].split("Kategorie:")[1];
-              returnData.shortDescription = category;
-            }),
-            page.summary().then(summary => {
-              returnData.description = summary;
-            }),
-            page.mainImage().then(mainImage => {
-              returnData.mainImage = mainImage;
-            }),
-            page.images().then(images => {
-              returnData.imgSrcs = images;
-            })
-          );
+    // check if we have cached data
 
-          Promise.all(promiseList)
-            .then(() => {
-              let returnImgs = [];
-              returnData.imgSrcs.forEach((image, index) => {
-                // add only if not svg
-                if (image.match(/\.(jpeg|jpg|png)$/)) returnImgs.push(image);
-                if (index === returnData.imgSrcs.length - 1) {
-                  returnData.imgSrcs = returnImgs;
-                  resolve(returnData);
-                }
+    return new Promise((resolve, reject) => {
+      let index = cachedWikivoyageData.findIndex(x => x.title === pageName);
+      if (index >= 0) {
+        resolve(cachedWikivoyageData[index]);
+      } else {
+        returnData.title = pageName;
+
+        wiki({ apiUrl: "https://de.wikipedia.org/w/api.php" })
+          .find(pageName)
+          .then(page => {
+            promiseList.push(
+              page.categories().then(categories => {
+                let category = categories[1].split("Kategorie:")[1];
+                returnData.shortDescription = category;
+              }),
+              page.summary().then(summary => {
+                returnData.description = summary;
+              }),
+              page.mainImage().then(mainImage => {
+                returnData.mainImage = mainImage;
+              }),
+              page.images().then(images => {
+                returnData.imgSrcs = images;
+              })
+            );
+
+            Promise.all(promiseList)
+              .then(() => {
+                let returnImgs = [];
+                returnData.imgSrcs.forEach((image, index) => {
+                  // add only if not svg
+                  if (image.match(/\.(jpeg|jpg|png)$/)) returnImgs.push(image);
+                  if (index === returnData.imgSrcs.length - 1) {
+                    returnData.imgSrcs = returnImgs;
+
+                    // cache data
+                    cachedWikivoyageData.push(returnData);
+
+                    resolve(returnData);
+                  }
+                });
+              })
+              .catch(function(error) {
+                console.log("Error " + error);
+                resolve(null);
               });
-            })
-            .catch(function(error) {
-              console.log("Error " + error);
-              resolve(null);
-            });
-        });
+          });
+      }
     });
   },
   getGooglePlacesData(lat, lng, context) {

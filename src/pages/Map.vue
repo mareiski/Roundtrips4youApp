@@ -6,7 +6,11 @@
         style="height:35px; padding: 5px 10px;"
       >
         <div>
-          <back-button :top="-8" @click="$router.push('/')"></back-button>
+          <close-button
+            :top="0"
+            size="md"
+            @click="$router.push('/')"
+          ></close-button>
         </div>
         <b class="raleway text-primary">{{ trip.title }}</b>
         <q-icon name="settings" size="sm" />
@@ -35,13 +39,14 @@
         :accessToken="accTo"
         @result="handleGeocoderSearch"
         placeholder="Ort suchen"
+        ref="geocoder"
       />
       <q-btn
         color="white"
         text-color="secondary"
         icon="list"
         round
-        @click="[hideBottomDialog(), $router.push('/Liste/' + trip.TripId)]"
+        @click="$router.push('/Liste/' + trip.TripId)"
         style="position:absolute; right:9px; top:16px;"
       >
       </q-btn>
@@ -52,12 +57,15 @@
         position="top-right"
       />
 
+      <zoom-to-route @clicked="fitToBounds(bounds)"></zoom-to-route>
+
       <template v-if="trip">
         <MglMarker
           v-for="(stop, index) in trip.stopList"
           :key="stop.stopId"
           :coordinates="[stop.location.lng, stop.location.lat]"
           color="#D56026"
+          :offset="[multipleSameStops(stop.location) ? index * 4 : 0, 0]"
           v-text="index"
           @click="showBottomDialog(stop, true, true)"
         >
@@ -87,74 +95,6 @@
         @click="showBottomDialogFromLastClick()"
       >
       </MglMarker>
-      <!-- <div
-        v-for="(stop, index) in trip.stopList"
-        :key="'StopContainer' + stop.stopId + index"
-      >
-        <MglMarker
-          v-if="stop.Parking && !isNaN(stop.Parking.lng)"
-          :key="'Stop' + stop.DocId"
-          :coordinates="[stop.Parking.lng, stop.Parking.lat]"
-          color="#D56026"
-          @click="onMarkerClicked($event)"
-        >
-        </MglMarker>
-      </div> -->
-      <!-- city markers -->
-      <!-- <template v-if="showCityMarkers">
-        <MglMarker
-          v-for="(city, index) in suggestedCities"
-          :key="city.name + index"
-          :coordinates="[city.longitude, city.latitude]"
-          :offset="[10, 5]"
-          :ref="'cityMarker' + index"
-        >
-          <q-icon
-            :ref="'cityMarkerIcon' + index"
-            slot="marker"
-            name="place"
-            color="amber-14"
-            size="30px"
-          />
-        </MglMarker>
-      </template> -->
-      <!-- POI Markers -->
-      <!-- <template v-if="showPOIMarkers">
-        <MglMarker
-          v-for="(poi, index) in suggestedPOIs"
-          :key="poi.name + index"
-          :coordinates="[poi.location.lng, poi.location.lat]"
-          :offset="[10, 5]"
-        >
-          <q-icon
-            :ref="'poiMarkerIcon' + index"
-            slot="marker"
-            name="place"
-            color="amber-14"
-            size="30px"
-          />
-        </MglMarker>
-      </template> -->
-
-      <!-- <MglMarker
-        v-for="(route, index) in addedRoutes"
-        :key="'route' + index"
-        :coordinates="route.location"
-        :color="route.color"
-        :ref="'route' + route.id"
-      >
-        <q-icon
-          slot="marker"
-          :style="{
-            color: route.color,
-            'background-color': 'white',
-            'border-radius': '50%'
-          }"
-          :ref="'speedMarker' + route.id"
-          :class="'speedMarker' + index"
-          name="speed"
-        />
-      </MglMarker> -->
     </MglMap>
     <bottom-dialog
       v-model="bottomDialogShowed"
@@ -167,19 +107,27 @@
 <script>
 const MglMap = () => import("vue-mapbox");
 const MglGeocoderControl = () => import("vue-mapbox-geocoder");
-const turf = () => import("turf");
+import turf from "turf";
+import pointToLineDistance from "@turf/point-to-line-distance";
+import lineIntersect from "@turf/line-intersect";
+import nearestPoint from "@turf/nearest-point";
+
 import Mapbox from "mapbox-gl";
 import MapLayerPlugin from "../components/Map/MapLayerPlugin.vue";
+import ZoomToRoute from "../components/Map/ZoomToRoute.vue";
 import { auth } from "../firebaseInit.js";
 
 import { MglMarker, MglNavigationControl } from "vue-mapbox";
 import Trip from "src/classes/trip";
 import BottomDialog from "src/components/Map/BottomDialog.vue";
-import BackButton from "../components/Buttons/BackButton.vue";
+import CloseButton from "../components/Buttons/CloseButton.vue";
 import { uuid } from "vue-uuid";
 import sharedMethods from "app/sharedMethods";
+import shp from "shpjs";
 
 let map;
+let rawEuropeanRivers;
+let rawRivers;
 
 export default {
   meta: {
@@ -190,7 +138,7 @@ export default {
       }
     }
   },
-  name: "Map",
+  name: "map",
   components: {
     MglMap,
     MglMarker,
@@ -198,7 +146,8 @@ export default {
     MglGeocoderControl,
     MapLayerPlugin,
     BottomDialog,
-    BackButton
+    CloseButton,
+    ZoomToRoute
   },
   computed: {
     isMobile() {
@@ -236,7 +185,14 @@ export default {
         "poi-label",
         "settlement-label",
         "natural-point-label"
-      ] // 'country-label',
+      ], // 'country-label',
+      suggestedSearches: [
+        { title: "Vorgeschlagene Orte:" },
+        { title: "Berlin", caption: "Deutschland" },
+        { title: "Venedig", caption: "Italien" },
+        { title: "Barcelona", caption: "Spanien" },
+        { title: "Stockholm", caption: "Schweden" }
+      ]
     };
   },
   watch: {
@@ -267,7 +223,58 @@ export default {
       }, 1000);
 
       // try to get routes again
-      this.addAllRoutes();
+      let promiseList = [];
+      promiseList.push(
+        shp("../rivers.zip").then(geojson => {
+          rawRivers = geojson;
+          map.addLayer({
+            id: "rivers",
+            type: "line",
+            source: {
+              type: "geojson",
+              data: geojson
+            },
+            paint: {
+              "line-color": "#000",
+              "line-width": 5,
+              "line-opacity": [
+                "case",
+                ["boolean", ["feature-state", "hover"], false],
+                0.75,
+                0.4
+              ]
+            }
+          });
+        })
+      );
+
+      promiseList.push(
+        shp("../european_rivers.zip").then(geojson => {
+          rawEuropeanRivers = geojson;
+          map.addLayer({
+            id: "europeanRivers",
+            type: "line",
+            source: {
+              type: "geojson",
+              data: geojson
+            },
+            paint: {
+              "line-color": "#000",
+              "line-width": 5,
+              "line-opacity": [
+                "case",
+                ["boolean", ["feature-state", "hover"], false],
+                0.75,
+                0.4
+              ]
+            }
+          });
+        })
+      );
+
+      Promise.all(promiseList).then(() => {
+        this.addAllRoutes();
+      });
     },
     flyTo(event) {
       this.lastClickCoordinates = event;
@@ -284,6 +291,22 @@ export default {
         },
         map == null ? 3000 : 100
       );
+    },
+    /**
+     * @returns if there is one more stop with same loation
+     */
+    multipleSameStops(location) {
+      let count = 0;
+      this.trip.stopList.forEach(stop => {
+        if (
+          stop.location.lat === location.lat &&
+          stop.location.lng === location.lng
+        ) {
+          count++;
+        }
+      });
+
+      return count > 1;
     },
     addAllRoutes() {
       if (this.trip && this.trip.stopList) {
@@ -303,11 +326,9 @@ export default {
     fitToBounds(bounds) {
       try {
         if (bounds.length > 1) {
-          turf().then(turf => {
-            var line = turf.lineString(bounds);
-            var bbox = turf.bbox(line);
-            map.fitBounds(new Mapbox.LngLatBounds(bbox), { padding: 80 });
-          });
+          var line = turf.lineString(bounds);
+          var bbox = turf.bbox(line);
+          map.fitBounds(new Mapbox.LngLatBounds(bbox), { padding: 80 });
         } else if (bounds.length === 1) {
           this.centerLocation = this.bounds[0];
         }
@@ -360,6 +381,12 @@ export default {
           }
 
           this.showBottomDialogFromLastClick();
+        } else if (
+          feature.layer.id === "rivers" ||
+          feature.layer.id === "europeanRivers"
+        ) {
+          console.log("Geklickter Fluss: " + feature.properties.name_de);
+          console.log(feature);
         }
       });
     },
@@ -454,9 +481,9 @@ export default {
               }
             });
 
-            // onc lick listener for route
+            // on click listener for route
             let context = this;
-            map.on("click", id, function(_e) {
+            map.on("click", id, function(e) {
               context.showBottomDialogFromRoute(
                 startStop,
                 endStop,
@@ -469,47 +496,323 @@ export default {
         }
       );
     },
+    getRiverRoute(
+      startLocation,
+      endLocation,
+      takenCoords,
+      currentRiver,
+      startRiverPoint
+    ) {
+      if (!currentRiver) {
+        // find the nearest river to start location
+        currentRiver = this.getClosestRiver(startLocation);
+      }
+
+      if (!startRiverPoint) {
+        //find the nearest point on the river to start location
+        startRiverPoint = turf.pointOnLine(currentRiver.geometry, [
+          startLocation.lng,
+          startLocation.lat
+        ]);
+      }
+
+      // find the nearest point on the river to stop position
+      let stopRiverPoint = turf.pointOnLine(currentRiver.geometry, [
+        endLocation.lng,
+        endLocation.lat
+      ]);
+
+      let distanceToEndLocation = turf.distance(stopRiverPoint, [
+        endLocation.lng,
+        endLocation.lat
+      ]);
+
+      console.log(stopRiverPoint);
+      console.log(distanceToEndLocation);
+
+      // check if distance from stop river point to end location is less than 5km
+      if (Math.round(distanceToEndLocation) > 5) {
+        // we need to check if there are other rivers to get to end location
+        let intersectingRivers = [];
+        rawEuropeanRivers.features.forEach(river => {
+          if (
+            river !== currentRiver &&
+            lineIntersect(currentRiver, river).features.length > 0
+          ) {
+            intersectingRivers.push(river);
+          }
+        });
+
+        rawRivers.features.forEach(river => {
+          if (
+            river !== currentRiver &&
+            lineIntersect(currentRiver, river).features.length > 0
+          ) {
+            intersectingRivers.push(river);
+          }
+        });
+
+        // get best interscting river (closest to end location)
+        if (intersectingRivers.length > 0) {
+          let bestIntersectingRiver = this.getClosestRiver(
+            endLocation,
+            intersectingRivers
+          );
+
+          let intersectingPoints = lineIntersect(
+            currentRiver,
+            bestIntersectingRiver
+          );
+
+          // get closest intersecting point to end location
+          let closestIntersectingPoint = nearestPoint(
+            [endLocation.lng, endLocation.lat],
+            intersectingPoints
+          );
+
+          if (
+            !takenCoords.includes(closestIntersectingPoint.geometry.coordinates)
+          ) {
+            // get route from start point to intersecting point
+            let routeToIntersectingRiver = turf.lineSlice(
+              startRiverPoint,
+              closestIntersectingPoint,
+              currentRiver
+            );
+
+            console.log(routeToIntersectingRiver);
+
+            // todo this makes also a route back
+            takenCoords.push.apply(
+              takenCoords,
+              routeToIntersectingRiver.geometry.coordinates
+            );
+
+            console.log(closestIntersectingPoint);
+            console.log(endLocation);
+            console.log(takenCoords);
+            console.log(bestIntersectingRiver);
+
+            // restart method with intersecting point as start
+            takenCoords.push.apply(
+              takenCoords,
+              this.getRiverRoute(
+                {
+                  lat: closestIntersectingPoint.geometry.coordinates[1],
+                  lng: closestIntersectingPoint.geometry.coordinates[0]
+                },
+                endLocation,
+                takenCoords,
+                bestIntersectingRiver,
+                closestIntersectingPoint
+              )
+            );
+          } else {
+            console.log("else 1");
+            let route = turf.lineSlice(
+              startRiverPoint,
+              stopRiverPoint,
+              currentRiver
+            );
+            takenCoords.push.apply(takenCoords, route.geometry.coordinates);
+          }
+        } else {
+          console.log("else 2");
+          let route = turf.lineSlice(
+            startRiverPoint,
+            stopRiverPoint,
+            currentRiver
+          );
+          takenCoords.push.apply(takenCoords, route.geometry.coordinates);
+        }
+      } else {
+        console.log("else 3");
+        let route = turf.lineSlice(
+          startRiverPoint,
+          stopRiverPoint,
+          currentRiver
+        );
+        takenCoords.push.apply(takenCoords, route.geometry.coordinates);
+      }
+
+      // return all taken coords
+      return takenCoords;
+    },
+    getClosestRiver(location, rivers) {
+      let distance = -1;
+      let foundRiver;
+
+      if (!rivers) {
+        rawEuropeanRivers.features.forEach(river => {
+          let distanceToCheck;
+          if (river.geometry.type !== "MultiLineString") {
+            distanceToCheck = pointToLineDistance(
+              [location.lng, location.lat],
+              river
+            );
+          } else {
+            let shortestSubLineDistance = -1;
+            let distanceToCheck;
+            river.geometry.coordinates.forEach(coordinateArray => {
+              shortestSubLineDistance = pointToLineDistance(
+                [location.lng, location.lat],
+                coordinateArray
+              );
+
+              if (
+                shortestSubLineDistance === -1 ||
+                shortestSubLineDistance < distanceToCheck
+              ) {
+                distanceToCheck = shortestSubLineDistance;
+              }
+            });
+          }
+
+          if (distance === -1 || distanceToCheck < distance) {
+            distance = distanceToCheck;
+            foundRiver = river;
+          }
+        });
+
+        rawRivers.features.forEach(river => {
+          let distanceToCheck;
+          if (river.geometry.type !== "MultiLineString") {
+            distanceToCheck = pointToLineDistance(
+              [location.lng, location.lat],
+              river
+            );
+          } else {
+            let shortestSubLineDistance = -1;
+            let distanceToCheck;
+            river.geometry.coordinates.forEach(coordinateArray => {
+              shortestSubLineDistance = pointToLineDistance(
+                [location.lng, location.lat],
+                coordinateArray
+              );
+
+              if (
+                shortestSubLineDistance === -1 ||
+                shortestSubLineDistance < distanceToCheck
+              ) {
+                distanceToCheck = shortestSubLineDistance;
+              }
+            });
+          }
+          if (distance === -1 || distanceToCheck < distance) {
+            distance = distanceToCheck;
+            foundRiver = river;
+          }
+        });
+      } else {
+        rivers.forEach(river => {
+          let distanceToCheck;
+          if (river.geometry.type !== "MultiLineString") {
+            distanceToCheck = pointToLineDistance(
+              [location.lng, location.lat],
+              river
+            );
+          } else {
+            let shortestSubLineDistance = -1;
+            let distanceToCheck;
+            river.geometry.coordinates.forEach(coordinateArray => {
+              shortestSubLineDistance = pointToLineDistance(
+                [location.lng, location.lat],
+                coordinateArray
+              );
+
+              if (
+                shortestSubLineDistance === -1 ||
+                shortestSubLineDistance < distanceToCheck
+              ) {
+                distanceToCheck = shortestSubLineDistance;
+              }
+            });
+          }
+          if (distance === -1 || distanceToCheck < distance) {
+            distance = distanceToCheck;
+            foundRiver = river;
+          }
+        });
+      }
+
+      return foundRiver;
+    },
     getRoute(profile, startLocation, endLocation) {
       return new Promise(resolve => {
-        var url =
-          "https://api.mapbox.com/directions/v5/mapbox/" +
-          profile +
-          "/" +
-          startLocation.lng +
-          "," +
-          startLocation.lat +
-          ";" +
-          endLocation.lng +
-          "," +
-          endLocation.lat +
-          "?geometries=geojson&access_token=" +
-          this.accTo;
+        if (profile === "SUP") {
+          let route = this.getRiverRoute(startLocation, endLocation, []);
+          var routeLineString = {
+            id: "SUPRoute",
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: route
+            }
+          };
 
-        // retrieve data from mapbox
-        sharedMethods.requestURL(url).then(response => {
-          var data = response.data.routes[0];
-          var route = data.geometry.coordinates;
+          // get distance
+          let rawRouteDistance = Math.round(
+            turf.lineDistance(routeLineString, "kilometers")
+          );
 
-          // get duration
-          let rawDuration = data.duration * 1000;
-          let duration = sharedMethods.msToTime(rawDuration);
+          let routeDistance =
+            rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
 
-          let rawDistance =
-            Math.floor(data.distance / 1000) > 0
-              ? Math.floor(data.distance / 1000)
-              : 0;
-          let distance = rawDistance > 0 ? rawDistance + " km" : null;
+          console.log(routeLineString);
+
+          let rawDurationHours = rawRouteDistance / 6;
 
           resolve({
             route: route,
-            rawDuration: rawDuration,
-            duration: duration,
-            rawDistance: rawDistance,
-            distance: distance,
+            rawDuration: rawDurationHours,
+            duration: rawDurationHours + "h",
+            rawDistance: rawRouteDistance,
+            distance: routeDistance,
             from: startLocation.label,
             to: endLocation.label
           });
-        });
+        } else {
+          var url =
+            "https://api.mapbox.com/directions/v5/mapbox/" +
+            profile +
+            "/" +
+            startLocation.lng +
+            "," +
+            startLocation.lat +
+            ";" +
+            endLocation.lng +
+            "," +
+            endLocation.lat +
+            "?geometries=geojson&access_token=" +
+            this.accTo;
+
+          // retrieve data from mapbox
+          sharedMethods.requestURL(url).then(response => {
+            var data = response.data.routes[0];
+            var route = data.geometry.coordinates;
+
+            // get duration
+            let rawDuration = data.duration * 1000;
+            let duration = sharedMethods.msToTime(rawDuration);
+
+            let rawDistance =
+              Math.floor(data.distance / 1000) > 0
+                ? Math.floor(data.distance / 1000)
+                : 0;
+            let distance = rawDistance > 0 ? rawDistance + " km" : null;
+
+            resolve({
+              route: route,
+              rawDuration: rawDuration,
+              duration: duration,
+              rawDistance: rawDistance,
+              distance: distance,
+              from: startLocation.label,
+              to: endLocation.label
+            });
+          });
+        }
       });
     },
     getRandomColor(step, numOfSteps) {
@@ -571,8 +874,7 @@ export default {
       this.dialogObject = {
         title: stop.title,
         subtitle: subtitle,
-        location: stop.location,
-        stopId: stop.stopId,
+        stop: stop,
         TripId: this.TripId,
         alreadyAdded: alreadyAdded,
         buttons: buttons,
@@ -634,6 +936,51 @@ export default {
         false,
         duration + ", " + distance
       );
+    },
+    focusGeocoder() {
+      let suggestionsUl = document.getElementsByClassName("suggestions")[0];
+
+      // fill the geocoder with suggestions
+      if (suggestionsUl.style.display === "none") {
+        if (suggestionsUl.childElementCount === 0) {
+          this.suggestedSearches.forEach(search => {
+            const li = document.createElement("li");
+            const a = document.createElement("a");
+            const wrapperDiv = document.createElement("div");
+            const context = this;
+
+            if (this.suggestedSearches.indexOf(search) !== 0) {
+              a.addEventListener("click", function() {
+                context.$refs.geocoder.control.query(search.title);
+              });
+            }
+            wrapperDiv.classList.add("mapboxgl-ctrl-geocoder--suggestion");
+
+            const titleDiv = document.createElement("div");
+            titleDiv.appendChild(document.createTextNode(search.title));
+            titleDiv.classList.add("mapboxgl-ctrl-geocoder--suggestion-title");
+            wrapperDiv.appendChild(titleDiv);
+
+            if (search.caption) {
+              const captionDiv = document.createElement("div");
+              captionDiv.appendChild(document.createTextNode(search.caption));
+              captionDiv.classList.add(
+                "mapboxgl-ctrl-geocoder--suggestion-address"
+              );
+
+              wrapperDiv.appendChild(captionDiv);
+            }
+
+            li.appendChild(a);
+            a.appendChild(wrapperDiv);
+
+            suggestionsUl.appendChild(li);
+          });
+        }
+        suggestionsUl.style.display = "block";
+      } else {
+        suggestionsUl.style.display = "none";
+      }
     }
   },
   created() {
@@ -645,6 +992,10 @@ export default {
     this.TripId = this.$route.params.tripId;
 
     this.getTrip();
+  },
+  beforeRouteLeave(to, from, next) {
+    this.hideBottomDialog();
+    next();
   }
 };
 </script>

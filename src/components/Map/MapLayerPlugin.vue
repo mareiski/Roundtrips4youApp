@@ -58,7 +58,6 @@ import sharedMethods from "../../../sharedMethods.js";
 
 export default {
   name: "MapLayerPlugin",
-  inject: ["mapbox", "map", "actions"],
   data() {
     return {
       styleName: null
@@ -66,7 +65,7 @@ export default {
   },
   methods: {
     switchMapStyle(styleName) {
-      let parent = sharedMethods.getParent("Map", this);
+      let parent = sharedMethods.getParent("map", this);
 
       this.styleName = styleName;
 

@@ -9,7 +9,7 @@
       color="secondary"
       icon="close"
       flat
-      size="lg"
+      :size="size || 'lg'"
       :ripple="false"
     >
     </q-btn>
@@ -18,7 +18,8 @@
 <script>
 export default {
   props: {
-    top: Number
+    top: Number,
+    size: String
   }
 };
 </script>

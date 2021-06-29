@@ -73,7 +73,7 @@
                   </q-item>
                   <q-item
                     v-show="data.alreadyAdded"
-                    @click="deleteStop(data.stopId)"
+                    @click="deleteStop(data.stop.stopId)"
                     clickable
                     v-close-popup
                   >
@@ -88,7 +88,9 @@
               outline
               color="primary"
               v-show="data.buttons"
-              @click="addStop()"
+              @click="
+                data.alreadyAdded ? (showEditStopDialog = true) : addStop()
+              "
               :label="data.alreadyAdded ? 'Bearbeiten' : 'Hinzufügen'"
             />
           </div>
@@ -170,6 +172,15 @@
         </q-card-section>
       </q-card>
     </q-dialog>
+    <q-dialog maximized v-model="showEditStopDialog" @hide="updateStop()">
+      <div>
+        <close-button
+          :top="10"
+          @click="showEditStopDialog = !showEditStopDialog"
+        ></close-button>
+        <edit-stop-dialog v-if="stop" v-model="stop"></edit-stop-dialog>
+      </div>
+    </q-dialog>
     <image-dialog
       v-model="imageDialogShowed"
       :dialogImgSrc="imageDialogSrc"
@@ -183,11 +194,13 @@ import ImageDialog from "../ImageDialog.vue";
 import PointLocation from "src/classes/pointLocation";
 import { uuid } from "vue-uuid";
 import sharedMethods from "../../../sharedMethods.js";
+import EditStopDialog from "../Wizard/EditStopDialog.vue";
+import CloseButton from "../Buttons/CloseButton.vue";
 
 let timeStamp;
 
 export default {
-  components: { ImageDialog },
+  components: { ImageDialog, EditStopDialog, CloseButton },
   props: {
     data: Object,
     showed: Boolean
@@ -201,12 +214,16 @@ export default {
       imageDialogSrc: "",
       mainDescription: "",
       textMax: false,
-      suggestedPOIs: []
+      suggestedPOIs: [],
+      showEditStopDialog: false,
+      stop: this.data.stop
     };
   },
   watch: {
     showed: function(newState, oldState) {
       if (!!newState) {
+        // refresh stop object for edit stop dialog
+        this.stop = this.data.stop;
         let title = this.data.title;
 
         sharedMethods.getWikivoyageData(title).then(results => {
@@ -222,7 +239,7 @@ export default {
     },
     max: function(newState, oldState) {
       if (!!newState) {
-        let location = PointLocation.fromObject(this.data.location);
+        let location = PointLocation.fromObject(this.data.stop.location);
 
         let context = this;
 
@@ -251,10 +268,17 @@ export default {
       let stop = new Stop(
         uuid.v4() + timeStamp,
         1,
-        PointLocation.fromObject(this.data.location)
+        PointLocation.fromObject(this.data.stop.location)
       );
       this.$store.dispatch("tripList/addStop", {
         stop: stop,
+        TripId: this.data.TripId,
+        isUserTrip: true
+      });
+    },
+    updateStop() {
+      this.$store.dispatch("tripList/updateStop", {
+        stop: this.stop,
         TripId: this.data.TripId,
         isUserTrip: true
       });

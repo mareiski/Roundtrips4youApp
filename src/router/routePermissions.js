@@ -14,7 +14,7 @@ export default {
             let guestOnly = to.matched.some(record => record.meta.guestOnly);
 
             if (requireAuth && !loggedIn) {
-              next("Registrieren");
+              next("/Registrieren");
             } else if (guestOnly && loggedIn) {
               next("/");
             } else next();

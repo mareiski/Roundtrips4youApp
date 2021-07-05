@@ -108,9 +108,7 @@
 const MglMap = () => import("vue-mapbox");
 const MglGeocoderControl = () => import("vue-mapbox-geocoder");
 import turf from "turf";
-import pointToLineDistance from "@turf/point-to-line-distance";
-import lineIntersect from "@turf/line-intersect";
-import nearestPoint from "@turf/nearest-point";
+import riverRoute from "components/Map/riverRoute.ts";
 
 import Mapbox from "mapbox-gl";
 import MapLayerPlugin from "../components/Map/MapLayerPlugin.vue";
@@ -496,251 +494,15 @@ export default {
         }
       );
     },
-    getRiverRoute(
-      startLocation,
-      endLocation,
-      takenCoords,
-      currentRiver,
-      startRiverPoint
-    ) {
-      if (!currentRiver) {
-        // find the nearest river to start location
-        currentRiver = this.getClosestRiver(startLocation);
-      }
-
-      if (!startRiverPoint) {
-        //find the nearest point on the river to start location
-        startRiverPoint = turf.pointOnLine(currentRiver.geometry, [
-          startLocation.lng,
-          startLocation.lat
-        ]);
-      }
-
-      // find the nearest point on the river to stop position
-      let stopRiverPoint = turf.pointOnLine(currentRiver.geometry, [
-        endLocation.lng,
-        endLocation.lat
-      ]);
-
-      let distanceToEndLocation = turf.distance(stopRiverPoint, [
-        endLocation.lng,
-        endLocation.lat
-      ]);
-
-      console.log(stopRiverPoint);
-      console.log(distanceToEndLocation);
-
-      // check if distance from stop river point to end location is less than 5km
-      if (Math.round(distanceToEndLocation) > 5) {
-        // we need to check if there are other rivers to get to end location
-        let intersectingRivers = [];
-        rawEuropeanRivers.features.forEach(river => {
-          if (
-            river !== currentRiver &&
-            lineIntersect(currentRiver, river).features.length > 0
-          ) {
-            intersectingRivers.push(river);
-          }
-        });
-
-        rawRivers.features.forEach(river => {
-          if (
-            river !== currentRiver &&
-            lineIntersect(currentRiver, river).features.length > 0
-          ) {
-            intersectingRivers.push(river);
-          }
-        });
-
-        // get best interscting river (closest to end location)
-        if (intersectingRivers.length > 0) {
-          let bestIntersectingRiver = this.getClosestRiver(
-            endLocation,
-            intersectingRivers
-          );
-
-          let intersectingPoints = lineIntersect(
-            currentRiver,
-            bestIntersectingRiver
-          );
-
-          // get closest intersecting point to end location
-          let closestIntersectingPoint = nearestPoint(
-            [endLocation.lng, endLocation.lat],
-            intersectingPoints
-          );
-
-          if (
-            !takenCoords.includes(closestIntersectingPoint.geometry.coordinates)
-          ) {
-            // get route from start point to intersecting point
-            let routeToIntersectingRiver = turf.lineSlice(
-              startRiverPoint,
-              closestIntersectingPoint,
-              currentRiver
-            );
-
-            console.log(routeToIntersectingRiver);
-
-            // todo this makes also a route back
-            takenCoords.push.apply(
-              takenCoords,
-              routeToIntersectingRiver.geometry.coordinates
-            );
-
-            console.log(closestIntersectingPoint);
-            console.log(endLocation);
-            console.log(takenCoords);
-            console.log(bestIntersectingRiver);
-
-            // restart method with intersecting point as start
-            takenCoords.push.apply(
-              takenCoords,
-              this.getRiverRoute(
-                {
-                  lat: closestIntersectingPoint.geometry.coordinates[1],
-                  lng: closestIntersectingPoint.geometry.coordinates[0]
-                },
-                endLocation,
-                takenCoords,
-                bestIntersectingRiver,
-                closestIntersectingPoint
-              )
-            );
-          } else {
-            console.log("else 1");
-            let route = turf.lineSlice(
-              startRiverPoint,
-              stopRiverPoint,
-              currentRiver
-            );
-            takenCoords.push.apply(takenCoords, route.geometry.coordinates);
-          }
-        } else {
-          console.log("else 2");
-          let route = turf.lineSlice(
-            startRiverPoint,
-            stopRiverPoint,
-            currentRiver
-          );
-          takenCoords.push.apply(takenCoords, route.geometry.coordinates);
-        }
-      } else {
-        console.log("else 3");
-        let route = turf.lineSlice(
-          startRiverPoint,
-          stopRiverPoint,
-          currentRiver
-        );
-        takenCoords.push.apply(takenCoords, route.geometry.coordinates);
-      }
-
-      // return all taken coords
-      return takenCoords;
-    },
-    getClosestRiver(location, rivers) {
-      let distance = -1;
-      let foundRiver;
-
-      if (!rivers) {
-        rawEuropeanRivers.features.forEach(river => {
-          let distanceToCheck;
-          if (river.geometry.type !== "MultiLineString") {
-            distanceToCheck = pointToLineDistance(
-              [location.lng, location.lat],
-              river
-            );
-          } else {
-            let shortestSubLineDistance = -1;
-            let distanceToCheck;
-            river.geometry.coordinates.forEach(coordinateArray => {
-              shortestSubLineDistance = pointToLineDistance(
-                [location.lng, location.lat],
-                coordinateArray
-              );
-
-              if (
-                shortestSubLineDistance === -1 ||
-                shortestSubLineDistance < distanceToCheck
-              ) {
-                distanceToCheck = shortestSubLineDistance;
-              }
-            });
-          }
-
-          if (distance === -1 || distanceToCheck < distance) {
-            distance = distanceToCheck;
-            foundRiver = river;
-          }
-        });
-
-        rawRivers.features.forEach(river => {
-          let distanceToCheck;
-          if (river.geometry.type !== "MultiLineString") {
-            distanceToCheck = pointToLineDistance(
-              [location.lng, location.lat],
-              river
-            );
-          } else {
-            let shortestSubLineDistance = -1;
-            let distanceToCheck;
-            river.geometry.coordinates.forEach(coordinateArray => {
-              shortestSubLineDistance = pointToLineDistance(
-                [location.lng, location.lat],
-                coordinateArray
-              );
-
-              if (
-                shortestSubLineDistance === -1 ||
-                shortestSubLineDistance < distanceToCheck
-              ) {
-                distanceToCheck = shortestSubLineDistance;
-              }
-            });
-          }
-          if (distance === -1 || distanceToCheck < distance) {
-            distance = distanceToCheck;
-            foundRiver = river;
-          }
-        });
-      } else {
-        rivers.forEach(river => {
-          let distanceToCheck;
-          if (river.geometry.type !== "MultiLineString") {
-            distanceToCheck = pointToLineDistance(
-              [location.lng, location.lat],
-              river
-            );
-          } else {
-            let shortestSubLineDistance = -1;
-            let distanceToCheck;
-            river.geometry.coordinates.forEach(coordinateArray => {
-              shortestSubLineDistance = pointToLineDistance(
-                [location.lng, location.lat],
-                coordinateArray
-              );
-
-              if (
-                shortestSubLineDistance === -1 ||
-                shortestSubLineDistance < distanceToCheck
-              ) {
-                distanceToCheck = shortestSubLineDistance;
-              }
-            });
-          }
-          if (distance === -1 || distanceToCheck < distance) {
-            distance = distanceToCheck;
-            foundRiver = river;
-          }
-        });
-      }
-
-      return foundRiver;
-    },
     getRoute(profile, startLocation, endLocation) {
       return new Promise(resolve => {
         if (profile === "SUP") {
-          let route = this.getRiverRoute(startLocation, endLocation, []);
+          let route = riverRoute.getRiverRoute(
+            startLocation,
+            endLocation,
+            [rawRivers, rawEuropeanRivers],
+            []
+          );
           var routeLineString = {
             id: "SUPRoute",
             type: "Feature",
@@ -895,7 +657,7 @@ export default {
     showBottomDialogFromLastClick() {
       let lastStop = this.trip.stopList[this.trip.stopList.length - 1];
 
-      if (lastStop) {
+      if (lastStop && lastStop.profile !== "SUP") {
         this.getRoute(
           lastStop.profile || this.trip.transportProfile,
           lastStop.location,

@@ -26,7 +26,7 @@ export default {
    * @param currentRiver
    * @returns a array of coordinates for a route
    */
-  getRiverRoute(
+  async getRiverRoute(
     startLocation: PointLocation,
     endLocation: PointLocation,
     riverCollection: FeatureCollection<
@@ -57,8 +57,6 @@ export default {
     );
 
     let distanceToEndLocation = stopRiverPoint.properties.dist || 0;
-
-    console.log(distanceToEndLocation);
 
     // check if distance from stop river point to end location is less than 2km
     if (Math.round(distanceToEndLocation) > 2) {
@@ -96,9 +94,6 @@ export default {
         });
       });
 
-      console.log("====");
-      console.log(currentRiver);
-
       // get best interscting river (closest to end location)
       if (intersectingRivers.features.length > 0) {
         let bestIntersectingRiver = this.getClosestRiver(
@@ -126,7 +121,9 @@ export default {
               coord[0] === closestIntersectingPoint.geometry.coordinates[0] &&
               coord[1] === closestIntersectingPoint.geometry.coordinates[1]
           ) &&
-          takenCoords.length < 300
+          takenCoords.length < 300 &&
+          closestIntersectingPoint.properties.distanceToPoint <
+            distanceToEndLocation * 3
         ) {
           // get route from start point to intersecting point
           let routeToIntersectingRiver = turf.lineSlice(
@@ -145,7 +142,7 @@ export default {
           );
 
           // restart method with intersecting point as start
-          this.getRiverRoute(
+          await this.getRiverRoute(
             new PointLocation(
               closestIntersectingPoint.geometry.coordinates[1],
               closestIntersectingPoint.geometry.coordinates[0],
@@ -158,19 +155,19 @@ export default {
             bestIntersectingRiver
           );
         } else {
-          console.log("else 1");
-          let route = turf.lineSlice(
-            startRiverPoint,
-            stopRiverPoint,
-            currentRiver
-          );
-          takenCoords.push.apply(
-            takenCoords,
-            this.revertRiver(currentRiver, startRiverPoint, route)
-          );
+          if (startRiverPoint && stopRiverPoint) {
+            let route = turf.lineSlice(
+              startRiverPoint,
+              stopRiverPoint,
+              currentRiver
+            );
+            takenCoords.push.apply(
+              takenCoords,
+              this.revertRiver(currentRiver, startRiverPoint, route)
+            );
+          }
         }
       } else {
-        console.log("else 2");
         let route = turf.lineSlice(
           startRiverPoint,
           stopRiverPoint,
@@ -182,8 +179,6 @@ export default {
         );
       }
     } else {
-      console.log("else 3");
-
       if (startRiverPoint) {
         let route = turf.lineSlice(
           startRiverPoint,
@@ -211,7 +206,6 @@ export default {
 
     // get distance of current rivers 0 and last point to start point
     if (Array.isArray(river.geometry.coordinates[0][0])) {
-      console.log(river.geometry.coordinates[0]);
       // multiline string
       distanceToFirst = turf.distance(point, river.geometry.coordinates[0][0]);
 
@@ -234,7 +228,6 @@ export default {
 
     if (distanceToLast < distanceToFirst) {
       // revert route
-
       return route.geometry.coordinates.reverse();
     } else {
       return route.geometry.coordinates;

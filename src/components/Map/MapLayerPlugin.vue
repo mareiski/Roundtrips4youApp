@@ -47,6 +47,12 @@
           >
             <q-item-section>Outdoor</q-item-section>
           </q-item>
+
+          <q-separator />
+
+          <q-item clickable @click="switchMapStyle('rivers')" v-close-popup>
+            <q-item-section>Flüsse</q-item-section>
+          </q-item>
         </q-list>
       </q-menu>
     </q-btn>
@@ -67,7 +73,9 @@ export default {
     switchMapStyle(styleName) {
       let parent = sharedMethods.getParent("map", this);
 
-      this.styleName = styleName;
+      if (styleName != "rivers") {
+        this.styleName = styleName;
+      }
 
       switch (styleName) {
         case "nav":
@@ -82,17 +90,22 @@ export default {
           parent.mapStyle =
             "mapbox://styles/mareiski/ckcevopcq123g1imgb36xu37s";
           break;
+        case "rivers":
+          parent.showHideRivers();
+          break;
         default:
           parent.mapStyle =
             "mapbox://styles/mareiski/ck27d9xpx5a9s1co7c2golomn";
           break;
       }
 
-      // wait to ensure style fully loaded
-      let context = this;
-      setTimeout(function() {
-        context.$emit("styleChanged");
-      }, 300);
+      if (styleName != "rivers") {
+        // wait to ensure style fully loaded
+        let context = this;
+        setTimeout(function() {
+          context.$emit("styleChanged");
+        }, 300);
+      }
     }
   }
 };

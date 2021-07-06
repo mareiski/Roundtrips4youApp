@@ -18,7 +18,7 @@
     </q-pull-to-refresh>
     <q-inner-loading :showing="mapLoading" style="z-index: 1;">
       <q-spinner size="42px" color="primary"> </q-spinner>
-      <p class="font-medium" style="margin-top:10px;">Karte wird geladen</p>
+      <p class="font-medium" style="margin-top:10px;">{{ mapLoadingText }}</p>
     </q-inner-loading>
     <MglMap
       v-if="accTo"
@@ -52,7 +52,10 @@
       </q-btn>
       <MglNavigationControl position="top-right" />
       <MapLayerPlugin
-        @styleChanged="addAllRoutes()"
+        @styleChanged="
+          addAllRoutes();
+          loadRiverLayers();
+        "
         class="mapboxgl-ctrl"
         position="top-right"
       />
@@ -164,6 +167,7 @@ export default {
       mapStyle: "mapbox://styles/mareiski/ck27d9xpx5a9s1co7c2golomn",
       mapbox: null,
       mapLoading: true,
+      mapLoadingText: "Karte wird geladen",
       centerLocation: [],
       trip: Trip,
       addedRoutes: [],
@@ -176,6 +180,7 @@ export default {
       TripId: null,
       markerClicked: false,
       routeIds: [],
+      showRivers: false,
       whitelistedLabels: [
         "airport-label",
         "place-label",
@@ -209,21 +214,25 @@ export default {
     }
   },
   methods: {
-    onMapLoaded(event) {
-      this.mapLoading = false;
-
+    async onMapLoaded(event) {
       map = event.map;
 
-      let context = this;
-      // wait 1 second to ensure map is realy loaded
-      setTimeout(function() {
-        context.fitToBounds(context.bounds);
-      }, 1000);
-
       // try to get routes again
+      let context = this;
+
+      this.loadRiverLayers().then(() => {
+        this.addAllRoutes().then(() => {
+          context.fitToBounds(context.bounds);
+        });
+      });
+    },
+    loadRiverLayers() {
+      this.mapLoadingText = "Flüsse werden geladen";
+
       let promiseList = [];
       promiseList.push(
         shp("../rivers.zip").then(geojson => {
+          this.mapLoadingText = "Routen werden berechnet";
           rawRivers = geojson;
           map.addLayer({
             id: "rivers",
@@ -232,15 +241,13 @@ export default {
               type: "geojson",
               data: geojson
             },
+            layout: {
+              visibility: "visible"
+            },
             paint: {
-              "line-color": "#000",
-              "line-width": 5,
-              "line-opacity": [
-                "case",
-                ["boolean", ["feature-state", "hover"], false],
-                0.75,
-                0.4
-              ]
+              "line-color": "#0d3567",
+              "line-width": 2,
+              "line-opacity": 0.4
             }
           });
         })
@@ -248,6 +255,7 @@ export default {
 
       promiseList.push(
         shp("../european_rivers.zip").then(geojson => {
+          this.mapLoadingText = "Routen werden berechnet";
           rawEuropeanRivers = geojson;
           map.addLayer({
             id: "europeanRivers",
@@ -256,23 +264,19 @@ export default {
               type: "geojson",
               data: geojson
             },
+            layout: {
+              visibility: "visible"
+            },
             paint: {
-              "line-color": "#000",
-              "line-width": 5,
-              "line-opacity": [
-                "case",
-                ["boolean", ["feature-state", "hover"], false],
-                0.75,
-                0.4
-              ]
+              "line-color": "#0d3567",
+              "line-width": 2,
+              "line-opacity": 0.4
             }
           });
         })
       );
 
-      Promise.all(promiseList).then(() => {
-        this.addAllRoutes();
-      });
+      return Promise.all(promiseList);
     },
     flyTo(event) {
       this.lastClickCoordinates = event;
@@ -306,7 +310,25 @@ export default {
 
       return count > 1;
     },
-    addAllRoutes() {
+    showHideRivers() {
+      if (!map) return;
+
+      var visibility = map.getLayoutProperty("rivers", "visibility");
+      let hide = visibility === "visible";
+
+      map.setLayoutProperty("rivers", "visibility", hide ? "none" : "visible");
+
+      map.setLayoutProperty(
+        "europeanRivers",
+        "visibility",
+        hide ? "none" : "visible"
+      );
+    },
+    async addAllRoutes() {
+      if (!map) return;
+
+      let promiseList = [];
+
       if (this.trip && this.trip.stopList) {
         this.bounds = [];
 
@@ -316,8 +338,15 @@ export default {
 
           // add route from last to this stop
           if (index > 0) {
-            this.addRoute(this.trip.stopList[index - 1], stop, index);
+            promiseList.push(
+              this.addRoute(this.trip.stopList[index - 1], stop, index)
+            );
           }
+        });
+
+        Promise.all(promiseList).then(() => {
+          this.mapLoading = false;
+          return;
         });
       }
     },
@@ -418,7 +447,7 @@ export default {
           if (done) done();
         });
     },
-    addRoute(startStop, endStop, index) {
+    async addRoute(startStop, endStop, index) {
       if (!map) return false;
 
       let profile = startStop.profile || this.trip.transportProfile;
@@ -491,49 +520,53 @@ export default {
             });
             map.getSource(id).setData(geojson);
           }
+          return;
         }
       );
     },
     getRoute(profile, startLocation, endLocation) {
       return new Promise(resolve => {
         if (profile === "SUP") {
-          let route = riverRoute.getRiverRoute(
-            startLocation,
-            endLocation,
-            [rawRivers, rawEuropeanRivers],
-            []
-          );
-          var routeLineString = {
-            id: "SUPRoute",
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "LineString",
-              coordinates: route
-            }
-          };
+          riverRoute
+            .getRiverRoute(
+              startLocation,
+              endLocation,
+              [rawRivers, rawEuropeanRivers],
+              []
+            )
+            .then(route => {
+              var routeLineString = {
+                id: "SUPRoute",
+                type: "Feature",
+                properties: {},
+                geometry: {
+                  type: "LineString",
+                  coordinates: route
+                }
+              };
 
-          // get distance
-          let rawRouteDistance = Math.round(
-            turf.lineDistance(routeLineString, "kilometers")
-          );
+              // get distance
+              let rawRouteDistance = Math.round(
+                turf.lineDistance(routeLineString, "kilometers")
+              );
 
-          let routeDistance =
-            rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
+              let routeDistance =
+                rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
 
-          console.log(routeLineString);
+              console.log(routeLineString);
 
-          let rawDurationHours = rawRouteDistance / 6;
+              let rawDurationHours = rawRouteDistance / 6;
 
-          resolve({
-            route: route,
-            rawDuration: rawDurationHours,
-            duration: rawDurationHours + "h",
-            rawDistance: rawRouteDistance,
-            distance: routeDistance,
-            from: startLocation.label,
-            to: endLocation.label
-          });
+              resolve({
+                route: route,
+                rawDuration: rawDurationHours,
+                duration: rawDurationHours + "h",
+                rawDistance: rawRouteDistance,
+                distance: routeDistance,
+                from: startLocation.label,
+                to: endLocation.label
+              });
+            });
         } else {
           var url =
             "https://api.mapbox.com/directions/v5/mapbox/" +

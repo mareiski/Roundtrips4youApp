@@ -42,7 +42,7 @@ export default {
         return this.stopProp;
       },
       set: function(newValue) {
-        if (this.stop != newValue) {
+        if (this.stop !==newValue) {
           this.$emit("stopChanged", newValue);
         }
       }

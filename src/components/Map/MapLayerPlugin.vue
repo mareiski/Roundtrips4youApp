@@ -73,7 +73,7 @@ export default {
     switchMapStyle(styleName) {
       let parent = sharedMethods.getParent("map", this);
 
-      if (styleName != "rivers") {
+      if (styleName !=="rivers") {
         this.styleName = styleName;
       }
 
@@ -99,7 +99,7 @@ export default {
           break;
       }
 
-      if (styleName != "rivers") {
+      if (styleName !=="rivers") {
         // wait to ensure style fully loaded
         let context = this;
         setTimeout(function() {

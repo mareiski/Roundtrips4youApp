@@ -44,6 +44,7 @@ export default {
 
     if (!startRiverPoint) {
       //find the nearest point on the river to start location
+      // @ts-ignore
       startRiverPoint = nearestPointOnLine(
         currentRiver,
         turf.point([startLocation.lng, startLocation.lat])
@@ -61,6 +62,7 @@ export default {
     // check if distance from stop river point to end location is less than 2km
     if (Math.round(distanceToEndLocation) > 2) {
       let currentRiverBBox = turf.bbox(currentRiver);
+      // @ts-ignore
       currentRiverBBox = turf.buffer(currentRiver, 0.2);
       // todo dget intersecing rivers with current river bbox +200m padding
 
@@ -78,16 +80,18 @@ export default {
           ) {
             // push only if we didnt visit this coordinates yet
             let ableToPush = true;
-            river.geometry.coordinates.forEach(coordinate => {
-              if (
-                takenCoords.some(
-                  coord =>
-                    coord[0] === coordinate[0] && coord[1] === coordinate[1]
-                )
-              ) {
-                ableToPush = false;
+            river.geometry.coordinates.forEach(
+              (coordinate: Position | Position[]) => {
+                if (
+                  takenCoords.some(
+                    coord =>
+                      coord[0] === coordinate[0] && coord[1] === coordinate[1]
+                  )
+                ) {
+                  ableToPush = false;
+                }
               }
-            });
+            );
 
             if (ableToPush) intersectingRivers.features.push(river);
           }
@@ -108,6 +112,7 @@ export default {
         );
 
         // get closest intersecting point to end location
+        // @ts-ignore
         let closestIntersectingPoint: Feature<Point> = nearestPoint(
           turf.point([endLocation.lng, endLocation.lat]),
           intersectingPoints
@@ -122,11 +127,13 @@ export default {
               coord[1] === closestIntersectingPoint.geometry.coordinates[1]
           ) &&
           takenCoords.length < 300 &&
+          // @ts-ignore
           closestIntersectingPoint.properties.distanceToPoint <
             distanceToEndLocation * 3
         ) {
           // get route from start point to intersecting point
           let routeToIntersectingRiver = turf.lineSlice(
+            // @ts-ignore
             startRiverPoint,
             closestIntersectingPoint,
             currentRiver
@@ -136,6 +143,7 @@ export default {
             takenCoords,
             this.revertRiver(
               currentRiver,
+              // @ts-ignore
               startRiverPoint,
               routeToIntersectingRiver
             )
@@ -154,43 +162,39 @@ export default {
             closestIntersectingPoint,
             bestIntersectingRiver
           );
-        } else {
-          if (startRiverPoint && stopRiverPoint) {
-            let route = turf.lineSlice(
-              startRiverPoint,
-              stopRiverPoint,
-              currentRiver
-            );
-            takenCoords.push.apply(
-              takenCoords,
-              this.revertRiver(currentRiver, startRiverPoint, route)
-            );
-          }
-        }
-      } else {
-        let route = turf.lineSlice(
-          startRiverPoint,
-          stopRiverPoint,
-          currentRiver
-        );
-        takenCoords.push.apply(
-          takenCoords,
-          this.revertRiver(currentRiver, startRiverPoint, route)
-        );
-      }
-    } else {
-      if (startRiverPoint) {
-        let route = turf.lineSlice(
-          startRiverPoint,
-          stopRiverPoint,
-          currentRiver
-        );
+        } else if (startRiverPoint && stopRiverPoint) {
+          let route = turf.lineSlice(
+            startRiverPoint,
 
+            // @ts-ignore
+            stopRiverPoint,
+            currentRiver
+          );
+          takenCoords.push.apply(
+            takenCoords,
+            this.revertRiver(currentRiver, startRiverPoint, route)
+          );
+        }
+      } else if (startRiverPoint && stopRiverPoint) {
+        let route = turf.lineSlice(
+          startRiverPoint,
+          // @ts-ignore
+          stopRiverPoint,
+          currentRiver
+        );
         takenCoords.push.apply(
           takenCoords,
           this.revertRiver(currentRiver, startRiverPoint, route)
         );
       }
+    } else if (startRiverPoint && stopRiverPoint) {
+      // @ts-ignore
+      let route = turf.lineSlice(startRiverPoint, stopRiverPoint, currentRiver);
+
+      takenCoords.push.apply(
+        takenCoords,
+        this.revertRiver(currentRiver, startRiverPoint, route)
+      );
     }
 
     // return all taken coords
@@ -207,21 +211,25 @@ export default {
     // get distance of current rivers 0 and last point to start point
     if (Array.isArray(river.geometry.coordinates[0][0])) {
       // multiline string
+      // @ts-ignore
       distanceToFirst = turf.distance(point, river.geometry.coordinates[0][0]);
 
       let coordinatesLength = river.geometry.coordinates.length;
 
       distanceToLast = turf.distance(
         point,
+        // @ts-ignore
         river.geometry.coordinates[coordinatesLength - 1][
           river.geometry.coordinates[coordinatesLength - 1].length - 1
         ]
       );
     } else {
+      // @ts-ignore
       distanceToFirst = turf.distance(point, river.geometry.coordinates[0]);
 
       distanceToLast = turf.distance(
         point,
+        // @ts-ignore
         river.geometry.coordinates[river.geometry.coordinates.length - 1]
       );
     }
@@ -253,6 +261,7 @@ export default {
 
     riverArr.forEach(riverCollection => {
       riverCollection.features.forEach(river => {
+        // @ts-ignore
         let bboxPolygon = turf.bboxPolygon(river.geometry.bbox);
 
         if (

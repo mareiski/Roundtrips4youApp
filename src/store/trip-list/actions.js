@@ -1,7 +1,7 @@
 import { db, auth } from "../../firebaseInit.js";
 import Trip from "../../classes/trip.ts";
 import sharedMethods from "app/sharedMethods.js";
-import Stop from "../../classes/stop.ts";
+import axios from "axios";
 
 export default {
   /**
@@ -119,7 +119,7 @@ export default {
         let index = 0;
 
         // cancel here if no trips created yet
-        if (snapshot.size === 0) resolve(null);
+        if (snapshot.empty) resolve(null);
 
         snapshot.forEach(doc => {
           // add trip
@@ -128,7 +128,7 @@ export default {
           index++;
 
           // its last trip > finished
-          if (index === snapshot.size - 1) {
+          if (index === snapshot.size) {
             commit("addTrips", tripArr);
             resolve(tripArr);
           }
@@ -139,10 +139,25 @@ export default {
   addTripFromTemplate({ dispatch }, payload) {
     return new Promise(resolve => {
       dispatch("fetchSingleTrip", payload)
-        .then(templateTrip => {
+        .then(trip => {
+          let templateTrip = Trip.fromObject(trip);
+          // set title
+          templateTrip.title = payload.title;
+          if (payload.startDate) templateTrip.startDate = payload.startDate;
+
+          // add arival departure
+          if (payload.startStop) {
+            templateTrip.stopList.unshift(payload.startStop);
+            if (payload.endStop) {
+              templateTrip.stopList.push(payload.endStop);
+            } else {
+              templateTrip.stopList.push(payload.startStop);
+            }
+          }
+
           dispatch("addTrip", templateTrip)
-            .then(newTrip => {
-              resolve(newTrip);
+            .then(TripId => {
+              resolve(TripId);
             })
             .catch(e => {
               console.log(e);
@@ -166,7 +181,8 @@ export default {
           payload.title,
           "Beschreibe deine Reise",
           auth.user().uid,
-          timeStamp
+          timeStamp,
+          payload.startDate || null
         );
 
         // add stops
@@ -237,6 +253,52 @@ export default {
         });
     });
   },
+  updateTrip({ commit }, trip) {
+    return new Promise(resolve => {
+      // fetch and save countries
+      let tempCountries = [];
+      let promiseList = [];
+
+      trip.stopList.forEach(stop => {
+        let url =
+          "http://api.geonames.org/countryCodeJSON?lang=de&lat=" +
+          stop.location.lat +
+          "&lng=" +
+          stop.location.lng +
+          "&username=roundtrips4you";
+
+        promiseList.push(
+          axios
+            .get(url)
+            .then(response => {
+              if (!tempCountries.includes(response.data.countryName))
+                tempCountries.push(response.data.countryName);
+            })
+            .catch(function(error) {
+              console.log(error);
+            })
+        );
+      });
+
+      Promise.all(promiseList).then(vals => {
+        // update countries of current trip
+        trip.countries = tempCountries;
+
+        db.collection("Trips")
+          .doc(trip.TripId)
+          .update(trip.toObject())
+          .then(function() {
+            // add trip to trip list
+            commit("setTrip", trip);
+            resolve(true);
+          })
+          .catch(e => {
+            console.log(e);
+            resolve(false);
+          });
+      });
+    });
+  },
   updateStop({ dispatch }, payload) {
     return new Promise(resolve => {
       dispatch("fetchSingleTrip", payload).then(trip => {
@@ -297,7 +359,7 @@ export default {
         dispatch("setNewStopList", stopListPayload).then(success => {
           if (!success) {
             sharedMethods.showErrorNotification(
-              "Stop konnte nicht gelöscht werden"
+              "Stopp konnte nicht gelöscht werden"
             );
             resolve(false);
           } else {
@@ -311,13 +373,16 @@ export default {
     return new Promise(resolve => {
       db.collection("Trips")
         .doc(TripId)
-        .where("UserId", "==", auth.user().uid)
         .delete()
         .then(function() {
-          commit("removeRoundtrip", TripId);
+          sharedMethods.showSuccessNotification("Reise wurde gelöscht");
+          commit("removeTrip", TripId);
           resolve(true);
         })
         .catch(function(error) {
+          sharedMethods.showErrorNotification(
+            "Reise konnte nicht gelöscht werden"
+          );
           console.log(error);
           resolve(false);
         });

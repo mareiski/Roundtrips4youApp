@@ -74,7 +74,8 @@ export default class Trip {
     title: string,
     description: string,
     userId: string,
-    timeStamp: string | number | Date
+    timeStamp: string | number | Date,
+    startDate?: Date
   ) {
     this.TripId = TripId;
     this.title = title;
@@ -97,7 +98,7 @@ export default class Trip {
     this.offerStartPeriod = new Date(timeStamp);
     this.offerWholeYear = true;
     this.createdAt = new Date(timeStamp);
-    this.startDate = new Date(timeStamp);
+    this.startDate = startDate || new Date(timeStamp);
     this.stopList = [];
 
     // arrival departure default values
@@ -144,7 +145,7 @@ export default class Trip {
     this.rooms = obj.rooms;
     this.adults = obj.adults;
     this.childrenAges = obj.childrenAges;
-    this.startDate = obj.startDAte;
+    this.startDate = obj.startDate;
 
     this.stopList = [];
 

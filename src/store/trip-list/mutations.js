@@ -9,7 +9,14 @@ export default {
    * @param {Trip[]} trips
    */
   addTrips: (state, trips) => {
-    state.TripList.push(trips);
+    trips.forEach(trip => {
+      let index = state.TripList.findIndex(x => x.TripId === trip.TripId);
+      if (index === -1) {
+        state.TripList.push(trip);
+      } else {
+        state.TripList[index] = trip;
+      }
+    });
   },
   /**
    * @param {Trip} trip
@@ -19,6 +26,15 @@ export default {
     if (index === -1) {
       state.TripList.push(trip);
     } else {
+      state.TripList[index] = trip;
+    }
+  },
+  /**
+   * @param {Trip} trip
+   */
+  setTrip: (state, trip) => {
+    let index = state.TripList.findIndex(x => x.TripId === trip.TripId);
+    if (index !== -1) {
       state.TripList[index] = trip;
     }
   },

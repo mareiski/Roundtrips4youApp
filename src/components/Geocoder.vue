@@ -1,42 +1,55 @@
 <template>
-  <div>
-    <div id="geocoder"></div>
-  </div>
+	<div>
+		<div
+			:id="id || 'geocoder'"
+			class="geocoder"
+		></div>
+	</div>
 </template>
 
 <script>
-export default {
-  mounted() {
-    var geocoder = new MapboxGeocoder({
-      accessToken:
-        "pk.eyJ1IjoibWFyZWlza2kiLCJhIjoiY2tucTMwOHVqMW96ZDJucHJjYWg4cWZ2ciJ9.iVPMUfC-Nb5Ktb77hfI2xw",
-      types: "country,region,place,postcode,locality,neighborhood"
-    });
+	import PointLocation from "src/classes/pointLocation";
+	export default {
+		props: {
+			id: String,
+		},
+		mounted() {
+			var geocoder = new MapboxGeocoder({
+				accessToken: this.$store.getters["api/getMapboxKey"],
+				types: "country,region,place,postcode,locality,neighborhood",
+			});
 
-    geocoder.addTo("#geocoder");
+			geocoder.addTo("#" + (this.id || "geocoder"));
 
-    let context = this;
-    // Add geocoder result to container.
-    geocoder.on("result", function(e) {
-      let country;
-      if (e.result.place_name.includes(",")) {
-        let locationParts = e.result.place_name.split(",");
-        country = locationParts[locationParts.length - 1];
-      } else {
-        country = e.result.place_name;
-      }
+			let context = this;
+			// Add geocoder result to container.
+			geocoder.on("result", function (e) {
+				let country;
+				if (e.result.place_name.includes(",")) {
+					let locationParts = e.result.place_name.split(",");
+					country = locationParts[locationParts.length - 1];
+				} else {
+					country = e.result.place_name;
+				}
 
-      context.$emit("inputCountry", country);
-    });
+				context.$emit("inputCountry", country);
 
-    // Clear results container when search is cleared.
-    geocoder.on("clear", function() {
-      context.$emit("input", null);
-    });
-  }
-};
+				let location = new PointLocation(
+					e.result.center[1],
+					e.result.center[0],
+					e.result.place_name
+				);
+				context.$emit("inputLocation", location);
+			});
+
+			// Clear results container when search is cleared.
+			geocoder.on("clear", function () {
+				context.$emit("clear");
+			});
+		},
+	};
 </script>
 
 <style lang="scss">
-@import url("../css/map.scss");
+	@import url("../css/map.scss");
 </style>

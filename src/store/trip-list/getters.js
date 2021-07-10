@@ -4,12 +4,14 @@ export default {
   getTripList: state => state.TripList,
   getUsersTripList: state => {
     try {
-      state.TripList.reduce(function(userTrips, e) {
+      let userTrips = [];
+      state.TripList.reduce(function(trips, e) {
         if (e.userId === auth.user().uid) {
           userTrips.push(e);
         }
-        return userTrips;
       }, []);
+
+      return userTrips;
     } catch (e) {
       console.log(e);
       return null;
@@ -17,7 +19,8 @@ export default {
   },
   getPublicTripList: state => {
     try {
-      state.TripList.reduce(function(publicTrips, e) {
+      let publicTrips = [];
+      state.TripList.reduce(function(trips, e) {
         if (e.published) {
           publicTrips.push(e);
         }

@@ -67,15 +67,15 @@
 <script>
 export default {
   name: "PageIndex",
-  data() {
-    return {
-      trips: []
-    };
+  computed: {
+    trips() {
+      return this.$store.getters["tripList/getUsersTripList"]
+    } 
   },
   methods: {
     fetchTrips() {
       this.$store.dispatch("tripList/fetchAllUserTrips").then(trips => {
-        this.trips = trips;
+       // this.trips = trips;
       });
     }
   },

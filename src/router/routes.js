@@ -37,6 +37,14 @@ const routes = [
         }
       },
       {
+        path: "/Einstellungen/:tripId",
+        name: "settings",
+        component: () => import("src/pages/TripSettings.vue"),
+        meta: {
+          actionButtonMethod: "focusGeocoder"
+        }
+      },
+      {
         path: "/Profil",
         name: "profile",
         component: () => import("src/pages/Profile.vue"),

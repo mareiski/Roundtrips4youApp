@@ -10,6 +10,7 @@ export default class Stop {
   stopKind: string;
   profile: string;
   children: Array<Stop>;
+  fixedToEnd: boolean;
 
   /**
    * @returns new stop created from a object
@@ -35,10 +36,16 @@ export default class Stop {
    * @param obj
    * must contain stop id, start date, day duration and location
    */
-  constructor(stopId: number, dayDuration: number, location: PointLocation) {
+  constructor(
+    stopId: number,
+    dayDuration: number,
+    location: PointLocation,
+    fixedToEnd?: boolean
+  ) {
     this.stopId = stopId;
     this.dayDuration = dayDuration;
     this.location = location;
+    this.fixedToEnd = fixedToEnd || false;
 
     // set title to same name as location
     if (this.location && this.location.label) {

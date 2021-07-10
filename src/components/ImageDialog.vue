@@ -30,7 +30,7 @@ export default {
         return this.showed;
       },
       set: function(newValue) {
-        if (this.showed != newValue) {
+        if (this.showed !==newValue) {
           this.$emit("showedChanged", newValue);
         }
       }

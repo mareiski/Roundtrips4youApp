@@ -1,800 +1,836 @@
 <template>
-  <div style="overflow:hidden;" class="map fit">
-    <q-pull-to-refresh @refresh="getTrip">
-      <div
-        class="bg-white full-width flex justify-between text-secondary"
-        style="height:35px; padding: 5px 10px;"
-      >
-        <div>
-          <close-button
-            :top="0"
-            size="md"
-            @click="$router.push('/')"
-          ></close-button>
-        </div>
-        <b class="raleway text-primary">{{ trip.title }}</b>
-        <q-icon name="settings" size="sm" />
-      </div>
-    </q-pull-to-refresh>
-    <q-inner-loading :showing="mapLoading" style="z-index: 1;">
-      <q-spinner size="42px" color="primary"> </q-spinner>
-      <p class="font-medium" style="margin-top:10px;">{{ mapLoadingText }}</p>
-    </q-inner-loading>
-    <MglMap
-      v-if="accTo"
-      :accessToken="accTo"
-      :mapStyle.sync="mapStyle"
-      style="height: 85vh"
-      :center="centerLocation"
-      :zoom="6"
-      :mapboxGl="mapbox"
-      :attributionControl="false"
-      logoPosition="bottom-left"
-      keyboard
-      doubleClickZoom
-      @load="onMapLoaded"
-      @click="onMapClicked"
-    >
-      <MglGeocoderControl
-        :accessToken="accTo"
-        @result="handleGeocoderSearch"
-        placeholder="Ort suchen"
-        ref="geocoder"
-      />
-      <q-btn
-        color="white"
-        text-color="secondary"
-        icon="list"
-        round
-        @click="$router.push('/Liste/' + trip.TripId)"
-        style="position:absolute; right:9px; top:16px;"
-      >
-      </q-btn>
-      <MglNavigationControl position="top-right" />
-      <MapLayerPlugin
-        @styleChanged="
+	<div
+		style="overflow:hidden;"
+		class="map fit"
+	>
+		<q-pull-to-refresh @refresh="getTrip">
+			<div
+				class="bg-white full-width flex justify-between text-secondary"
+				style="height:35px; padding: 5px 10px;"
+			>
+				<div>
+					<close-button
+						:top="0"
+						size="md"
+						@click="$router.push('/')"
+					></close-button>
+				</div>
+				<b class="raleway text-primary">{{ trip.title }}</b>
+				<q-icon
+					style="z-index:1;"
+					@click="$router.push('/Einstellungen/' + trip.TripId)"
+					name="settings"
+					size="sm"
+				/>
+			</div>
+		</q-pull-to-refresh>
+		<q-inner-loading
+			:showing="mapLoading"
+			style="z-index: 1;"
+		>
+			<q-spinner
+				size="42px"
+				color="primary"
+			> </q-spinner>
+			<p
+				class="font-medium"
+				style="margin-top:10px;"
+			>{{ mapLoadingText }}</p>
+		</q-inner-loading>
+		<MglMap
+			v-if="accTo"
+			:accessToken="accTo"
+			:mapStyle.sync="mapStyle"
+			style="height: 85vh"
+			:center="centerLocation"
+			:zoom="6"
+			:mapboxGl="mapbox"
+			:attributionControl="false"
+			logoPosition="bottom-left"
+			keyboard
+			doubleClickZoom
+			@load="onMapLoaded"
+			@click="onMapClicked"
+		>
+			<MglGeocoderControl
+				:accessToken="accTo"
+				@result="handleGeocoderSearch"
+				placeholder="Ort suchen"
+				ref="geocoder"
+			/>
+			<q-btn
+				color="white"
+				text-color="secondary"
+				icon="list"
+				round
+				@click="$router.push('/Liste/' + trip.TripId)"
+				style="position:absolute; right:9px; top:16px;"
+			>
+			</q-btn>
+			<MglNavigationControl position="top-right" />
+			<MapLayerPlugin
+				@styleChanged="
           addAllRoutes();
           loadRiverLayers();
         "
-        class="mapboxgl-ctrl"
-        position="top-right"
-      />
+				class="mapboxgl-ctrl"
+				position="top-right"
+			/>
 
-      <zoom-to-route @clicked="fitToBounds(bounds)"></zoom-to-route>
+			<zoom-to-route @clicked="fitToBounds(bounds)"></zoom-to-route>
 
-      <template v-if="trip">
-        <MglMarker
-          v-for="(stop, index) in trip.stopList"
-          :key="stop.stopId"
-          :coordinates="[stop.location.lng, stop.location.lat]"
-          color="#D56026"
-          :offset="[multipleSameStops(stop.location) ? index * 4 : 0, 0]"
-          v-text="index"
-          @click="showBottomDialog(stop, true, true)"
-        >
-          <div slot="marker">
-            <q-icon
-              style="top:-14px"
-              name="fas fa-map-marker"
-              color="primary"
-              size="lg"
-            />
-            <b
-              style="position:absolute; left:16px; top:-9px;"
-              class="text-white"
-            >
-              {{ index + 1 }}
-            </b>
-          </div>
-        </MglMarker>
-      </template>
-      <!-- last clicked marker -->
-      <MglMarker
-        :coordinates="[lastClickCoordinates.lng, lastClickCoordinates.lat]"
-        color="#70707075"
-        :offset="[5, 10]"
-        ref="addStopMarker"
-        v-if="showAddStopMarker"
-        @click="showBottomDialogFromLastClick()"
-      >
-      </MglMarker>
-    </MglMap>
-    <bottom-dialog
-      v-model="bottomDialogShowed"
-      :data="dialogObject"
-      @poiClicked="flyTo($event)"
-    ></bottom-dialog>
-  </div>
+			<template v-if="trip">
+				<MglMarker
+					v-for="(stop, index) in trip.stopList"
+					:key="stop.stopId"
+					:coordinates="[stop.location.lng, stop.location.lat]"
+					color="#D56026"
+					:offset="[multipleSameStops(stop.location) ? index * 4 : 0, 0]"
+					v-text="index"
+					@click="showBottomDialog(stop, true, true)"
+				>
+					<div slot="marker">
+						<q-icon
+							style="top:-14px"
+							name="fas fa-map-marker"
+							color="primary"
+							size="lg"
+						/>
+						<b
+							style="position:absolute; left:16px; top:-9px;"
+							class="text-white"
+						>
+							{{ index + 1 }}
+						</b>
+					</div>
+				</MglMarker>
+			</template>
+			<!-- last clicked marker -->
+			<MglMarker
+				:coordinates="[lastClickCoordinates.lng, lastClickCoordinates.lat]"
+				color="#70707075"
+				:offset="[5, 10]"
+				ref="addStopMarker"
+				v-if="showAddStopMarker"
+				@click="showBottomDialogFromLastClick()"
+			>
+			</MglMarker>
+		</MglMap>
+		<bottom-dialog
+			v-model="bottomDialogShowed"
+			:data="dialogObject"
+			@poiClicked="flyTo($event)"
+		></bottom-dialog>
+	</div>
 </template>
 
 <script>
-const MglMap = () => import("vue-mapbox");
-const MglGeocoderControl = () => import("vue-mapbox-geocoder");
-import turf from "turf";
-import riverRoute from "components/Map/riverRoute.ts";
+	const MglMap = () => import("vue-mapbox");
+	const MglGeocoderControl = () => import("vue-mapbox-geocoder");
+	import turf from "turf";
+	import riverRoute from "components/Map/riverRoute.ts";
 
-import Mapbox from "mapbox-gl";
-import MapLayerPlugin from "../components/Map/MapLayerPlugin.vue";
-import ZoomToRoute from "../components/Map/ZoomToRoute.vue";
-import { auth } from "../firebaseInit.js";
+	import Mapbox from "mapbox-gl";
+	import MapLayerPlugin from "../components/Map/MapLayerPlugin.vue";
+	import ZoomToRoute from "../components/Map/ZoomToRoute.vue";
+	import { auth } from "../firebaseInit.js";
 
-import { MglMarker, MglNavigationControl } from "vue-mapbox";
-import Trip from "src/classes/trip";
-import BottomDialog from "src/components/Map/BottomDialog.vue";
-import CloseButton from "../components/Buttons/CloseButton.vue";
-import { uuid } from "vue-uuid";
-import sharedMethods from "app/sharedMethods";
-import shp from "shpjs";
+	import { MglMarker, MglNavigationControl } from "vue-mapbox";
+	import Trip from "src/classes/trip";
+	import BottomDialog from "src/components/Map/BottomDialog.vue";
+	import CloseButton from "../components/Buttons/CloseButton.vue";
+	import { uuid } from "vue-uuid";
+	import sharedMethods from "app/sharedMethods";
+	import shp from "shpjs";
 
-let map;
-let rawEuropeanRivers;
-let rawRivers;
+	let map;
+	let rawEuropeanRivers;
+	let rawRivers;
 
-export default {
-  meta: {
-    link: {
-      material: {
-        rel: "stylesheet",
-        href: "https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.css"
-      }
-    }
-  },
-  name: "map",
-  components: {
-    MglMap,
-    MglMarker,
-    MglNavigationControl,
-    MglGeocoderControl,
-    MapLayerPlugin,
-    BottomDialog,
-    CloseButton,
-    ZoomToRoute
-  },
-  computed: {
-    isMobile() {
-      return window.matchMedia("(max-width: 550px)").matches;
-    },
-    accTo() {
-      return this.$store.getters["api/getMapboxKey"];
-    },
-    // need this beause of watcher below
-    stopList() {
-      return this.trip ? this.trip.stopList : [];
-    }
-  },
-  data() {
-    return {
-      mapStyle: "mapbox://styles/mareiski/ck27d9xpx5a9s1co7c2golomn",
-      mapbox: null,
-      mapLoading: true,
-      mapLoadingText: "Karte wird geladen",
-      centerLocation: [],
-      trip: Trip,
-      addedRoutes: [],
-      dialogObject: {},
-      lastClickCoordinates: { lat: 0, lng: 0, label: "abc" },
-      bottomDialogShowed: false,
-      dialogVisible: false,
-      showAddStopMarker: false,
-      bounds: [],
-      TripId: null,
-      markerClicked: false,
-      routeIds: [],
-      showRivers: false,
-      whitelistedLabels: [
-        "airport-label",
-        "place-label",
-        "state-label",
-        "poi-label",
-        "settlement-label",
-        "natural-point-label"
-      ], // 'country-label',
-      suggestedSearches: [
-        { title: "Vorgeschlagene Orte:" },
-        { title: "Berlin", caption: "Deutschland" },
-        { title: "Venedig", caption: "Italien" },
-        { title: "Barcelona", caption: "Spanien" },
-        { title: "Stockholm", caption: "Schweden" }
-      ]
-    };
-  },
-  watch: {
-    stopList: function(newStopList, oldStopList) {
-      // hide all existing routes
-      this.routeIds.forEach(idObject => {
-        map.setLayoutProperty(idObject.routeId, "visibility", "none");
-      });
+	export default {
+		meta: {
+			link: {
+				material: {
+					rel: "stylesheet",
+					href: "https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.0/mapbox-gl.css",
+				},
+			},
+		},
+		name: "map",
+		components: {
+			MglMap,
+			MglMarker,
+			MglNavigationControl,
+			MglGeocoderControl,
+			MapLayerPlugin,
+			BottomDialog,
+			CloseButton,
+			ZoomToRoute,
+		},
+		computed: {
+			isMobile() {
+				return window.matchMedia("(max-width: 550px)").matches;
+			},
+			accTo() {
+				return this.$store.getters["api/getMapboxKey"];
+			},
+			// need this beause of watcher below
+			stopList() {
+				return this.trip ? this.trip.stopList : [];
+			},
+		},
+		data() {
+			return {
+				mapStyle: "mapbox://styles/mareiski/ck27d9xpx5a9s1co7c2golomn",
+				mapbox: null,
+				mapLoading: true,
+				mapLoadingText: "Karte wird geladen",
+				centerLocation: [],
+				trip: new Trip(),
+				addedRoutes: [],
+				dialogObject: {},
+				lastClickCoordinates: { lat: 0, lng: 0, label: "abc" },
+				bottomDialogShowed: false,
+				dialogVisible: false,
+				showAddStopMarker: false,
+				bounds: [],
+				TripId: null,
+				markerClicked: false,
+				routeIds: [],
+				showRivers: false,
+				whitelistedLabels: [
+					"airport-label",
+					"place-label",
+					"state-label",
+					"poi-label",
+					"settlement-label",
+					"natural-point-label",
+				], // 'country-label',
+				suggestedSearches: [
+					{ title: "Vorgeschlagene Orte:" },
+					{ title: "Berlin", caption: "Deutschland" },
+					{ title: "Venedig", caption: "Italien" },
+					{ title: "Barcelona", caption: "Spanien" },
+					{ title: "Stockholm", caption: "Schweden" },
+				],
+			};
+		},
+		watch: {
+			stopList: function (newStopList, oldStopList) {
+				// hide all existing routes
+				this.routeIds.forEach((idObject) => {
+					map.setLayoutProperty(idObject.routeId, "visibility", "none");
+				});
 
-      // recalculate all routes
-      this.addAllRoutes();
+				// recalculate all routes
+				this.addAllRoutes();
 
-      // hide dialog always if a stop was added or removed
-      this.hideBottomDialog();
-      this.showAddStopMarker = false;
-    }
-  },
-  methods: {
-    async onMapLoaded(event) {
-      map = event.map;
+				// hide dialog always if a stop was added or removed
+				this.hideBottomDialog();
+				this.showAddStopMarker = false;
+			},
+		},
+		methods: {
+			async onMapLoaded(event) {
+				map = event.map;
 
-      // try to get routes again
-      let context = this;
+				// try to get routes again
+				let context = this;
 
-      this.loadRiverLayers().then(() => {
-        this.addAllRoutes().then(() => {
-          context.fitToBounds(context.bounds);
-        });
-      });
-    },
-    loadRiverLayers() {
-      this.mapLoadingText = "Flüsse werden geladen";
+				this.loadRiverLayers().then(() => {
+					this.addAllRoutes().then(() => {
+						context.fitToBounds(context.bounds);
+					});
+				});
+			},
+			loadRiverLayers() {
+				this.mapLoadingText = "Flüsse werden geladen";
 
-      let promiseList = [];
-      promiseList.push(
-        shp("../rivers.zip").then(geojson => {
-          this.mapLoadingText = "Routen werden berechnet";
-          rawRivers = geojson;
-          map.addLayer({
-            id: "rivers",
-            type: "line",
-            source: {
-              type: "geojson",
-              data: geojson
-            },
-            layout: {
-              visibility: "visible"
-            },
-            paint: {
-              "line-color": "#0d3567",
-              "line-width": 2,
-              "line-opacity": 0.4
-            }
-          });
-        })
-      );
+				let promiseList = [];
 
-      promiseList.push(
-        shp("../european_rivers.zip").then(geojson => {
-          this.mapLoadingText = "Routen werden berechnet";
-          rawEuropeanRivers = geojson;
-          map.addLayer({
-            id: "europeanRivers",
-            type: "line",
-            source: {
-              type: "geojson",
-              data: geojson
-            },
-            layout: {
-              visibility: "visible"
-            },
-            paint: {
-              "line-color": "#0d3567",
-              "line-width": 2,
-              "line-opacity": 0.4
-            }
-          });
-        })
-      );
+				promiseList.push(
+					shp("../rivers_bavaria.zip").then((geojson) => {
+						this.mapLoadingText = "Routen werden berechnet";
+						rawRivers = geojson;
+						map.addLayer({
+							id: "rivers",
+							type: "line",
+							source: {
+								type: "geojson",
+								data: geojson,
+							},
+							layout: {
+								visibility: "visible",
+							},
+							paint: {
+								"line-color": "#0d3567",
+								"line-width": 2,
+								"line-opacity": 0.4,
+							},
+						});
+					})
+				);
 
-      return Promise.all(promiseList);
-    },
-    flyTo(event) {
-      this.lastClickCoordinates = event;
-      this.showAddStopMarker = true;
+				/* 	promiseList.push(
+										shp("../rivers.zip").then((geojson) => {
+											this.mapLoadingText = "Routen werden berechnet";
+											rawRivers = geojson;
+											map.addLayer({
+												id: "rivers",
+												type: "line",
+												source: {
+													type: "geojson",
+													data: geojson,
+												},
+												layout: {
+													visibility: "visible",
+												},
+												paint: {
+													"line-color": "#0d3567",
+													"line-width": 2,
+													"line-opacity": 0.4,
+												},
+											});
+										})
+									);
 
-      setTimeout(
-        function() {
-          map.flyTo({
-            center: [event.lng, event.lat],
-            speed: 0.8,
-            curve: 1,
-            zoom: 14
-          });
-        },
-        map == null ? 3000 : 100
-      );
-    },
-    /**
-     * @returns if there is one more stop with same loation
-     */
-    multipleSameStops(location) {
-      let count = 0;
-      this.trip.stopList.forEach(stop => {
-        if (
-          stop.location.lat === location.lat &&
-          stop.location.lng === location.lng
-        ) {
-          count++;
-        }
-      });
+									promiseList.push(
+										shp("../european_rivers.zip").then((geojson) => {
+											this.mapLoadingText = "Routen werden berechnet";
+											rawEuropeanRivers = geojson;
+											map.addLayer({
+												id: "europeanRivers",
+												type: "line",
+												source: {
+													type: "geojson",
+													data: geojson,
+												},
+												layout: {
+													visibility: "visible",
+												},
+												paint: {
+													"line-color": "#0d3567",
+													"line-width": 2,
+													"line-opacity": 0.4,
+												},
+											});
+										})
+									); */
 
-      return count > 1;
-    },
-    showHideRivers() {
-      if (!map) return;
+				return Promise.all(promiseList);
+			},
+			flyTo(event) {
+				this.lastClickCoordinates = event;
+				this.showAddStopMarker = true;
 
-      var visibility = map.getLayoutProperty("rivers", "visibility");
-      let hide = visibility === "visible";
+				setTimeout(
+					function () {
+						map.flyTo({
+							center: [event.lng, event.lat],
+							speed: 0.8,
+							curve: 1,
+							zoom: 14,
+						});
+					},
+					map == null ? 3000 : 100
+				);
+			},
+			/**
+			 * @returns if there is one more stop with same loation
+			 */
+			multipleSameStops(location) {
+				let count = 0;
+				this.trip.stopList.forEach((stop) => {
+					if (
+						stop.location.lat === location.lat &&
+						stop.location.lng === location.lng
+					) {
+						count++;
+					}
+				});
 
-      map.setLayoutProperty("rivers", "visibility", hide ? "none" : "visible");
+				return count > 1;
+			},
+			showHideRivers() {
+				if (!map) return;
 
-      map.setLayoutProperty(
-        "europeanRivers",
-        "visibility",
-        hide ? "none" : "visible"
-      );
-    },
-    async addAllRoutes() {
-      if (!map) return;
+				var visibility = map.getLayoutProperty("rivers", "visibility");
+				let hide = visibility === "visible";
 
-      let promiseList = [];
+				map.setLayoutProperty("rivers", "visibility", hide ? "none" : "visible");
 
-      if (this.trip && this.trip.stopList) {
-        this.bounds = [];
+				map.setLayoutProperty(
+					"europeanRivers",
+					"visibility",
+					hide ? "none" : "visible"
+				);
+			},
+			async addAllRoutes() {
+				if (!map) return;
 
-        this.trip.stopList.forEach((stop, index) => {
-          // ad bounds
-          this.bounds.push([stop.location.lng, stop.location.lat]);
+				let promiseList = [];
 
-          // add route from last to this stop
-          if (index > 0) {
-            promiseList.push(
-              this.addRoute(this.trip.stopList[index - 1], stop, index)
-            );
-          }
-        });
+				if (this.trip && this.trip.stopList) {
+					this.bounds = [];
 
-        Promise.all(promiseList).then(() => {
-          this.mapLoading = false;
-          return;
-        });
-      }
-    },
-    fitToBounds(bounds) {
-      try {
-        if (bounds.length > 1) {
-          var line = turf.lineString(bounds);
-          var bbox = turf.bbox(line);
-          map.fitBounds(new Mapbox.LngLatBounds(bbox), { padding: 80 });
-        } else if (bounds.length === 1) {
-          this.centerLocation = this.bounds[0];
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    },
-    onMapClicked(event) {
-      if (this.markerClicked) {
-        this.markerClicked = false;
-        return;
-      }
+					this.trip.stopList.forEach((stop, index) => {
+						// ad bounds
+						this.bounds.push([stop.location.lng, stop.location.lat]);
 
-      if (this.dialogVisible) {
-        this.hideBottomDialog();
-      }
+						// add route from last to this stop
+						if (index > 0) {
+							promiseList.push(
+								this.addRoute(this.trip.stopList[index - 1], stop, index)
+							);
+						}
+					});
 
-      let e = event.mapboxEvent;
+					Promise.all(promiseList).then(() => {
+						this.mapLoading = false;
+						return;
+					});
+				}
+			},
+			fitToBounds(bounds) {
+				try {
+					if (bounds.length > 1) {
+						var line = turf.lineString(bounds);
+						var bbox = turf.bbox(line);
+						map.fitBounds(new Mapbox.LngLatBounds(bbox), { padding: 80 });
+					} else if (bounds.length === 1) {
+						this.centerLocation = this.bounds[0];
+					}
+				} catch (e) {
+					console.log(e);
+				}
+			},
+			onMapClicked(event) {
+				if (this.markerClicked) {
+					this.markerClicked = false;
+					return;
+				}
 
-      var features = map.queryRenderedFeatures(e.point);
-      var displayProperties = ["properties", "id", "layer", "geometry"];
+				if (this.dialogVisible) {
+					this.hideBottomDialog();
+				}
 
-      // get data around clicked point
-      var displayFeatures = features.map(function(feat) {
-        var displayFeat = {};
-        displayProperties.forEach(function(prop) {
-          displayFeat[prop] = feat[prop];
-        });
-        return displayFeat;
-      });
+				let e = event.mapboxEvent;
 
-      displayFeatures.forEach(feature => {
-        if (this.whitelistedLabels.includes(feature.layer.id)) {
-          // set marker to new position
-          this.lastClickCoordinates.lng = feature.geometry.coordinates[0];
-          this.lastClickCoordinates.lat = feature.geometry.coordinates[1];
-          this.lastClickCoordinates.label = feature.properties.name_de;
+				var features = map.queryRenderedFeatures(e.point);
+				var displayProperties = ["properties", "id", "layer", "geometry"];
 
-          this.showAddStopMarker = true;
+				// get data around clicked point
+				var displayFeatures = features.map(function (feat) {
+					var displayFeat = {};
+					displayProperties.forEach(function (prop) {
+						displayFeat[prop] = feat[prop];
+					});
+					return displayFeat;
+				});
 
-          if (this.trip.stopList[0]) {
-            map.flyTo({
-              center: [
-                this.lastClickCoordinates.lng,
-                this.lastClickCoordinates.lat
-              ],
-              speed: 0.5,
-              curve: 1
-            });
-          }
+				displayFeatures.forEach((feature) => {
+					if (this.whitelistedLabels.includes(feature.layer.id)) {
+						// set marker to new position
+						this.lastClickCoordinates.lng = feature.geometry.coordinates[0];
+						this.lastClickCoordinates.lat = feature.geometry.coordinates[1];
+						this.lastClickCoordinates.label = feature.properties.name_de;
 
-          this.showBottomDialogFromLastClick();
-        } else if (
-          feature.layer.id === "rivers" ||
-          feature.layer.id === "europeanRivers"
-        ) {
-          console.log("Geklickter Fluss: " + feature.properties.name_de);
-          console.log(feature);
-        }
-      });
-    },
-    handleGeocoderSearch(event) {
-      let result = event.result;
+						this.showAddStopMarker = true;
 
-      this.lastClickCoordinates.lng = result.geometry.coordinates[0];
-      this.lastClickCoordinates.lat = result.geometry.coordinates[1];
-      let placeName = result.place_name;
+						if (this.trip.stopList[0]) {
+							map.flyTo({
+								center: [
+									this.lastClickCoordinates.lng,
+									this.lastClickCoordinates.lat,
+								],
+								speed: 0.5,
+								curve: 1,
+							});
+						}
 
-      if (placeName.includes(",")) placeName = placeName.split(",")[0];
+						this.showBottomDialogFromLastClick();
+					} else if (
+						feature.layer.id === "rivers" ||
+						feature.layer.id === "europeanRivers"
+					) {
+						console.log("Geklickter Fluss: " + feature.properties.name_de);
+						console.log(feature);
+					}
+				});
+			},
+			handleGeocoderSearch(event) {
+				let result = event.result;
 
-      this.lastClickCoordinates.label = placeName;
+				this.lastClickCoordinates.lng = result.geometry.coordinates[0];
+				this.lastClickCoordinates.lat = result.geometry.coordinates[1];
+				let placeName = result.place_name;
 
-      this.showAddStopMarker = true;
+				if (placeName.includes(",")) placeName = placeName.split(",")[0];
 
-      //this.loadMarkerInfos(placeName)
-      this.showBottomDialogFromLastClick();
-    },
-    getTrip(done) {
-      let userTrip = auth.user() !== null;
+				this.lastClickCoordinates.label = placeName;
 
-      this.$store
-        .dispatch("tripList/fetchSingleTrip", {
-          isUserTrip: userTrip,
-          TripId: this.TripId
-        })
-        .then(fetchedTrip => {
-          this.trip = fetchedTrip;
-          this.addAllRoutes();
-          if (done) done();
-        });
-    },
-    async addRoute(startStop, endStop, index) {
-      if (!map) return false;
+				this.showAddStopMarker = true;
 
-      let profile = startStop.profile || this.trip.transportProfile;
-      // get random color for route
-      let color = this.getRandomColor(index, this.trip.stopList.length);
+				//this.loadMarkerInfos(placeName)
+				this.showBottomDialogFromLastClick();
+			},
+			getTrip(done) {
+				let userTrip = auth.user() !== null;
 
-      // generate id
-      let id = uuid.v4() + startStop.stopId;
-      this.routeIds.push({ stopId: startStop.stopId, routeId: id });
+				this.$store
+					.dispatch("tripList/fetchSingleTrip", {
+						isUserTrip: userTrip,
+						TripId: this.TripId,
+					})
+					.then((fetchedTrip) => {
+						this.trip = fetchedTrip;
+						this.addAllRoutes();
+						if (done) done();
+					});
+			},
+			async addRoute(startStop, endStop, index) {
+				if (!map) return false;
 
-      this.getRoute(profile, startStop.location, endStop.location).then(
-        data => {
-          var geojson = {
-            id: id,
-            type: "Feature",
-            properties: {},
-            geometry: {
-              type: "LineString",
-              coordinates: data.route
-            }
-          };
+				let profile = startStop.profile || this.trip.transportProfile;
+				// get random color for route
+				let color = this.getRandomColor(index, this.trip.stopList.length);
 
-          // if the route already exists on the map, reset it using setData
-          if (map.getSource(id)) {
-            map.getSource(id).setData(geojson);
-            map.setPaintProperty(id, "line-color", color);
-            map.setLayoutProperty(id, "visibility", "visible");
-          } else {
-            // otherwise, make a new route
-            map.addLayer({
-              id: id,
-              type: "line",
-              source: {
-                type: "geojson",
-                data: {
-                  type: "Feature",
-                  properties: {},
-                  geometry: {
-                    type: "LineString",
-                    coordinates: geojson
-                  }
-                }
-              },
-              layout: {
-                "line-join": "round",
-                "line-cap": "round",
-                visibility: "visible"
-              },
-              paint: {
-                "line-color": color,
-                "line-width": 5,
-                "line-opacity": [
-                  "case",
-                  ["boolean", ["feature-state", "hover"], false],
-                  0.75,
-                  0.4
-                ]
-              }
-            });
+				// generate id
+				let id = uuid.v4() + startStop.stopId;
+				this.routeIds.push({ stopId: startStop.stopId, routeId: id });
 
-            // on click listener for route
-            let context = this;
-            map.on("click", id, function(e) {
-              context.showBottomDialogFromRoute(
-                startStop,
-                endStop,
-                data.duration,
-                data.distance
-              );
-            });
-            map.getSource(id).setData(geojson);
-          }
-          return;
-        }
-      );
-    },
-    getRoute(profile, startLocation, endLocation) {
-      return new Promise(resolve => {
-        if (profile === "SUP") {
-          riverRoute
-            .getRiverRoute(
-              startLocation,
-              endLocation,
-              [rawRivers, rawEuropeanRivers],
-              []
-            )
-            .then(route => {
-              var routeLineString = {
-                id: "SUPRoute",
-                type: "Feature",
-                properties: {},
-                geometry: {
-                  type: "LineString",
-                  coordinates: route
-                }
-              };
+				this.getRoute(profile, startStop.location, endStop.location).then(
+					(data) => {
+						var geojson = {
+							id: id,
+							type: "Feature",
+							properties: {},
+							geometry: {
+								type: "LineString",
+								coordinates: data.route,
+							},
+						};
 
-              // get distance
-              let rawRouteDistance = Math.round(
-                turf.lineDistance(routeLineString, "kilometers")
-              );
+						// if the route already exists on the map, reset it using setData
+						if (map.getSource(id)) {
+							map.getSource(id).setData(geojson);
+							map.setPaintProperty(id, "line-color", color);
+							map.setLayoutProperty(id, "visibility", "visible");
+						} else {
+							// otherwise, make a new route
+							map.addLayer({
+								id: id,
+								type: "line",
+								source: {
+									type: "geojson",
+									data: {
+										type: "Feature",
+										properties: {},
+										geometry: {
+											type: "LineString",
+											coordinates: geojson,
+										},
+									},
+								},
+								layout: {
+									"line-join": "round",
+									"line-cap": "round",
+									visibility: "visible",
+								},
+								paint: {
+									"line-color": color,
+									"line-width": 5,
+									"line-opacity": [
+										"case",
+										["boolean", ["feature-state", "hover"], false],
+										0.75,
+										0.4,
+									],
+								},
+							});
 
-              let routeDistance =
-                rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
+							// on click listener for route
+							let context = this;
+							map.on("click", id, function (e) {
+								context.showBottomDialogFromRoute(
+									startStop,
+									endStop,
+									data.duration,
+									data.distance
+								);
+							});
+							map.getSource(id).setData(geojson);
+						}
+						return;
+					}
+				);
+			},
+			getRoute(profile, startLocation, endLocation) {
+				return new Promise((resolve) => {
+					if (profile === "SUP") {
+						riverRoute
+							.getRiverRoute(startLocation, endLocation, [rawRivers], [])
+							.then((route) => {
+								var routeLineString = {
+									id: "SUPRoute",
+									type: "Feature",
+									properties: {},
+									geometry: {
+										type: "LineString",
+										coordinates: route,
+									},
+								};
 
-              console.log(routeLineString);
+								// get distance
+								let rawRouteDistance = Math.round(
+									turf.lineDistance(routeLineString, "kilometers")
+								);
 
-              let rawDurationHours = rawRouteDistance / 6;
+								let routeDistance =
+									rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
 
-              resolve({
-                route: route,
-                rawDuration: rawDurationHours,
-                duration: rawDurationHours + "h",
-                rawDistance: rawRouteDistance,
-                distance: routeDistance,
-                from: startLocation.label,
-                to: endLocation.label
-              });
-            });
-        } else {
-          var url =
-            "https://api.mapbox.com/directions/v5/mapbox/" +
-            profile +
-            "/" +
-            startLocation.lng +
-            "," +
-            startLocation.lat +
-            ";" +
-            endLocation.lng +
-            "," +
-            endLocation.lat +
-            "?geometries=geojson&access_token=" +
-            this.accTo;
+								console.log(routeLineString);
 
-          // retrieve data from mapbox
-          sharedMethods.requestURL(url).then(response => {
-            var data = response.data.routes[0];
-            var route = data.geometry.coordinates;
+								let rawDurationHours = rawRouteDistance / 6;
 
-            // get duration
-            let rawDuration = data.duration * 1000;
-            let duration = sharedMethods.msToTime(rawDuration);
+								resolve({
+									route: route,
+									rawDuration: rawDurationHours,
+									duration: Math.round(rawDurationHours) + "h",
+									rawDistance: rawRouteDistance,
+									distance: routeDistance,
+									from: startLocation.label,
+									to: endLocation.label,
+								});
+							});
+					} else {
+						var url =
+							"https://api.mapbox.com/directions/v5/mapbox/" +
+							profile +
+							"/" +
+							startLocation.lng +
+							"," +
+							startLocation.lat +
+							";" +
+							endLocation.lng +
+							"," +
+							endLocation.lat +
+							"?geometries=geojson&access_token=" +
+							this.accTo;
 
-            let rawDistance =
-              Math.floor(data.distance / 1000) > 0
-                ? Math.floor(data.distance / 1000)
-                : 0;
-            let distance = rawDistance > 0 ? rawDistance + " km" : null;
+						// retrieve data from mapbox
+						sharedMethods.requestURL(url).then((response) => {
+							var data = response.data.routes[0];
+							var route = data.geometry.coordinates;
 
-            resolve({
-              route: route,
-              rawDuration: rawDuration,
-              duration: duration,
-              rawDistance: rawDistance,
-              distance: distance,
-              from: startLocation.label,
-              to: endLocation.label
-            });
-          });
-        }
-      });
-    },
-    getRandomColor(step, numOfSteps) {
-      var r, g, b;
-      var h = step / numOfSteps;
-      var i = ~~(h * 6);
-      var f = h * 6 - i;
-      var q = 1 - f;
-      switch (i % 6) {
-        case 0:
-          r = 1;
-          g = f;
-          b = 0;
-          break;
-        case 1:
-          r = q;
-          g = 1;
-          b = 0;
-          break;
-        case 2:
-          r = 0;
-          g = 1;
-          b = f;
-          break;
-        case 3:
-          r = 0;
-          g = q;
-          b = 1;
-          break;
-        case 4:
-          r = f;
-          g = 0;
-          b = 1;
-          break;
-        case 5:
-          r = 1;
-          g = 0;
-          b = q;
-          break;
-      }
-      var c =
-        "#" +
-        ("00" + (~~(r * 255)).toString(16)).slice(-2) +
-        ("00" + (~~(g * 255)).toString(16)).slice(-2) +
-        ("00" + (~~(b * 255)).toString(16)).slice(-2);
-      return c;
-    },
-    showBottomDialog(
-      stop,
-      alreadyAdded,
-      buttons,
-      subtitle = stop.location.label
-    ) {
-      this.hideBottomDialog();
-      if (alreadyAdded) {
-        this.showAddStopMarker = false;
-        this.markerClicked = true;
-      }
-      this.dialogObject = {
-        title: stop.title,
-        subtitle: subtitle,
-        stop: stop,
-        TripId: this.TripId,
-        alreadyAdded: alreadyAdded,
-        buttons: buttons,
-        locationIcon: subtitle === stop.location.label
-      };
+							// get duration
+							let rawDuration = data.duration * 1000;
+							let duration = sharedMethods.msToTime(rawDuration);
 
-      let context = this;
-      // wait to ensure a dialog hide is excecuted before this
-      setTimeout(function() {
-        context.bottomDialogShowed = true;
-        context.dialogVisible = true;
-      }, 100);
-    },
-    hideBottomDialog() {
-      this.bottomDialogShowed = false;
-      this.dialogVisible = false;
-    },
-    showBottomDialogFromLastClick() {
-      let lastStop = this.trip.stopList[this.trip.stopList.length - 1];
+							let rawDistance =
+								Math.floor(data.distance / 1000) > 0
+									? Math.floor(data.distance / 1000)
+									: 0;
+							let distance = rawDistance > 0 ? rawDistance + " km" : null;
 
-      if (lastStop && lastStop.profile !== "SUP") {
-        this.getRoute(
-          lastStop.profile || this.trip.transportProfile,
-          lastStop.location,
-          this.lastClickCoordinates
-        ).then(data => {
-          this.showBottomDialog(
-            {
-              title: this.lastClickCoordinates.label,
-              location: this.lastClickCoordinates
-            },
-            false,
-            true,
-            data.duration + " ab " + lastStop.location.label
-          );
-        });
-      } else {
-        this.showBottomDialog(
-          {
-            title: this.lastClickCoordinates.label,
-            location: this.lastClickCoordinates
-          },
-          false,
-          true
-        );
-      }
-    },
-    showBottomDialogFromRoute(startStop, endStop, duration, distance) {
-      this.showBottomDialog(
-        {
-          title:
-            "Route von " +
-            startStop.location.label +
-            " nach " +
-            endStop.location.label,
-          location: startStop.location
-        },
-        false,
-        false,
-        duration + ", " + distance
-      );
-    },
-    focusGeocoder() {
-      let suggestionsUl = document.getElementsByClassName("suggestions")[0];
+							resolve({
+								route: route,
+								rawDuration: rawDuration,
+								duration: duration,
+								rawDistance: rawDistance,
+								distance: distance,
+								from: startLocation.label,
+								to: endLocation.label,
+							});
+						});
+					}
+				});
+			},
+			getRandomColor(step, numOfSteps) {
+				var r, g, b;
+				var h = step / numOfSteps;
+				var i = ~~(h * 6);
+				var f = h * 6 - i;
+				var q = 1 - f;
+				switch (i % 6) {
+					case 0:
+						r = 1;
+						g = f;
+						b = 0;
+						break;
+					case 1:
+						r = q;
+						g = 1;
+						b = 0;
+						break;
+					case 2:
+						r = 0;
+						g = 1;
+						b = f;
+						break;
+					case 3:
+						r = 0;
+						g = q;
+						b = 1;
+						break;
+					case 4:
+						r = f;
+						g = 0;
+						b = 1;
+						break;
+					case 5:
+						r = 1;
+						g = 0;
+						b = q;
+						break;
+				}
+				var c =
+					"#" +
+					("00" + (~~(r * 255)).toString(16)).slice(-2) +
+					("00" + (~~(g * 255)).toString(16)).slice(-2) +
+					("00" + (~~(b * 255)).toString(16)).slice(-2);
+				return c;
+			},
+			showBottomDialog(
+				stop,
+				alreadyAdded,
+				buttons,
+				subtitle = stop.location.label
+			) {
+				this.hideBottomDialog();
+				if (alreadyAdded) {
+					this.showAddStopMarker = false;
+					this.markerClicked = true;
+				}
+				this.dialogObject = {
+					title: stop.title,
+					subtitle: subtitle,
+					stop: stop,
+					TripId: this.TripId,
+					alreadyAdded: alreadyAdded,
+					buttons: buttons,
+					locationIcon: subtitle === stop.location.label,
+				};
 
-      // fill the geocoder with suggestions
-      if (suggestionsUl.style.display === "none") {
-        if (suggestionsUl.childElementCount === 0) {
-          this.suggestedSearches.forEach(search => {
-            const li = document.createElement("li");
-            const a = document.createElement("a");
-            const wrapperDiv = document.createElement("div");
-            const context = this;
+				let context = this;
+				// wait to ensure a dialog hide is excecuted before this
+				setTimeout(function () {
+					context.bottomDialogShowed = true;
+					context.dialogVisible = true;
+				}, 100);
+			},
+			hideBottomDialog() {
+				this.bottomDialogShowed = false;
+				this.dialogVisible = false;
+			},
+			showBottomDialogFromLastClick() {
+				let lastStop = this.trip.stopList[this.trip.stopList.length - 1];
 
-            if (this.suggestedSearches.indexOf(search) !== 0) {
-              a.addEventListener("click", function() {
-                context.$refs.geocoder.control.query(search.title);
-              });
-            }
-            wrapperDiv.classList.add("mapboxgl-ctrl-geocoder--suggestion");
+				if (lastStop && lastStop.profile !== "SUP") {
+					this.getRoute(
+						lastStop.profile || this.trip.transportProfile,
+						lastStop.location,
+						this.lastClickCoordinates
+					).then((data) => {
+						this.showBottomDialog(
+							{
+								title: this.lastClickCoordinates.label,
+								location: this.lastClickCoordinates,
+							},
+							false,
+							true,
+							data.duration + " ab " + lastStop.location.label
+						);
+					});
+				} else {
+					this.showBottomDialog(
+						{
+							title: this.lastClickCoordinates.label,
+							location: this.lastClickCoordinates,
+						},
+						false,
+						true
+					);
+				}
+			},
+			showBottomDialogFromRoute(startStop, endStop, duration, distance) {
+				this.showBottomDialog(
+					{
+						title:
+							"Route von " +
+							startStop.location.label +
+							" nach " +
+							endStop.location.label,
+						location: startStop.location,
+					},
+					false,
+					false,
+					duration + ", " + distance
+				);
+			},
+			focusGeocoder() {
+				let suggestionsUl = document.getElementsByClassName("suggestions")[0];
 
-            const titleDiv = document.createElement("div");
-            titleDiv.appendChild(document.createTextNode(search.title));
-            titleDiv.classList.add("mapboxgl-ctrl-geocoder--suggestion-title");
-            wrapperDiv.appendChild(titleDiv);
+				// fill the geocoder with suggestions
+				if (suggestionsUl.style.display === "none") {
+					if (suggestionsUl.childElementCount === 0) {
+						this.suggestedSearches.forEach((search) => {
+							const li = document.createElement("li");
+							const a = document.createElement("a");
+							const wrapperDiv = document.createElement("div");
+							const context = this;
 
-            if (search.caption) {
-              const captionDiv = document.createElement("div");
-              captionDiv.appendChild(document.createTextNode(search.caption));
-              captionDiv.classList.add(
-                "mapboxgl-ctrl-geocoder--suggestion-address"
-              );
+							if (this.suggestedSearches.indexOf(search) !== 0) {
+								a.addEventListener("click", function () {
+									context.$refs.geocoder.control.query(search.title);
+								});
+							}
+							wrapperDiv.classList.add("mapboxgl-ctrl-geocoder--suggestion");
 
-              wrapperDiv.appendChild(captionDiv);
-            }
+							const titleDiv = document.createElement("div");
+							titleDiv.appendChild(document.createTextNode(search.title));
+							titleDiv.classList.add("mapboxgl-ctrl-geocoder--suggestion-title");
+							wrapperDiv.appendChild(titleDiv);
 
-            li.appendChild(a);
-            a.appendChild(wrapperDiv);
+							if (search.caption) {
+								const captionDiv = document.createElement("div");
+								captionDiv.appendChild(document.createTextNode(search.caption));
+								captionDiv.classList.add(
+									"mapboxgl-ctrl-geocoder--suggestion-address"
+								);
 
-            suggestionsUl.appendChild(li);
-          });
-        }
-        suggestionsUl.style.display = "block";
-      } else {
-        suggestionsUl.style.display = "none";
-      }
-    }
-  },
-  created() {
-    this.centerLocation = [10.451526, 51.165691];
+								wrapperDiv.appendChild(captionDiv);
+							}
 
-    this.mapbox = Mapbox;
-    map = null;
+							li.appendChild(a);
+							a.appendChild(wrapperDiv);
 
-    this.TripId = this.$route.params.tripId;
+							suggestionsUl.appendChild(li);
+						});
+					}
+					suggestionsUl.style.display = "block";
+				} else {
+					suggestionsUl.style.display = "none";
+				}
+			},
+		},
+		created() {
+			this.centerLocation = [10.451526, 51.165691];
 
-    this.getTrip();
-  },
-  beforeRouteLeave(to, from, next) {
-    this.hideBottomDialog();
-    next();
-  }
-};
+			this.mapbox = Mapbox;
+			map = null;
+
+			this.TripId = this.$route.params.tripId;
+
+			this.getTrip();
+		},
+		beforeRouteLeave(to, from, next) {
+			this.hideBottomDialog();
+			next();
+		},
+	};
 </script>
 
 <style lang="scss">
-@import url("../css/map.scss");
+	@import url("../css/map.scss");
 </style>

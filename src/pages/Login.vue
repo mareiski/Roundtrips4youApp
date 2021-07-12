@@ -124,7 +124,7 @@ export default {
       description: {
         name: "description",
         content:
-          "Jetzt bei deinem Reiseplaner Roundtrips4you anmelden. Dein Reiseplaner mit Kartenfunktion, Städtevorschlag, Hotelsuche..."
+          "Jetzt bei Roundtrips4you anmelden. Dein Reiseplaner mit Kartenfunktion, Städtevorschlag, Hotelsuche..."
       }
     }
   },

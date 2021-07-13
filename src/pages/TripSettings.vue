@@ -17,6 +17,49 @@
 			autogrow
 			label="Beschreibung"
 		></q-input>
+		<p class="text-secondary">Startdatum:</p>
+		<q-input
+			v-model="startDate"
+			bottom-slots
+			outlined
+			@input="validInput()"
+			:rules="[val => val && val.match(/^(\d{2})\.(\d{2})\.(\d{4})$/) || 'Gib ein richtiges Datum ein']"
+		>
+			<template v-slot:append>
+				<q-icon
+					name="event"
+					class="cursor-pointer text-primary"
+				>
+					<q-popup-proxy
+						transition-show="scale"
+						transition-hide="scale"
+						@hide="validInput()"
+					>
+						<q-date
+							v-model="startDate"
+							today-btn
+							mask="DD.MM.YYYY"
+						>
+							<div class="row items-center justify-end q-gutter-sm">
+								<q-btn
+									label="Cancel"
+									color="primary"
+									flat
+									v-close-popup
+								/>
+								<q-btn
+									label="OK"
+									color="primary"
+									flat
+									v-close-popup
+								/>
+							</div>
+						</q-date>
+					</q-popup-proxy>
+				</q-icon>
+			</template>
+		</q-input>
+
 		<q-toggle
 			v-model="trip.published"
 			label="Öffentlich"
@@ -92,6 +135,7 @@
 <script>
 	import BackButton from "src/components/Buttons/BackButton.vue";
 	import Trip from "src/classes/trip";
+	import sharedMethods from "app/sharedMethods";
 	export default {
 		name: "settings",
 		components: {
@@ -102,6 +146,7 @@
 				trip: new Trip(),
 				deleteDialog: false,
 				deleting: false,
+				startDate: null,
 			};
 		},
 		created() {
@@ -121,6 +166,15 @@
 					context.$emit("clickActionButton");
 				}, 500);
 			},
+			validInput() {
+				if (
+					this.startDate &&
+					this.startDate.match(/^(\d{2})\.(\d{2})\.(\d{4})$/)
+				) {
+					this.trip.startDate = sharedMethods.getDateFromString(this.startDate);
+					console.log(this.trip.startDate);
+				}
+			},
 			fetchTrip(done) {
 				const TripId = this.$route.params.tripId;
 
@@ -132,6 +186,9 @@
 					})
 					.then((fetchedTrip) => {
 						this.trip = fetchedTrip;
+						this.startDate = sharedMethods
+							.getStringDateFromTimestamp(this.trip.startDate)
+							.split(" ")[0];
 						console.log("fetched");
 						if (done) done();
 					});

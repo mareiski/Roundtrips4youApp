@@ -1,4 +1,4 @@
-import { Notify } from "quasar";
+import { Notify, date } from "quasar";
 const getAxios = () => import("axios");
 import wiki from "wikijs";
 import { Loader } from "@googlemaps/js-api-loader";
@@ -27,6 +27,51 @@ export default {
       icon: "check_circle",
       message: message
     });
+  },
+  /**
+   * @returns a date from a date string in format dd.mm.yy MM:hh
+   * @param {String} string date string to get date from
+   */
+  getDateFromString(string) {
+    if (!string) return new Date();
+
+    let dateParts;
+    let timeParts = ["00", "00"];
+
+    if (string.includes(" ")) {
+      const dateTimeParts = string.split(" ");
+      dateParts = dateTimeParts[0].split(".");
+      timeParts = dateTimeParts[1].split(":");
+    } else {
+      dateParts = string.split(".");
+    }
+    return new Date(
+      dateParts[2],
+      dateParts[1] - 1,
+      dateParts[0],
+      timeParts[0],
+      timeParts[1],
+      "00"
+    );
+  },
+  /**
+   * @return a string date from given timestamp
+   */
+  getStringDateFromTimestamp(timestamp) {
+    const timeStampDate = new Date(timestamp.seconds * 1000);
+    return date.formatDate(timeStampDate, "DD.MM.YYYY HH:mm");
+  },
+  /**
+   * @return a string date from given date
+   */
+  getFormattedDate(givenDate) {
+    return date.formatDate(givenDate, "DD.MM.YYYY HH:mm");
+  },
+  /**
+   * @returns a Date from timestamp
+   */
+  getDateFromTimeStamp(timestamp) {
+    return new Date(timestamp.seconds * 1000);
   },
   /**
    * creates a string from milliseconds (fontmat: 5h 10min)

@@ -146,6 +146,7 @@
 	let map;
 	let rawEuropeanRivers;
 	let rawRivers;
+	let rawBuildings;
 
 	export default {
 		meta: {
@@ -205,6 +206,8 @@
 					"poi-label",
 					"settlement-label",
 					"natural-point-label",
+					"settlement-minor-label",
+					"settlement-major-label",
 				], // 'country-label',
 				suggestedSearches: [
 					{ title: "Vorgeschlagene Orte:" },
@@ -213,21 +216,24 @@
 					{ title: "Barcelona", caption: "Spanien" },
 					{ title: "Stockholm", caption: "Schweden" },
 				],
+				cachedRouteLayers: [],
 			};
 		},
 		watch: {
 			stopList: function (newStopList, oldStopList) {
-				// hide all existing routes
-				this.routeIds.forEach((idObject) => {
-					map.setLayoutProperty(idObject.routeId, "visibility", "none");
-				});
+				if (newStopList !== oldStopList) {
+					// hide all existing routes
+					this.routeIds.forEach((idObject) => {
+						map.setLayoutProperty(idObject.routeId, "visibility", "none");
+					});
 
-				// recalculate all routes
-				this.addAllRoutes();
+					// recalculate all routes
+					this.addAllRoutes();
 
-				// hide dialog always if a stop was added or removed
-				this.hideBottomDialog();
-				this.showAddStopMarker = false;
+					// hide dialog always if a stop was added or removed
+					this.hideBottomDialog();
+					this.showAddStopMarker = false;
+				}
 			},
 		},
 		methods: {
@@ -248,74 +254,36 @@
 
 				let promiseList = [];
 
+				/* promiseList.push(
+												shp("../rivers_bavaria.zip").then((geojson) => {
+													this.mapLoadingText = "Routen werden berechnet";
+
+													rawRivers = turf.featureCollection(
+														riverRoute.getFeaturesByProperty("fclass", "river", geojson)
+													);
+												})
+											); */
+
 				promiseList.push(
-					shp("../rivers_bavaria.zip").then((geojson) => {
+					shp("../buildings_bavaria.zip").then((geojson) => {
 						this.mapLoadingText = "Routen werden berechnet";
-						rawRivers = geojson;
-						map.addLayer({
-							id: "rivers",
-							type: "line",
-							source: {
-								type: "geojson",
-								data: geojson,
-							},
-							layout: {
-								visibility: "visible",
-							},
-							paint: {
-								"line-color": "#0d3567",
-								"line-width": 2,
-								"line-opacity": 0.4,
-							},
-						});
+						rawBuildings = geojson;
 					})
 				);
 
-				/* 	promiseList.push(
-										shp("../rivers.zip").then((geojson) => {
-											this.mapLoadingText = "Routen werden berechnet";
-											rawRivers = geojson;
-											map.addLayer({
-												id: "rivers",
-												type: "line",
-												source: {
-													type: "geojson",
-													data: geojson,
-												},
-												layout: {
-													visibility: "visible",
-												},
-												paint: {
-													"line-color": "#0d3567",
-													"line-width": 2,
-													"line-opacity": 0.4,
-												},
-											});
-										})
-									);
+				promiseList.push(
+					shp("../rivers.zip").then((geojson) => {
+						this.mapLoadingText = "Routen werden berechnet";
+						rawRivers = geojson;
+					})
+				);
 
-									promiseList.push(
-										shp("../european_rivers.zip").then((geojson) => {
-											this.mapLoadingText = "Routen werden berechnet";
-											rawEuropeanRivers = geojson;
-											map.addLayer({
-												id: "europeanRivers",
-												type: "line",
-												source: {
-													type: "geojson",
-													data: geojson,
-												},
-												layout: {
-													visibility: "visible",
-												},
-												paint: {
-													"line-color": "#0d3567",
-													"line-width": 2,
-													"line-opacity": 0.4,
-												},
-											});
-										})
-									); */
+				promiseList.push(
+					shp("../european_rivers.zip").then((geojson) => {
+						this.mapLoadingText = "Routen werden berechnet";
+						rawEuropeanRivers = geojson;
+					})
+				);
 
 				return Promise.all(promiseList);
 			},
@@ -374,7 +342,7 @@
 					this.bounds = [];
 
 					this.trip.stopList.forEach((stop, index) => {
-						// ad bounds
+						// add bounds
 						this.bounds.push([stop.location.lng, stop.location.lat]);
 
 						// add route from last to this stop
@@ -433,7 +401,8 @@
 						// set marker to new position
 						this.lastClickCoordinates.lng = feature.geometry.coordinates[0];
 						this.lastClickCoordinates.lat = feature.geometry.coordinates[1];
-						this.lastClickCoordinates.label = feature.properties.name_de;
+						this.lastClickCoordinates.label =
+							feature.properties.name_de || feature.properties.name;
 
 						this.showAddStopMarker = true;
 
@@ -516,9 +485,13 @@
 							map.getSource(id).setData(geojson);
 							map.setPaintProperty(id, "line-color", color);
 							map.setLayoutProperty(id, "visibility", "visible");
+
+							let index = this.cachedRouteLayers.findIndex((x) => x.id === id);
+							console.log(map);
+							this.cachedRouteLayers[index].layer = map.getLayer(id);
 						} else {
 							// otherwise, make a new route
-							map.addLayer({
+							let routeLayer = {
 								id: id,
 								type: "line",
 								source: {
@@ -547,7 +520,10 @@
 										0.4,
 									],
 								},
-							});
+							};
+
+							map.addLayer(routeLayer);
+							this.cachedRouteLayers.push({ id: id, layer: routeLayer });
 
 							// on click listener for route
 							let context = this;
@@ -569,7 +545,12 @@
 				return new Promise((resolve) => {
 					if (profile === "SUP") {
 						riverRoute
-							.getRiverRoute(startLocation, endLocation, [rawRivers], [])
+							.getRiverRoute(
+								startLocation,
+								endLocation,
+								[rawRivers, rawEuropeanRivers],
+								[]
+							)
 							.then((route) => {
 								var routeLineString = {
 									id: "SUPRoute",
@@ -581,6 +562,8 @@
 									},
 								};
 
+								console.log(riverRoute.getLocks(routeLineString, rawBuildings));
+
 								// get distance
 								let rawRouteDistance = Math.round(
 									turf.lineDistance(routeLineString, "kilometers")
@@ -591,7 +574,7 @@
 
 								console.log(routeLineString);
 
-								let rawDurationHours = rawRouteDistance / 6;
+								let rawDurationHours = rawRouteDistance / 7;
 
 								resolve({
 									route: route,

@@ -2,6 +2,7 @@ import lineIntersect from "@turf/line-intersect";
 import nearestPoint from "@turf/nearest-point";
 import turf from "turf";
 import nearestPointOnLine from "@turf/nearest-point-on-line";
+import booleanIntersects from "@turf/boolean-intersects";
 
 import {
   FeatureCollection,
@@ -76,7 +77,7 @@ export default {
         collection.features.forEach(river => {
           if (
             river !== currentRiver &&
-            lineIntersect(currentRiverBBox, river).features.length > 0
+            booleanIntersects(currentRiverBBox, river)
           ) {
             // push only if we didnt visit this coordinates yet
             let ableToPush = true;
@@ -126,7 +127,7 @@ export default {
               coord[0] === closestIntersectingPoint.geometry.coordinates[0] &&
               coord[1] === closestIntersectingPoint.geometry.coordinates[1]
           ) &&
-          takenCoords.length < 300 &&
+          takenCoords.length < 1000 &&
           // @ts-ignore
           closestIntersectingPoint.properties.distanceToPoint <
             distanceToEndLocation * 3
@@ -150,7 +151,7 @@ export default {
           );
 
           // restart method with intersecting point as start
-          await this.getRiverRoute(
+          this.getRiverRoute(
             new PointLocation(
               closestIntersectingPoint.geometry.coordinates[1],
               closestIntersectingPoint.geometry.coordinates[0],
@@ -163,6 +164,8 @@ export default {
             bestIntersectingRiver
           );
         } else if (startRiverPoint && stopRiverPoint) {
+          console.log("else1");
+
           let route = turf.lineSlice(
             startRiverPoint,
 
@@ -176,6 +179,8 @@ export default {
           );
         }
       } else if (startRiverPoint && stopRiverPoint) {
+        console.log("else2");
+
         let route = turf.lineSlice(
           startRiverPoint,
           // @ts-ignore
@@ -188,6 +193,7 @@ export default {
         );
       }
     } else if (startRiverPoint && stopRiverPoint) {
+      console.log("else3");
       // @ts-ignore
       let route = turf.lineSlice(startRiverPoint, stopRiverPoint, currentRiver);
 
@@ -261,14 +267,23 @@ export default {
 
     riverArr.forEach(riverCollection => {
       riverCollection.features.forEach(river => {
-        // @ts-ignore
-        let bboxPolygon = turf.bboxPolygon(river.geometry.bbox);
+        let within = false;
 
-        if (
-          !checkIfInBBox ||
-          !river.geometry.bbox ||
-          booleanWithin(point, bboxPolygon)
-        ) {
+        if (checkIfInBBox && river.geometry.bbox) {
+          // @ts-ignore
+          let bboxPolygon = turf.bboxPolygon(river.geometry.bbox);
+          bboxPolygon = turf.buffer(bboxPolygon, 5);
+          within = booleanWithin(point, bboxPolygon);
+        } else {
+          // @ts-ignore
+          let bboxPolygon = turf.bboxPolygon(river.geometry.bbox);
+
+          // we create a very big polygon (max km a route can take)
+          bboxPolygon = turf.buffer(bboxPolygon, 900);
+          within = booleanWithin(point, bboxPolygon);
+        }
+
+        if (!river.geometry.bbox || within) {
           let distanceToCheck = -1;
           let closestPoint;
 
@@ -290,5 +305,42 @@ export default {
     });
 
     return foundRiver;
+  },
+  getLocks(
+    route: LineString,
+    riverCollection: FeatureCollection<
+      LineString | MultiLineString,
+      GeoJsonProperties
+    >
+  ) {
+    let locks = this.getFeaturesByProperty("fclass", "weir", riverCollection);
+
+    let locksOnRoute: Feature<
+      LineString | MultiLineString,
+      GeoJsonProperties
+    >[] = [];
+    locks.forEach(lock => {
+      if (booleanIntersects(route, lock)) {
+        locksOnRoute.push(lock);
+      }
+    });
+
+    return locksOnRoute;
+  },
+  getFeaturesByProperty(
+    key: string,
+    value: string,
+    riverCollection: FeatureCollection<
+      LineString | MultiLineString,
+      GeoJsonProperties
+    >
+  ) {
+    return riverCollection.features.filter(function(feature) {
+      if (feature.properties !== null && feature.properties[key] === value) {
+        return true;
+      } else {
+        return false;
+      }
+    });
   }
 };

@@ -70,7 +70,7 @@
 			<MglNavigationControl position="top-right" />
 			<MapLayerPlugin
 				@styleChanged="
-          addAllRoutes();
+          addAllRoutes(true);
           loadRiverLayers();
         "
 				class="mapboxgl-ctrl"
@@ -78,6 +78,29 @@
 			/>
 
 			<zoom-to-route @clicked="fitToBounds(bounds)"></zoom-to-route>
+
+			<!-- popups for routes -->
+			<template v-if="cachedRouteLayers.length > 0">
+				<MglPopup
+					v-for="(layer, index) in cachedRouteLayers"
+					:coordinates="layer.layer.source.data.properties.centerCoordinates"
+					:key="layer.id + index"
+					:ref="'routeLayer' + index"
+					:showed="true"
+					:closeButton="false"
+					:closeOnClick="false"
+					anchor="bottom"
+					style="padding:0;"
+				>
+					<div
+						class="cursor-pointer"
+						@click="showBottomDialogFromRoute(layer.layer.source.data.properties.startStop, layer.layer.source.data.properties.endStop, layer.layer.source.data.properties.title, layer.layer.source.data.properties.subtitle)"
+					>
+						<p style="margin:0;">{{layer.layer.source.data.properties.title}}</P>
+						<p style="font-size:11px; margin:0;">{{layer.layer.source.data.properties.subtitle}}</p>
+					</div>
+				</MglPopup>
+			</template>
 
 			<template v-if="trip">
 				<MglMarker
@@ -104,7 +127,18 @@
 						</b>
 					</div>
 				</MglMarker>
+
 			</template>
+
+			<MglPopup
+				ref="popup"
+				:coordinates="[0, 0]"
+				:showed="true"
+				anchor="bottom"
+			>
+				<div>Hello</div>
+			</MglPopup>
+
 			<!-- last clicked marker -->
 			<MglMarker
 				:coordinates="[lastClickCoordinates.lng, lastClickCoordinates.lat]"
@@ -135,7 +169,7 @@
 	import ZoomToRoute from "../components/Map/ZoomToRoute.vue";
 	import { auth } from "../firebaseInit.js";
 
-	import { MglMarker, MglNavigationControl } from "vue-mapbox";
+	import { MglMarker, MglNavigationControl, MglPopup } from "vue-mapbox";
 	import Trip from "src/classes/trip";
 	import BottomDialog from "src/components/Map/BottomDialog.vue";
 	import CloseButton from "../components/Buttons/CloseButton.vue";
@@ -167,6 +201,7 @@
 			BottomDialog,
 			CloseButton,
 			ZoomToRoute,
+			MglPopup,
 		},
 		computed: {
 			isMobile() {
@@ -188,7 +223,6 @@
 				mapLoadingText: "Karte wird geladen",
 				centerLocation: [],
 				trip: new Trip(),
-				addedRoutes: [],
 				dialogObject: {},
 				lastClickCoordinates: { lat: 0, lng: 0, label: "abc" },
 				bottomDialogShowed: false,
@@ -198,7 +232,7 @@
 				TripId: null,
 				markerClicked: false,
 				routeIds: [],
-				showRivers: false,
+				hoveredStateId: null,
 				whitelistedLabels: [
 					"airport-label",
 					"place-label",
@@ -245,7 +279,11 @@
 
 				this.loadRiverLayers().then(() => {
 					this.addAllRoutes().then(() => {
-						context.fitToBounds(context.bounds);
+						setTimeout(function () {
+							context.cachedRouteLayers.forEach((layer, index) => {
+								context.$refs["routeLayer" + index][0].popup.addTo(map);
+							});
+						}, 500);
 					});
 				});
 			},
@@ -255,14 +293,14 @@
 				let promiseList = [];
 
 				/* promiseList.push(
-												shp("../rivers_bavaria.zip").then((geojson) => {
-													this.mapLoadingText = "Routen werden berechnet";
+																																																																																																																															shp("../rivers_bavaria.zip").then((geojson) => {
+																																																																																																																																this.mapLoadingText = "Routen werden berechnet";
 
-													rawRivers = turf.featureCollection(
-														riverRoute.getFeaturesByProperty("fclass", "river", geojson)
-													);
-												})
-											); */
+																																																																																																																																rawRivers = turf.featureCollection(
+																																																																																																																																	riverRoute.getFeaturesByProperty("fclass", "river", geojson)
+																																																																																																																																);
+																																																																																																																															})
+																																																																																																																														); */
 
 				promiseList.push(
 					shp("../buildings_bavaria.zip").then((geojson) => {
@@ -319,22 +357,9 @@
 
 				return count > 1;
 			},
-			showHideRivers() {
+			async addAllRoutes(useCache) {
 				if (!map) return;
-
-				var visibility = map.getLayoutProperty("rivers", "visibility");
-				let hide = visibility === "visible";
-
-				map.setLayoutProperty("rivers", "visibility", hide ? "none" : "visible");
-
-				map.setLayoutProperty(
-					"europeanRivers",
-					"visibility",
-					hide ? "none" : "visible"
-				);
-			},
-			async addAllRoutes() {
-				if (!map) return;
+				if (!useCache) this.cachedRouteLayers = [];
 
 				let promiseList = [];
 
@@ -348,7 +373,12 @@
 						// add route from last to this stop
 						if (index > 0) {
 							promiseList.push(
-								this.addRoute(this.trip.stopList[index - 1], stop, index)
+								this.addRoute(
+									this.trip.stopList[index - 1],
+									stop,
+									index,
+									useCache
+								)
 							);
 						}
 					});
@@ -457,8 +487,32 @@
 						if (done) done();
 					});
 			},
-			async addRoute(startStop, endStop, index) {
+			async addRoute(startStop, endStop, index, useCache) {
 				if (!map) return false;
+
+				// add layers from cached layers
+				if (useCache) {
+					let index = this.cachedRouteLayers.findIndex(
+						(x) => x.id === startStop.stopId
+					);
+
+					if (index >= 0) {
+						let layer = this.cachedRouteLayers[index].layer;
+
+						if (map.getSource(layer.id)) {
+							map
+								.getSource(layer.id)
+								.setData(layer.source.data.geometry.coordinates);
+						} else {
+							map.addLayer(layer);
+							map
+								.getSource(layer.id)
+								.setData(layer.source.data.geometry.coordinates);
+						}
+					}
+
+					return;
+				}
 
 				let profile = startStop.profile || this.trip.transportProfile;
 				// get random color for route
@@ -466,6 +520,7 @@
 
 				// generate id
 				let id = uuid.v4() + startStop.stopId;
+
 				this.routeIds.push({ stopId: startStop.stopId, routeId: id });
 
 				this.getRoute(profile, startStop.location, endStop.location).then(
@@ -486,10 +541,21 @@
 							map.setPaintProperty(id, "line-color", color);
 							map.setLayoutProperty(id, "visibility", "visible");
 
-							let index = this.cachedRouteLayers.findIndex((x) => x.id === id);
-							console.log(map);
-							this.cachedRouteLayers[index].layer = map.getLayer(id);
+							let index = this.cachedRouteLayers.findIndex(
+								(x) => x.id === startStop.stopId
+							);
+							if (index > 0) {
+								this.cachedRouteLayers[index].layer = map.getLayer(id);
+							}
 						} else {
+							// calculate mid point of route for route marker
+							let distance = turf.distance(
+								[startStop.location.lat, startStop.location.lng],
+								[endStop.location.lat, endStop.location.lng]
+							);
+
+							let along = turf.along(turf.lineString(data.route), distance / 2);
+
 							// otherwise, make a new route
 							let routeLayer = {
 								id: id,
@@ -498,7 +564,13 @@
 									type: "geojson",
 									data: {
 										type: "Feature",
-										properties: {},
+										properties: {
+											centerCoordinates: along.geometry.coordinates,
+											title: data.duration,
+											subtitle: data.distance,
+											startStop: startStop,
+											endStop: endStop,
+										},
 										geometry: {
 											type: "LineString",
 											coordinates: geojson,
@@ -523,7 +595,10 @@
 							};
 
 							map.addLayer(routeLayer);
-							this.cachedRouteLayers.push({ id: id, layer: routeLayer });
+							this.cachedRouteLayers.push({
+								id: startStop.stopId,
+								layer: routeLayer,
+							});
 
 							// on click listener for route
 							let context = this;
@@ -534,6 +609,47 @@
 									data.duration,
 									data.distance
 								);
+							});
+
+							// When the user moves their mouse over the route, we'll update the
+							// feature state for the feature under the mouse.
+							map.on("mousemove", id, function (e) {
+								if (e.features.length > 0) {
+									if (
+										this.hoveredStateId &&
+										typeof this.hoveredStateId !== "undefined"
+									) {
+										map.setFeatureState(
+											{ source: id, id: this.hoveredStateId },
+											{ hover: false }
+										);
+									}
+									if (
+										e.features[0].layer.id &&
+										typeof e.features[0].layer.id !== "undefined"
+									) {
+										this.hoveredStateId = e.features[0].layer.id;
+										map.setFeatureState(
+											{ source: id, id: this.hoveredStateId },
+											{ hover: true }
+										);
+									}
+								}
+							});
+
+							// When the mouse leaves the route, update the feature state of the
+							// previously hovered feature.
+							map.on("mouseleave", id, function () {
+								if (
+									this.hoveredStateId &&
+									typeof this.hoveredStateId !== "undefined"
+								) {
+									map.setFeatureState(
+										{ source: id, id: this.hoveredStateId },
+										{ hover: false }
+									);
+								}
+								this.hoveredStateId = null;
 							});
 							map.getSource(id).setData(geojson);
 						}

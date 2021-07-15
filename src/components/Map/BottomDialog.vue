@@ -254,11 +254,13 @@
 					this.max = false;
 					let title = this.data.title;
 
-					sharedMethods.getWikivoyageData(title).then((results) => {
-						this.imageSrcs = results.imgSrcs;
-						this.imageSrcs[0] = results.mainImage;
-						this.mainDescription = results.description;
-					});
+					if (this.data.buttons) {
+						sharedMethods.getWikivoyageData(title).then((results) => {
+							this.imageSrcs = results.imgSrcs;
+							this.imageSrcs[0] = results.mainImage;
+							this.mainDescription = results.description;
+						});
+					}
 				} else {
 					// reset data
 					this.imageSrcs = [];

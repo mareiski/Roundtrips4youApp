@@ -32,6 +32,7 @@ export default class Trip {
   adults: number;
   childrenAges: Array<number>;
   startDate: Date;
+  totalDistance: number;
 
   getTripId() {
     return this.TripId;
@@ -100,6 +101,7 @@ export default class Trip {
     this.createdAt = new Date(timeStamp);
     this.startDate = startDate || new Date(timeStamp);
     this.stopList = [];
+    this.totalDistance = 0;
 
     // arrival departure default values
     this.depatureDate = new Date(timeStamp);
@@ -146,6 +148,7 @@ export default class Trip {
     this.adults = obj.adults;
     this.childrenAges = obj.childrenAges;
     this.startDate = obj.startDate;
+    this.totalDistance = obj.totalDistance;
 
     this.stopList = [];
 
@@ -200,7 +203,8 @@ export default class Trip {
       rooms: this.rooms,
       adults: this.adults,
       childrenAges: this.childrenAges,
-      startDate: this.startDate
+      startDate: this.startDate,
+      totalDistance: this.totalDistance
     };
   }
 

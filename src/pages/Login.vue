@@ -175,6 +175,7 @@
 						context: this,
 					})
 					.then(() => {
+						this.$store.dispatch("tripList/fetchAllUserTrips");
 						this.loginLoading = false;
 					});
 			},

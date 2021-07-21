@@ -77,7 +77,7 @@
 				position="top-right"
 			/>
 
-			<zoom-to-route @clicked="fitToBounds(bounds)"></zoom-to-route>
+			<zoom-to-route @clicked="fitToBounds()"></zoom-to-route>
 
 			<!-- popups for routes -->
 			<template v-if="cachedRouteLayers.length > 0">
@@ -233,6 +233,7 @@
 				markerClicked: false,
 				routeIds: [],
 				hoveredStateId: null,
+				tempTotalDistance: 0,
 				whitelistedLabels: [
 					"airport-label",
 					"place-label",
@@ -279,6 +280,8 @@
 
 				this.loadRiverLayers().then(() => {
 					this.addAllRoutes().then(() => {
+						this.fitToBounds();
+
 						setTimeout(function () {
 							context.cachedRouteLayers.forEach((layer, index) => {
 								context.$refs["routeLayer" + index][0].popup.addTo(map);
@@ -293,14 +296,14 @@
 				let promiseList = [];
 
 				/* promiseList.push(
-																																																																																																																															shp("../rivers_bavaria.zip").then((geojson) => {
-																																																																																																																																this.mapLoadingText = "Routen werden berechnet";
+																																																																																																																																												shp("../rivers_bavaria.zip").then((geojson) => {
+																																																																																																																																													this.mapLoadingText = "Routen werden berechnet";
 
-																																																																																																																																rawRivers = turf.featureCollection(
-																																																																																																																																	riverRoute.getFeaturesByProperty("fclass", "river", geojson)
-																																																																																																																																);
-																																																																																																																															})
-																																																																																																																														); */
+																																																																																																																																													rawRivers = turf.featureCollection(
+																																																																																																																																														riverRoute.getFeaturesByProperty("fclass", "river", geojson)
+																																																																																																																																													);
+																																																																																																																																												})
+																																																																																																																																											); */
 
 				promiseList.push(
 					shp("../buildings_bavaria.zip").then((geojson) => {
@@ -365,6 +368,7 @@
 
 				if (this.trip && this.trip.stopList) {
 					this.bounds = [];
+					this.tempTotalDistance = 0;
 
 					this.trip.stopList.forEach((stop, index) => {
 						// add bounds
@@ -385,14 +389,20 @@
 
 					Promise.all(promiseList).then(() => {
 						this.mapLoading = false;
+						this.trip.totalDistance = JSON.parse(
+							JSON.stringify(this.tempTotalDistance)
+						);
+						console.log(this.trip);
+						this.$store.dispatch("tripList/updateTrip", this.trip);
+
 						return;
 					});
 				}
 			},
-			fitToBounds(bounds) {
+			fitToBounds() {
 				try {
-					if (bounds.length > 1) {
-						var line = turf.lineString(bounds);
+					if (this.bounds.length > 1) {
+						var line = turf.lineString(this.bounds);
 						var bbox = turf.bbox(line);
 						map.fitBounds(new Mapbox.LngLatBounds(bbox), { padding: 80 });
 					} else if (bounds.length === 1) {
@@ -523,7 +533,7 @@
 
 				this.routeIds.push({ stopId: startStop.stopId, routeId: id });
 
-				this.getRoute(profile, startStop.location, endStop.location).then(
+				await this.getRoute(profile, startStop.location, endStop.location).then(
 					(data) => {
 						var geojson = {
 							id: id,
@@ -688,9 +698,9 @@
 								let routeDistance =
 									rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
 
-								console.log(routeLineString);
-
 								let rawDurationHours = rawRouteDistance / 7;
+
+								this.tempTotalDistance += rawRouteDistance;
 
 								resolve({
 									route: route,
@@ -731,6 +741,8 @@
 									? Math.floor(data.distance / 1000)
 									: 0;
 							let distance = rawDistance > 0 ? rawDistance + " km" : null;
+
+							this.tempTotalDistance += rawDistance;
 
 							resolve({
 								route: route,

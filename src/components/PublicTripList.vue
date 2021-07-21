@@ -17,7 +17,7 @@
 				</q-card-section>
 				<q-card-section class="q-pt-xs">
 					<div class="text-h5 q-mt-sm q-mb-xs text-secondary">{{trip.title}}</div>
-					<div class="text-caption text-grey">{{trip.days}}</div>
+					<div class="text-caption text-grey">{{trip.days}} Tage</div>
 					<div class="text-secondary">
 						{{trip.description}}
 					</div>

@@ -55,6 +55,23 @@ export default {
     );
   },
   /**
+   * @returns a promise resoving country as a param
+   */
+  getCountryForLatLng(lat, lng) {
+    return new Promise((resolve, reject) => {
+      getAxios().then(axios => {
+        let url =
+          "http://api.geonames.org/countryCodeJSON?lang=de&lat=" +
+          lat +
+          "&lng=" +
+          lng +
+          "&username=roundtrips4you";
+
+        resolve(axios.get(url));
+      });
+    });
+  },
+  /**
    * @return a string date from given timestamp
    */
   getStringDateFromTimestamp(timestamp) {

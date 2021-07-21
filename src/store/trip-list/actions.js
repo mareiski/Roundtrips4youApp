@@ -1,7 +1,6 @@
 import { db, auth } from "../../firebaseInit.js";
 import Trip from "../../classes/trip.ts";
 import sharedMethods from "app/sharedMethods.js";
-import axios from "axios";
 
 export default {
   /**
@@ -237,52 +236,81 @@ export default {
       }
     });
   },
-  setNewStopList({}, payload) {
+  setNewStopList({ dispatch }, payload) {
     return new Promise(resolve => {
-      db.collection("Trips")
-        .doc(payload.TripId)
-        .update({
-          stopList: payload.newStopList
-        })
-        .then(function() {
-          resolve(true);
-        })
-        .catch(e => {
-          console.log(e);
-          resolve(false);
-        });
+      let daysPayload = {
+        stopList: payload.newStopList,
+        TripId: payload.TripId
+      };
+
+      dispatch("getDaysAndCountries", daysPayload).then(vals => {
+        db.collection("Trips")
+          .doc(payload.TripId)
+          .update({
+            stopList: payload.newStopList,
+            countries: vals.countries,
+            days: vals.days
+          })
+          .then(function() {
+            resolve(true);
+          })
+          .catch(e => {
+            console.log(e);
+            resolve(false);
+          });
+      });
     });
   },
-  updateTrip({ commit }, trip) {
+  getDaysAndCountries({ commit }, trip) {
     return new Promise(resolve => {
-      // fetch and save countries
-      let tempCountries = [];
       let promiseList = [];
 
-      trip.stopList.forEach(stop => {
-        let url =
-          "http://api.geonames.org/countryCodeJSON?lang=de&lat=" +
-          stop.location.lat +
-          "&lng=" +
-          stop.location.lng +
-          "&username=roundtrips4you";
+      // fetch and save countries
+      let tempCountries = [];
 
-        promiseList.push(
-          axios
-            .get(url)
-            .then(response => {
-              if (!tempCountries.includes(response.data.countryName))
-                tempCountries.push(response.data.countryName);
-            })
-            .catch(function(error) {
-              console.log(error);
-            })
-        );
+      let days = 0;
+
+      trip.stopList.forEach((stop, index) => {
+        if (index !== trip.stopList.length - 1) {
+          // get countries
+          promiseList.push(
+            sharedMethods
+              .getCountryForLatLng(stop.location.lat, stop.location.lng)
+              .then(response => {
+                if (!tempCountries.includes(response.data.countryName)) {
+                  tempCountries.push(response.data.countryName);
+                }
+              })
+              .catch(function(error) {
+                console.log(error);
+              })
+          );
+
+          days += stop.dayDuration;
+        }
       });
 
-      Promise.all(promiseList).then(vals => {
+      Promise.all(promiseList).then(() => {
+        commit("setTripDatesAndCountries", {
+          tripId: trip.TripId,
+          days: days,
+          countries: tempCountries
+        });
+        resolve({
+          days: days,
+          countries: tempCountries
+        });
+      });
+    });
+  },
+  updateTrip({ commit, dispatch }, trip) {
+    return new Promise(resolve => {
+      dispatch("getDaysAndCountries", trip).then(vals => {
         // update countries of current trip
-        trip.countries = tempCountries;
+        trip.countries = vals.countries;
+
+        // update days of trip
+        trip.days = vals.days;
 
         db.collection("Trips")
           .doc(trip.TripId)

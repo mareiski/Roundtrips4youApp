@@ -73,6 +73,9 @@
 <script>
 	import PointLocation from "src/classes/pointLocation";
 	import Geocoder from "../Geocoder.vue";
+	import sharedMethods from "app/sharedMethods";
+	const timeStamp = Date.now();
+
 	export default {
 		name: "ArrivalDeparture",
 		components: {
@@ -80,7 +83,7 @@
 		},
 		data() {
 			return {
-				startDate: "07.07.2021",
+				startDate: sharedMethods.getFormattedDate(timeStamp).split(" ")[0],
 				startLocation: new PointLocation(),
 				endLocation: new PointLocation(),
 				roundtrip: false,
@@ -101,11 +104,19 @@
 								endLocation = this.startLocation;
 							}
 
-							this.$emit("input", {
-								startDate: this.startDate,
-								startLocation: this.startLocation,
-								endLocation: endLocation,
-							});
+							sharedMethods
+								.getCountryForLatLng(
+									this.startLocation.lat,
+									this.startLocation.lng
+								)
+								.then((country) => {
+									this.$emit("input", {
+										startDate: this.startDate,
+										startLocation: this.startLocation,
+										endLocation: endLocation,
+										startCountry: country.data.countryName,
+									});
+								});
 							return true;
 						}
 					}

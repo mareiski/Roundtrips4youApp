@@ -6,6 +6,16 @@ export default {
     state.TripList = trips;
   },
   /**
+   *
+   */
+  setTripDatesAndCountries(state, payload) {
+    let index = state.TripList.findIndex(x => x.TripId === payload.tripId);
+    if (index !== -1) {
+      state.TripList[index].days = payload.days;
+      state.TripList[index].countries = payload.countries;
+    }
+  },
+  /**
    * @param {Trip[]} trips
    */
   addTrips: (state, trips) => {

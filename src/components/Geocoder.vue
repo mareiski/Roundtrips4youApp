@@ -9,12 +9,18 @@
 
 <script>
 	import PointLocation from "src/classes/pointLocation";
+	let geocoder;
 	export default {
 		props: {
 			id: String,
 		},
+		methods: {
+			query(searchTerm) {
+				geocoder.query(searchTerm);
+			},
+		},
 		mounted() {
-			var geocoder = new MapboxGeocoder({
+			geocoder = new MapboxGeocoder({
 				accessToken: this.$store.getters["api/getMapboxKey"],
 				types: "country,region,place,postcode,locality,neighborhood",
 			});

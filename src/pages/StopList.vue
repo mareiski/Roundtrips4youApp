@@ -1,5 +1,8 @@
 <template>
-	<q-page style="padding-top:0;">
+	<q-page
+		style="padding-top:0;"
+		class="q-pl-sm q-pr-sm"
+	>
 		<q-pull-to-refresh @refresh="fetchTrip">
 			<div
 				class="bg-white full-width flex justify-between text-secondary"
@@ -20,15 +23,17 @@
 					size="sm"
 				/>
 			</div>
-			<q-btn
-				color="white"
-				text-color="secondary"
-				icon="map"
-				label="Karte"
-				@click="$router.push('/Karte/' + trip.getTripId())"
-				style="position:absolute; right:9px; top:46px; z-index:1;"
-			>
-			</q-btn>
+			<div class="flex justify-between">
+				<span class="text-secondary">{{trip.days}} Tage, {{trip.totalDistance}} km</span>
+				<q-btn
+					color="white"
+					text-color="secondary"
+					icon="map"
+					label="Karte"
+					@click="$router.push('/Karte/' + trip.getTripId())"
+				>
+				</q-btn>
+			</div>
 		</q-pull-to-refresh>
 		<q-list
 			bordered

@@ -78,6 +78,7 @@
 				<q-card-section>
 					<geocoder
 						id="geocoder3"
+						ref="suggestionGeocoder"
 						@inputCountry="e => (country = e)"
 					></geocoder>
 					<public-trip-list
@@ -130,6 +131,18 @@
 						this.$emit("stepChange", newValue);
 					}
 				},
+			},
+		},
+		watch: {
+			step(newStep, oldStep) {
+				if (newStep !== oldStep && newStep === 3) {
+					let context = this;
+					setTimeout(function () {
+						context.$refs.suggestionGeocoder.query(
+							context.arrivalDepartureValues.startCountry
+						);
+					}, 500);
+				}
 			},
 		},
 		methods: {

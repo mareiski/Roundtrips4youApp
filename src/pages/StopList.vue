@@ -6,7 +6,7 @@
 		<q-pull-to-refresh @refresh="fetchTrip">
 			<div
 				class="bg-white full-width flex justify-between text-secondary"
-				style="height:35px; padding: 5px 10px; margin-bottom:50px"
+				style="height:35px; padding: 5px 10px; margin-bottom:30px"
 			>
 				<div>
 					<close-button

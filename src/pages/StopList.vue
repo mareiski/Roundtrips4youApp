@@ -1,5 +1,5 @@
 <template>
-	<q-page
+	<div
 		style="padding-top:0;"
 		class="q-pl-sm q-pr-sm"
 	>
@@ -161,7 +161,7 @@
 				></edit-stop-dialog>
 			</div>
 		</q-dialog>
-	</q-page>
+	</div>
 </template>
 
 <script>

@@ -26,7 +26,7 @@
 		</q-pull-to-refresh>
 		<q-inner-loading
 			:showing="mapLoading"
-			style="z-index: 1;"
+			style="z-index: 5;"
 		>
 			<q-spinner
 				size="42px"

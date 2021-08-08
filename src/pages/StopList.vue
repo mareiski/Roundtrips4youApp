@@ -1,12 +1,12 @@
 <template>
-	<q-page
+	<div
 		style="padding-top:0;"
 		class="q-pl-sm q-pr-sm"
 	>
 		<q-pull-to-refresh @refresh="fetchTrip">
 			<div
 				class="bg-white full-width flex justify-between text-secondary"
-				style="height:35px; padding: 5px 10px; margin-bottom:70px"
+				style="height:35px; padding: 5px 10px; margin-bottom:30px"
 			>
 				<div>
 					<close-button
@@ -171,7 +171,7 @@
 				></edit-stop-dialog>
 			</div>
 		</q-dialog>
-	</q-page>
+	</div>
 </template>
 
 <script>

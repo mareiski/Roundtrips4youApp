@@ -22,6 +22,7 @@
 			<q-btn
 				icon="launch"
 				label="Booking.com Hotels"
+				no-caps
 				class="text-secondary"
 				@click="openInNewTab('https://www.booking.com/searchresults.de.html?ss=' + stop.location.label.split(',')[0] + '&checkin_year=' + stop.date.split(' ')[0].split('.')[2] + '&checkin_month=' + stop.date.split('.')[1] + '&checkin_monthday=' + stop.date.split('.')[0] + '&checkout_year=' + getCheckOutDate().getFullYear() + '&checkout_month=' + (getCheckOutDate().getMonth() +1) + '&checkout_monthday=' + getCheckOutDate().getDate() + '&group_adults=' + trip.adults + getChildrenText() +  '&no_rooms=' + trip.rooms + '&ac_langcode=de')"
 			></q-btn>

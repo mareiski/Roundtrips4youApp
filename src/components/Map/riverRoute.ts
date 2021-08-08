@@ -27,7 +27,7 @@ export default {
    * @param currentRiver
    * @returns a array of coordinates for a route
    */
-  async getRiverRoute(
+  getRiverRoute(
     startLocation: PointLocation,
     endLocation: PointLocation,
     riverCollection: FeatureCollection<
@@ -120,7 +120,7 @@ export default {
         );
 
         // ro prevent an infinite loop we check if this coordinates wasnt already added
-        // we also abort if there are more then 300 coords
+        // we also abort if there are more then 1000 coords
         if (
           !takenCoords.some(
             coord =>
@@ -173,6 +173,7 @@ export default {
             stopRiverPoint,
             currentRiver
           );
+
           takenCoords.push.apply(
             takenCoords,
             this.revertRiver(currentRiver, startRiverPoint, route)
@@ -194,8 +195,12 @@ export default {
       }
     } else if (startRiverPoint && stopRiverPoint) {
       console.log("else3");
-      // @ts-ignore
-      let route = turf.lineSlice(startRiverPoint, stopRiverPoint, currentRiver);
+      let route = turf.lineSlice(
+        startRiverPoint,
+        // @ts-ignore
+        stopRiverPoint,
+        currentRiver
+      );
 
       takenCoords.push.apply(
         takenCoords,

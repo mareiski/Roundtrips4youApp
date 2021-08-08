@@ -24,7 +24,16 @@
 				/>
 			</div>
 			<div class="flex justify-between">
-				<span class="text-secondary">{{trip.days}} Tage, {{trip.totalDistance}} km</span>
+				<div>
+					<span
+						class="text-secondary"
+						v-show="trip.days"
+					>{{trip.days}} Tage</span>
+					<span
+						class="text-secondary"
+						v-show="trip.totalDistance"
+					>, {{trip.totalDistance}} km</span>
+				</div>
 				<q-btn
 					color="white"
 					text-color="secondary"
@@ -158,6 +167,7 @@
 				<edit-stop-dialog
 					v-if="selectedStop"
 					v-model="selectedStop"
+					:trip="trip"
 				></edit-stop-dialog>
 			</div>
 		</q-dialog>
@@ -193,6 +203,15 @@
 					date = sharedMethods.getFormattedDate(this.trip.startDate);
 				}
 				return date.split(" ")[0];
+			},
+			// need this beause of watcher below
+			stopList() {
+				return this.trip ? this.trip.stopList : [];
+			},
+		},
+		watch: {
+			stopList: function (newStopList, oldStopList) {
+				this.getStopDates();
 			},
 		},
 		created() {
@@ -237,15 +256,11 @@
 				this.editStopDialogVisible = true;
 			},
 			updateStop() {
-				this.$store
-					.dispatch("tripList/updateStop", {
-						stop: this.selectedStop,
-						TripId: this.trip.TripId,
-						isUserTrip: true,
-					})
-					.then(() => {
-						this.getStopDates();
-					});
+				this.$store.dispatch("tripList/updateStop", {
+					stop: this.selectedStop,
+					TripId: this.trip.TripId,
+					isUserTrip: true,
+				});
 			},
 			onDragged() {
 				let payload = {
@@ -268,15 +283,11 @@
 				}, 500);
 			},
 			deleteStop(stopId) {
-				this.$store
-					.dispatch("tripList/deleteStop", {
-						stopId: stopId,
-						TripId: this.trip.TripId,
-						isUserTrip: true,
-					})
-					.then(() => {
-						this.getStopDates();
-					});
+				this.$store.dispatch("tripList/deleteStop", {
+					stopId: stopId,
+					TripId: this.trip.TripId,
+					isUserTrip: true,
+				});
 			},
 		},
 	};

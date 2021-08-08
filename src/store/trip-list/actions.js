@@ -181,7 +181,7 @@ export default {
           "Beschreibe deine Reise",
           auth.user().uid,
           timeStamp,
-          payload.startDate || null
+          payload.startDate || undefined
         );
 
         // add stops

@@ -158,16 +158,18 @@
 				};
 
 				let timeStamp = Date.now();
+
+				console.log(this.arrivalDepartureValues);
 				let startStop = new Stop(
 					uuid.v4() + timeStamp,
 					0,
-					this.arrivalDepartureValues.startStop
+					this.arrivalDepartureValues.startLocation
 				);
 
 				let endStop = new Stop(
 					uuid.v4() + timeStamp,
 					0,
-					this.arrivalDepartureValues.endStop,
+					this.arrivalDepartureValues.endLocation,
 					true
 				);
 				payload.stopList = [startStop, endStop];
@@ -187,13 +189,13 @@
 				let startStop = new Stop(
 					uuid.v4() + timeStamp,
 					0,
-					this.arrivalDepartureValues.startStop
+					this.arrivalDepartureValues.startLocation
 				);
 
 				let endStop = new Stop(
 					uuid.v4() + timeStamp,
 					0,
-					this.arrivalDepartureValues.endStop,
+					this.arrivalDepartureValues.endLocation,
 					true
 				);
 

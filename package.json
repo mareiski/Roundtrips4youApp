@@ -13,6 +13,7 @@
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.12.1",
     "@mapbox/mapbox-gl-geocoder": "^4.7.1",
+    "@netlify/functions": "^0.7.2",
     "@quasar/extras": "^1.0.0",
     "@turf/boolean-intersects": "^6.5.0",
     "@turf/boolean-within": "^6.4.0",

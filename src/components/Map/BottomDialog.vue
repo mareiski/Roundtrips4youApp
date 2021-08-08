@@ -205,6 +205,7 @@
 				<edit-stop-dialog
 					v-if="stop"
 					v-model="stop"
+					:trip="{adults: data.adults, rooms: data.rooms, childrenAges: data.childrenAges}"
 				></edit-stop-dialog>
 			</div>
 		</q-dialog>

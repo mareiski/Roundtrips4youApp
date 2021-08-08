@@ -37,119 +37,121 @@
 				style="margin-top:10px;"
 			>{{ mapLoadingText }}</p>
 		</q-inner-loading>
-		<MglMap
-			v-if="accTo"
-			:accessToken="accTo"
-			:mapStyle.sync="mapStyle"
-			style="height: 85vh"
-			:center="centerLocation"
-			:zoom="6"
-			:mapboxGl="mapbox"
-			:attributionControl="false"
-			logoPosition="bottom-left"
-			keyboard
-			doubleClickZoom
-			@load="onMapLoaded"
-			@click="onMapClicked"
-		>
-			<MglGeocoderControl
+		<keep-alive>
+			<MglMap
+				v-if="accTo"
 				:accessToken="accTo"
-				@result="handleGeocoderSearch"
-				placeholder="Ort suchen"
-				ref="geocoder"
-			/>
-			<q-btn
-				color="white"
-				text-color="secondary"
-				icon="list"
-				round
-				@click="$router.push('/Liste/' + trip.TripId)"
-				style="position:absolute; right:9px; top:16px;"
+				:mapStyle.sync="mapStyle"
+				style="height: 85vh"
+				:center="centerLocation"
+				:zoom="6"
+				:mapboxGl="mapbox"
+				:attributionControl="false"
+				logoPosition="bottom-left"
+				keyboard
+				doubleClickZoom
+				@load="onMapLoaded"
+				@click="onMapClicked"
 			>
-			</q-btn>
-			<MglNavigationControl position="top-right" />
-			<MapLayerPlugin
-				@styleChanged="
+				<MglGeocoderControl
+					:accessToken="accTo"
+					@result="handleGeocoderSearch"
+					placeholder="Ort suchen"
+					ref="geocoder"
+				/>
+				<q-btn
+					color="white"
+					text-color="secondary"
+					icon="list"
+					round
+					@click="$router.push('/Liste/' + trip.TripId)"
+					style="position:absolute; right:9px; top:16px;"
+				>
+				</q-btn>
+				<MglNavigationControl position="top-right" />
+				<MapLayerPlugin
+					@styleChanged="
           addAllRoutes(true);
           loadRiverLayers();
         "
-				class="mapboxgl-ctrl"
-				position="top-right"
-			/>
+					class="mapboxgl-ctrl"
+					position="top-right"
+				/>
 
-			<zoom-to-route @clicked="fitToBounds()"></zoom-to-route>
+				<zoom-to-route @clicked="fitToBounds()"></zoom-to-route>
 
-			<!-- popups for routes -->
-			<template v-if="cachedRouteLayers.length > 0">
-				<MglPopup
-					v-for="(layer, index) in cachedRouteLayers"
-					:coordinates="layer.layer.source.data.properties.centerCoordinates"
-					:key="layer.id + index"
-					:ref="'routeLayer' + index"
-					:showed="true"
-					:closeButton="false"
-					:closeOnClick="false"
-					anchor="bottom"
-					style="padding:0;"
-				>
-					<div
-						class="cursor-pointer"
-						@click="showBottomDialogFromRoute(layer.layer.source.data.properties.startStop, layer.layer.source.data.properties.endStop, layer.layer.source.data.properties.title, layer.layer.source.data.properties.subtitle)"
+				<!-- popups for routes -->
+				<template v-if="cachedRouteLayers">
+					<MglPopup
+						v-for="(layer, index) in cachedRouteLayers"
+						:coordinates="layer.layer.source.data.properties.centerCoordinates"
+						:key="layer.id + index"
+						:ref="'routeLayer' + index"
+						:showed="true"
+						:closeButton="false"
+						:closeOnClick="false"
+						anchor="bottom"
+						style="padding:0;"
 					>
-						<p style="margin:0;">{{layer.layer.source.data.properties.title}}</P>
-						<p style="font-size:11px; margin:0;">{{layer.layer.source.data.properties.subtitle}}</p>
-					</div>
-				</MglPopup>
-			</template>
-
-			<template v-if="trip">
-				<MglMarker
-					v-for="(stop, index) in trip.stopList"
-					:key="stop.stopId"
-					:coordinates="[stop.location.lng, stop.location.lat]"
-					color="#D56026"
-					:offset="[multipleSameStops(stop.location) ? index * 4 : 0, 0]"
-					v-text="index"
-					@click="showBottomDialog(stop, true, true)"
-				>
-					<div slot="marker">
-						<q-icon
-							style="top:-14px"
-							name="fas fa-map-marker"
-							color="primary"
-							size="lg"
-						/>
-						<b
-							style="position:absolute; left:16px; top:-9px;"
-							class="text-white"
+						<div
+							class="cursor-pointer"
+							@click="showBottomDialogFromRoute(layer.layer.source.data.properties.startStop, layer.layer.source.data.properties.endStop, layer.layer.source.data.properties.title, layer.layer.source.data.properties.subtitle)"
 						>
-							{{ index + 1 }}
-						</b>
-					</div>
+							<p style="margin:0;">{{layer.layer.source.data.properties.title}}</p>
+							<p style="font-size:11px; margin:0;">{{layer.layer.source.data.properties.subtitle}}</p>
+						</div>
+					</MglPopup>
+				</template>
+
+				<template v-if="trip">
+					<MglMarker
+						v-for="(stop, index) in trip.stopList"
+						:key="stop.stopId"
+						:coordinates="[stop.location.lng, stop.location.lat]"
+						color="#D56026"
+						:offset="[multipleSameStops(stop.location) ? index * 4 : 0, 0]"
+						v-text="index"
+						@click="showBottomDialog(stop, true, true)"
+					>
+						<div slot="marker">
+							<q-icon
+								style="top:-14px"
+								name="fas fa-map-marker"
+								color="primary"
+								size="lg"
+							/>
+							<b
+								style="position:absolute; left:16px; top:-9px;"
+								class="text-white"
+							>
+								{{ index + 1 }}
+							</b>
+						</div>
+					</MglMarker>
+
+				</template>
+
+				<MglPopup
+					ref="popup"
+					:coordinates="[0, 0]"
+					:showed="true"
+					anchor="bottom"
+				>
+					<div>Hello</div>
+				</MglPopup>
+
+				<!-- last clicked marker -->
+				<MglMarker
+					:coordinates="[lastClickCoordinates.lng, lastClickCoordinates.lat]"
+					color="#70707075"
+					:offset="[5, 10]"
+					ref="addStopMarker"
+					v-if="showAddStopMarker"
+					@click="showBottomDialogFromLastClick()"
+				>
 				</MglMarker>
-
-			</template>
-
-			<MglPopup
-				ref="popup"
-				:coordinates="[0, 0]"
-				:showed="true"
-				anchor="bottom"
-			>
-				<div>Hello</div>
-			</MglPopup>
-
-			<!-- last clicked marker -->
-			<MglMarker
-				:coordinates="[lastClickCoordinates.lng, lastClickCoordinates.lat]"
-				color="#70707075"
-				:offset="[5, 10]"
-				ref="addStopMarker"
-				v-if="showAddStopMarker"
-				@click="showBottomDialogFromLastClick()"
-			>
-			</MglMarker>
-		</MglMap>
+			</MglMap>
+		</keep-alive>
 		<bottom-dialog
 			v-model="bottomDialogShowed"
 			:data="dialogObject"
@@ -176,6 +178,7 @@
 	import { uuid } from "vue-uuid";
 	import sharedMethods from "app/sharedMethods";
 	import shp from "shpjs";
+	import { LocalStorage } from "quasar";
 
 	let map;
 	let rawEuropeanRivers;
@@ -256,19 +259,17 @@
 		},
 		watch: {
 			stopList: function (newStopList, oldStopList) {
-				if (newStopList !== oldStopList) {
-					// hide all existing routes
-					this.routeIds.forEach((idObject) => {
-						map.setLayoutProperty(idObject.routeId, "visibility", "none");
-					});
+				// hide all existing routes
+				this.routeIds.forEach((idObject) => {
+					map.setLayoutProperty(idObject.routeId, "visibility", "none");
+				});
 
-					// recalculate all routes
-					this.addAllRoutes();
+				// recalculate all routes
+				this.addAllRoutes();
 
-					// hide dialog always if a stop was added or removed
-					this.hideBottomDialog();
-					this.showAddStopMarker = false;
-				}
+				// hide dialog always if a stop was added or removed
+				this.hideBottomDialog();
+				this.showAddStopMarker = false;
 			},
 		},
 		methods: {
@@ -276,17 +277,9 @@
 				map = event.map;
 
 				// try to get routes again
-				let context = this;
-
 				this.loadRiverLayers().then(() => {
 					this.addAllRoutes().then(() => {
 						this.fitToBounds();
-
-						setTimeout(function () {
-							context.cachedRouteLayers.forEach((layer, index) => {
-								context.$refs["routeLayer" + index][0].popup.addTo(map);
-							});
-						}, 500);
 					});
 				});
 			},
@@ -294,17 +287,6 @@
 				this.mapLoadingText = "Flüsse werden geladen";
 
 				let promiseList = [];
-
-				/* promiseList.push(
-																																																																																																																																												shp("../rivers_bavaria.zip").then((geojson) => {
-																																																																																																																																													this.mapLoadingText = "Routen werden berechnet";
-
-																																																																																																																																													rawRivers = turf.featureCollection(
-																																																																																																																																														riverRoute.getFeaturesByProperty("fclass", "river", geojson)
-																																																																																																																																													);
-																																																																																																																																												})
-																																																																																																																																											); */
-
 				promiseList.push(
 					shp("../buildings_bavaria.zip").then((geojson) => {
 						this.mapLoadingText = "Routen werden berechnet";
@@ -392,7 +374,14 @@
 						this.trip.totalDistance = JSON.parse(
 							JSON.stringify(this.tempTotalDistance)
 						);
-						console.log(this.trip);
+
+						let context = this;
+						setTimeout(function () {
+							context.cachedRouteLayers.forEach((layer, index) => {
+								context.$refs["routeLayer" + index][0].popup.addTo(map);
+							});
+						}, 500);
+
 						this.$store.dispatch("tripList/updateTrip", this.trip);
 
 						return;
@@ -405,7 +394,7 @@
 						var line = turf.lineString(this.bounds);
 						var bbox = turf.bbox(line);
 						map.fitBounds(new Mapbox.LngLatBounds(bbox), { padding: 80 });
-					} else if (bounds.length === 1) {
+					} else if (this.bounds.length === 1) {
 						this.centerLocation = this.bounds[0];
 					}
 				} catch (e) {
@@ -501,24 +490,22 @@
 				if (!map) return false;
 
 				// add layers from cached layers
-				if (useCache) {
-					let index = this.cachedRouteLayers.findIndex(
-						(x) => x.id === startStop.stopId
-					);
+				let cachedRouteIndex = this.cachedRouteLayers.findIndex(
+					(x) => x.id === startStop.stopId
+				);
 
-					if (index >= 0) {
-						let layer = this.cachedRouteLayers[index].layer;
+				if (useCache && cachedRouteIndex >= 0) {
+					let layer = this.cachedRouteLayers[cachedRouteIndex].layer;
 
-						if (map.getSource(layer.id)) {
-							map
-								.getSource(layer.id)
-								.setData(layer.source.data.geometry.coordinates);
-						} else {
-							map.addLayer(layer);
-							map
-								.getSource(layer.id)
-								.setData(layer.source.data.geometry.coordinates);
-						}
+					if (map.getSource(layer.id)) {
+						map
+							.getSource(layer.id)
+							.setData(layer.source.data.geometry.coordinates);
+					} else {
+						map.addLayer(layer);
+						map
+							.getSource(layer.id)
+							.setData(layer.source.data.geometry.coordinates);
 					}
 
 					return;
@@ -533,123 +520,125 @@
 
 				this.routeIds.push({ stopId: startStop.stopId, routeId: id });
 
-				await this.getRoute(profile, startStop.location, endStop.location).then(
-					(data) => {
-						var geojson = {
+				let storageId = startStop.stopId + endStop.stopId + profile;
+
+				// try to get cached route from local storage
+				let cachedRoute;
+				try {
+					cachedRoute = LocalStorage.getItem("Route" + storageId);
+				} catch (e) {
+					console.log(e);
+				}
+
+				let promise;
+				// load route from local storage -> only if already set and its a full load of the page
+				if (cachedRoute && cachedRouteIndex === -1) {
+					this.tempTotalDistance += cachedRoute.rawDistance;
+					promise = new Promise((resolve, reject) => {
+						resolve(cachedRoute);
+					});
+				} else {
+					promise = this.getRoute(profile, startStop.location, endStop.location);
+				}
+
+				promise.then((data) => {
+					var geojson = {
+						id: id,
+						type: "Feature",
+						properties: {},
+						geometry: {
+							type: "LineString",
+							coordinates: data.route,
+						},
+					};
+
+					try {
+						LocalStorage.set("Route" + storageId, data);
+					} catch (e) {
+						console.log(e);
+					}
+
+					// if the route already exists on the map, reset it using setData
+					if (map.getSource(id)) {
+						map.getSource(id).setData(geojson);
+						map.setPaintProperty(id, "line-color", color);
+						map.setLayoutProperty(id, "visibility", "visible");
+
+						let index = this.cachedRouteLayers.findIndex(
+							(x) => x.id === startStop.stopId
+						);
+
+						if (index >= 0) {
+							this.cachedRouteLayers[index].layer = map.getLayer(id);
+						}
+					} else {
+						// calculate mid point of route for route marker
+						let distance = turf.distance(
+							[startStop.location.lat, startStop.location.lng],
+							[endStop.location.lat, endStop.location.lng]
+						);
+
+						let along = turf.along(turf.lineString(data.route), distance / 2);
+
+						// otherwise, make a new route
+						let routeLayer = {
 							id: id,
-							type: "Feature",
-							properties: {},
-							geometry: {
-								type: "LineString",
-								coordinates: data.route,
+							type: "line",
+							source: {
+								type: "geojson",
+								data: {
+									type: "Feature",
+									properties: {
+										centerCoordinates: along.geometry.coordinates,
+										title: data.duration,
+										subtitle: data.distance,
+										startStop: startStop,
+										endStop: endStop,
+									},
+									geometry: {
+										type: "LineString",
+										coordinates: geojson,
+									},
+								},
+							},
+							layout: {
+								"line-join": "round",
+								"line-cap": "round",
+								visibility: "visible",
+							},
+							paint: {
+								"line-color": color,
+								"line-width": 5,
+								"line-opacity": [
+									"case",
+									["boolean", ["feature-state", "hover"], false],
+									0.75,
+									0.4,
+								],
 							},
 						};
 
-						// if the route already exists on the map, reset it using setData
-						if (map.getSource(id)) {
-							map.getSource(id).setData(geojson);
-							map.setPaintProperty(id, "line-color", color);
-							map.setLayoutProperty(id, "visibility", "visible");
+						map.addLayer(routeLayer);
+						this.cachedRouteLayers.push({
+							id: startStop.stopId,
+							layer: routeLayer,
+						});
 
-							let index = this.cachedRouteLayers.findIndex(
-								(x) => x.id === startStop.stopId
+						// on click listener for route
+						let context = this;
+						map.on("click", id, function (e) {
+							context.showBottomDialogFromRoute(
+								startStop,
+								endStop,
+								data.duration,
+								data.distance
 							);
-							if (index > 0) {
-								this.cachedRouteLayers[index].layer = map.getLayer(id);
-							}
-						} else {
-							// calculate mid point of route for route marker
-							let distance = turf.distance(
-								[startStop.location.lat, startStop.location.lng],
-								[endStop.location.lat, endStop.location.lng]
-							);
+						});
 
-							let along = turf.along(turf.lineString(data.route), distance / 2);
-
-							// otherwise, make a new route
-							let routeLayer = {
-								id: id,
-								type: "line",
-								source: {
-									type: "geojson",
-									data: {
-										type: "Feature",
-										properties: {
-											centerCoordinates: along.geometry.coordinates,
-											title: data.duration,
-											subtitle: data.distance,
-											startStop: startStop,
-											endStop: endStop,
-										},
-										geometry: {
-											type: "LineString",
-											coordinates: geojson,
-										},
-									},
-								},
-								layout: {
-									"line-join": "round",
-									"line-cap": "round",
-									visibility: "visible",
-								},
-								paint: {
-									"line-color": color,
-									"line-width": 5,
-									"line-opacity": [
-										"case",
-										["boolean", ["feature-state", "hover"], false],
-										0.75,
-										0.4,
-									],
-								},
-							};
-
-							map.addLayer(routeLayer);
-							this.cachedRouteLayers.push({
-								id: startStop.stopId,
-								layer: routeLayer,
-							});
-
-							// on click listener for route
-							let context = this;
-							map.on("click", id, function (e) {
-								context.showBottomDialogFromRoute(
-									startStop,
-									endStop,
-									data.duration,
-									data.distance
-								);
-							});
-
-							// When the user moves their mouse over the route, we'll update the
-							// feature state for the feature under the mouse.
-							map.on("mousemove", id, function (e) {
-								if (e.features.length > 0) {
-									if (
-										this.hoveredStateId &&
-										typeof this.hoveredStateId !== "undefined"
-									) {
-										map.setFeatureState(
-											{ source: id, id: this.hoveredStateId },
-											{ hover: false }
-										);
-									}
-									if (
-										e.features[0].layer.id &&
-										typeof e.features[0].layer.id !== "undefined"
-									) {
-										this.hoveredStateId = e.features[0].layer.id;
-										map.setFeatureState(
-											{ source: id, id: this.hoveredStateId },
-											{ hover: true }
-										);
-									}
-								}
-							});
-
-							// When the mouse leaves the route, update the feature state of the
-							// previously hovered feature.
-							map.on("mouseleave", id, function () {
+						// When the user moves their mouse over the route, we'll update the
+						// feature state for the feature under the mouse.
+						map.on("mousemove", id, function (e) {
+							if (e.features.length > 0) {
 								if (
 									this.hoveredStateId &&
 									typeof this.hoveredStateId !== "undefined"
@@ -659,59 +648,82 @@
 										{ hover: false }
 									);
 								}
-								this.hoveredStateId = null;
-							});
-							map.getSource(id).setData(geojson);
-						}
-						return;
+								if (
+									e.features[0].layer.id &&
+									typeof e.features[0].layer.id !== "undefined"
+								) {
+									this.hoveredStateId = e.features[0].layer.id;
+									map.setFeatureState(
+										{ source: id, id: this.hoveredStateId },
+										{ hover: true }
+									);
+								}
+							}
+						});
+
+						// When the mouse leaves the route, update the feature state of the
+						// previously hovered feature.
+						map.on("mouseleave", id, function () {
+							if (
+								this.hoveredStateId &&
+								typeof this.hoveredStateId !== "undefined"
+							) {
+								map.setFeatureState(
+									{ source: id, id: this.hoveredStateId },
+									{ hover: false }
+								);
+							}
+							this.hoveredStateId = null;
+						});
+						map.getSource(id).setData(geojson);
 					}
-				);
+
+					return;
+				});
 			},
 			getRoute(profile, startLocation, endLocation) {
-				return new Promise((resolve) => {
+				return new Promise((resolve, reject) => {
 					if (profile === "SUP") {
-						riverRoute
-							.getRiverRoute(
-								startLocation,
-								endLocation,
-								[rawRivers, rawEuropeanRivers],
-								[]
-							)
-							.then((route) => {
-								var routeLineString = {
-									id: "SUPRoute",
-									type: "Feature",
-									properties: {},
-									geometry: {
-										type: "LineString",
-										coordinates: route,
-									},
-								};
+						let route = riverRoute.getRiverRoute(
+							startLocation,
+							endLocation,
+							[rawRivers, rawEuropeanRivers],
+							[]
+						);
 
-								console.log(riverRoute.getLocks(routeLineString, rawBuildings));
+						var routeLineString = {
+							id: "SUPRoute",
+							type: "Feature",
+							properties: {},
+							geometry: {
+								type: "LineString",
+								coordinates: route,
+							},
+						};
 
-								// get distance
-								let rawRouteDistance = Math.round(
-									turf.lineDistance(routeLineString, "kilometers")
-								);
+						console.log(riverRoute.getLocks(routeLineString, rawBuildings));
 
-								let routeDistance =
-									rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
+						// get distance
+						let rawRouteDistance = Math.round(
+							turf.lineDistance(routeLineString, "kilometers")
+						);
 
-								let rawDurationHours = rawRouteDistance / 7;
+						let routeDistance =
+							rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
 
-								this.tempTotalDistance += rawRouteDistance;
+						let rawDurationHours = rawRouteDistance / 5;
 
-								resolve({
-									route: route,
-									rawDuration: rawDurationHours,
-									duration: Math.round(rawDurationHours) + "h",
-									rawDistance: rawRouteDistance,
-									distance: routeDistance,
-									from: startLocation.label,
-									to: endLocation.label,
-								});
-							});
+						this.tempTotalDistance += rawRouteDistance;
+
+						resolve({
+							route: route,
+							rawDuration: rawDurationHours,
+							duration: Math.round(rawDurationHours) + "h",
+							rawDistance: rawRouteDistance,
+							distance: routeDistance,
+							from: startLocation.label,
+							to: endLocation.label,
+						});
 					} else {
 						var url =
 							"https://api.mapbox.com/directions/v5/mapbox/" +
@@ -821,6 +833,9 @@
 					alreadyAdded: alreadyAdded,
 					buttons: buttons,
 					locationIcon: subtitle === stop.location.label,
+					adults: this.trip.adults,
+					rooms: this.trip.rooms,
+					childrenAges: this.trip.childrenAges,
 				};
 
 				let context = this;

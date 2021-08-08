@@ -99,7 +99,7 @@ export default class Trip {
     this.offerStartPeriod = new Date(timeStamp);
     this.offerWholeYear = true;
     this.createdAt = new Date(timeStamp);
-    this.startDate = startDate || new Date(timeStamp);
+    this.startDate = startDate ? startDate : new Date(timeStamp);
     this.stopList = [];
     this.totalDistance = 0;
 
@@ -306,7 +306,7 @@ export default class Trip {
    * @param {Stop} stop
    */
   addStop(stop: Stop) {
-    this.stopList.push(stop);
+    this.stopList.splice(this.stopList.length - 1, 0, stop);
   }
 
   /**

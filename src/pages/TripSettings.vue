@@ -88,7 +88,7 @@
 			style="padding:10px; border-color:red;"
 		>
 			<p class="text-secondary">
-				Dieses Reise und alle enthaltenen Inhalte löschen
+				Diese Reise und alle enthaltenen Inhalte löschen
 			</p>
 			<q-btn
 				outline
@@ -111,7 +111,7 @@
 						<span class="q-ml-sm">Willst du diese Reise wirklich löschen ? Dies kann nicht mehr rückgängig gemacht werden.</span>
 					</q-card-section>
 
-					<q-card-actions align="right">
+					<q-card-actions class="flex">
 						<q-btn
 							flat
 							label="Abbrechen"
@@ -172,7 +172,6 @@
 					this.startDate.match(/^(\d{2})\.(\d{2})\.(\d{4})$/)
 				) {
 					this.trip.startDate = sharedMethods.getDateFromString(this.startDate);
-					console.log(this.trip.startDate);
 				}
 			},
 			fetchTrip(done) {
@@ -186,10 +185,15 @@
 					})
 					.then((fetchedTrip) => {
 						this.trip = fetchedTrip;
-						this.startDate = sharedMethods
-							.getStringDateFromTimestamp(this.trip.startDate)
-							.split(" ")[0];
-						console.log("fetched");
+
+						console.log(this.trip.startDate);
+						if (typeof this.trip.startDate === "string") {
+							this.startDate = JSON.parse(JSON.stringify(this.trip.startDate));
+						} else {
+							this.startDate = sharedMethods
+								.getStringDateFromTimestamp(this.trip.startDate)
+								.split(" ")[0];
+						}
 						if (done) done();
 					});
 			},

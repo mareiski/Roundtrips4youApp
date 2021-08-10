@@ -850,7 +850,7 @@
 				this.dialogVisible = false;
 			},
 			showBottomDialogFromLastClick() {
-				let lastStop = this.trip.stopList[this.trip.stopList.length - 1];
+				let lastStop = this.trip.stopList[this.trip.stopList.length - 2];
 
 				if (lastStop && lastStop.profile !== "SUP") {
 					this.getRoute(

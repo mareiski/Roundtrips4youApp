@@ -24,6 +24,7 @@
     "@turf/nearest-point-on-line": "^6.4.0",
     "@turf/point-to-line-distance": "^6.4.0",
     "@types/googlemaps": "^3.43.3",
+    "@types/mapbox-gl": "^2.4.0",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
     "create-file": "^1.0.1",

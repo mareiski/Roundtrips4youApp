@@ -175,10 +175,13 @@
 				payload.stopList = [startStop, endStop];
 
 				this.$store.dispatch("tripList/addTrip", payload).then((TripId) => {
+					this.$emit("createdTrip");
 					this.$router.push("/Karte/" + TripId);
 				});
 			},
 			createTripFromTemplate(trip) {
+				sharedMethods.showSuccessNotification("Reise wird erstellt");
+
 				let payload = {
 					title: this.title,
 					TripId: trip.TripId,
@@ -205,6 +208,7 @@
 				this.$store
 					.dispatch("tripList/addTripFromTemplate", payload)
 					.then((TripId) => {
+						this.$emit("createdTrip");
 						this.$router.push("/Karte/" + TripId);
 					});
 			},

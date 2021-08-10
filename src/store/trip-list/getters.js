@@ -6,7 +6,7 @@ export default {
     try {
       let userTrips = [];
       state.TripList.reduce(function(trips, e) {
-        if (e.userId === auth.user().uid) {
+        if (auth.user() && e.userId === auth.user().uid) {
           userTrips.push(e);
         }
       }, []);

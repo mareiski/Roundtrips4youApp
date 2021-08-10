@@ -13,6 +13,7 @@ export default {
     return new Promise((resolve, reject) => {
       // check if this trip already exists
       let trip = getters.getSingleTrip(payload.TripId);
+
       if (trip && !payload.forceRefresh) {
         resolve(trip);
       } else {
@@ -169,7 +170,7 @@ export default {
         });
     });
   },
-  addTrip({}, payload) {
+  addTrip({ commit }, payload) {
     return new Promise(resolve => {
       try {
         const timeStamp = Date.now();
@@ -179,7 +180,7 @@ export default {
           tempTripId,
           payload.title,
           "Beschreibe deine Reise",
-          auth.user().uid,
+          auth.user() ? auth.user().uid : null,
           timeStamp,
           payload.startDate || undefined
         );
@@ -207,58 +208,74 @@ export default {
           );
         }
 
-        // add new trip with new temp TripId
-        db.collection("Trips")
-          .add(newTripObject.toObject())
-          .then(() => {
-            // get create trip and change TripId to doc id
-            let roundtripsRef = db
-              .collection("Trips")
-              .where("TripId", "==", tempTripId)
-              .limit(1);
-            roundtripsRef.get().then(snapshot => {
-              snapshot.forEach(doc => {
-                db.collection("Trips")
-                  .doc(doc.id)
-                  .update({
-                    TripId: doc.id
-                  })
-                  .then(() => {
-                    newTripObject.TripId = doc.id;
-                    resolve(doc.id);
-                  });
+        if (auth.user()) {
+          // add new trip with new temp TripId
+          db.collection("Trips")
+            .add(newTripObject.toObject())
+            .then(() => {
+              // get create trip and change TripId to doc id
+              let roundtripsRef = db
+                .collection("Trips")
+                .where("TripId", "==", tempTripId)
+                .limit(1);
+
+              roundtripsRef.get().then(snapshot => {
+                snapshot.forEach(doc => {
+                  db.collection("Trips")
+                    .doc(doc.id)
+                    .update({
+                      TripId: doc.id
+                    })
+                    .then(() => {
+                      newTripObject.TripId = doc.id;
+                      resolve(doc.id);
+                    });
+                });
               });
             });
-          });
+        } else {
+          newTripObject.TripId = newTripObject.TripId + "temp";
+          commit("addTrip", newTripObject);
+          resolve(tempTripId);
+        }
       } catch (e) {
         console.log(e);
         resolve(null);
       }
     });
   },
-  setNewStopList({ dispatch }, payload) {
+  setNewStopList({ dispatch, commit }, payload) {
     return new Promise(resolve => {
       let daysPayload = {
         stopList: payload.newStopList,
         TripId: payload.TripId
       };
 
-      dispatch("getDaysAndCountries", daysPayload).then(vals => {
-        db.collection("Trips")
-          .doc(payload.TripId)
-          .update({
-            stopList: payload.newStopList,
-            countries: vals.countries,
-            days: vals.days
-          })
-          .then(function() {
-            resolve(true);
-          })
-          .catch(e => {
-            console.log(e);
-            resolve(false);
-          });
-      });
+      if (auth.user()) {
+        dispatch("getDaysAndCountries", daysPayload).then(vals => {
+          db.collection("Trips")
+            .doc(payload.TripId)
+            .update({
+              stopList: payload.newStopList,
+              countries: vals.countries,
+              days: vals.days
+            })
+            .then(function() {
+              resolve(true);
+            })
+            .catch(e => {
+              console.log(e);
+              resolve(false);
+            });
+        });
+      } else {
+        commit("setTripDatesAndCountries", {
+          TripId: payload.TripId,
+          countries: vals.countries,
+          days: vals.days
+        });
+        resolve(true);
+      }
     });
   },
   getDaysAndCountries({ commit }, trip) {
@@ -312,18 +329,23 @@ export default {
         // update days of trip
         trip.days = vals.days;
 
-        db.collection("Trips")
-          .doc(trip.TripId)
-          .update(trip.toObject())
-          .then(function() {
-            // add trip to trip list
-            commit("setTrip", trip);
-            resolve(true);
-          })
-          .catch(e => {
-            console.log(e);
-            resolve(false);
-          });
+        if (auth.user()) {
+          db.collection("Trips")
+            .doc(trip.TripId)
+            .update(trip.toObject())
+            .then(function() {
+              // add trip to trip list
+              commit("setTrip", trip);
+              resolve(true);
+            })
+            .catch(e => {
+              console.log(e);
+              resolve(false);
+            });
+        } else {
+          commit("setTrip", trip);
+          resolve(true);
+        }
       });
     });
   },

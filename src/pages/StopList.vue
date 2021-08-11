@@ -12,8 +12,15 @@
 					<close-button
 						:top="0"
 						size="md"
+						v-if="user"
 						@click="$router.push('/')"
 					></close-button>
+					<save-button
+						:top="0"
+						size="md"
+						@click="$router.push('/Registrieren?TripId=' + trip.getTripId())"
+						v-else
+					></save-button>
 				</div>
 				<b class="raleway text-primary">{{ trip.title }}</b>
 				<q-icon
@@ -178,6 +185,7 @@
 	import Trip from "src/classes/trip";
 	import draggable from "vuedraggable";
 	import CloseButton from "src/components/Buttons/CloseButton.vue";
+	import SaveButton from "src/components/Buttons/SaveButton.vue";
 	import Stop from "src/classes/stop";
 	import EditStopDialog from "src/components/Wizard/EditStopDialog.vue";
 	import sharedMethods from "app/sharedMethods";
@@ -188,6 +196,7 @@
 			draggable,
 			CloseButton,
 			EditStopDialog,
+			SaveButton,
 		},
 		data() {
 			return {
@@ -207,6 +216,9 @@
 			// need this beause of watcher below
 			stopList() {
 				return this.trip ? this.trip.stopList : [];
+			},
+			user() {
+				return this.$store.getters["user/user"];
 			},
 		},
 		watch: {

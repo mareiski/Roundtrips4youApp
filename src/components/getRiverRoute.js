@@ -1,4 +1,4 @@
-require("../../../src/components/Map/riverRoute.ts");
+import riverRoute from "../../../src/components/Map/riverRoute.ts";
 
 exports.handler = async function(event) {
   const {

@@ -1,4 +1,4 @@
-import { auth } from "../../firebaseInit.js";
+import { auth, db } from "../../firebaseInit.js";
 import sharedMethods from "../../../sharedMethods.js";
 const getFirebase = () => import("firebase");
 
@@ -12,7 +12,6 @@ export default {
         .authRef()
         .signInWithEmailAndPassword(payload.email, payload.password)
         .then(function() {
-          commit("demoSession/resetRoundtrip");
           resolve(true);
           payload.context.$router.replace({ path: "/" });
         })
@@ -31,38 +30,26 @@ export default {
         });
     });
   },
-  signInOrUpWithGoogle(payload) {
+  signInOrUpWithGoogle({ dispatch }, payload) {
     return new Promise(resolve => {
       getFirebase().then(firebase => {
         var provider = new firebase.default.auth.GoogleAuthProvider();
         auth
           .authRef()
           .signInWithPopup(provider)
-          .then(function(result) {
-            // This gives you a Google Access Token. You can use it to access the Google API.
-            var token = result.credential.accessToken;
-            const credential = firebase.auth
-              .GoogleAuthProvider()
-              .credential(token);
-
+          .then(() => {
             if (payload.signUp) {
               dispatch("createUserEntry");
             }
 
-            // Sign in with credential from the Google user.
-            auth
-              .signInWithCredential(credential)
-              .then(function() {
-                payload.context.$router.replace("/");
-                resolve(true);
-              })
-              .catch(function(error) {
-                console.log(error);
-                resolve(false);
-              });
+            payload.context.$router.replace("/");
+            resolve(true);
           })
           .catch(function(error) {
             console.log(error);
+            sharedMethods.showErrorNotification(
+              "Du konntest nicht registriert werden " + error
+            );
             resolve(false);
           });
       });
@@ -106,27 +93,20 @@ export default {
               "Juhuuu dein Konto wurde erfolgreich erstellt"
             );
 
-            if (payload.context.$store.getters["demoSession/isInDemoSession"]) {
-              payload.context.$store
-                .dispatch("demoSession/saveRoundtrip", user.user().uid)
-                .then(newTripId => {
-                  // evt.target.submit()
-                  payload.context.$router.replace(
-                    "rundreise-ansehen/" + newTripId
-                  );
-                  resolve(true);
-                });
-            } else {
-              evt.target.submit();
-              payload.context.$router.replace("/");
-              resolve(true);
-            }
+            payload.context.$router.replace("/");
+            resolve(true);
           },
           err => {
             console.log(err);
-            sharedMethods.showErrorNotification(
-              "Du konntest leider nicht registriert werden, bitte kontaktiere uns unter hello@roundtrips4you.de"
-            );
+            if (err.code === "auth/email-already-in-use") {
+              sharedMethods.showErrorNotification(
+                "Du hast dich bereits registriert"
+              );
+            } else {
+              sharedMethods.showErrorNotification(
+                "Du konntest leider nicht registriert werden, bitte kontaktiere uns unter hello@roundtrips4you.de"
+              );
+            }
 
             resolve(false);
           }
@@ -146,7 +126,7 @@ export default {
       });
     });
   },
-  deleteAccount(context) {
+  deleteAccount({}, context) {
     auth
       .user()
       .delete()
@@ -154,7 +134,7 @@ export default {
         sharedMethods.showSuccessNotification(
           "Schade, dein Konto wurde gelöscht"
         );
-        context.$router.push("/");
+        context.$router.push("/Login");
       })
       .catch(function(error) {
         console.log(error);
@@ -169,7 +149,7 @@ export default {
         }
       });
   },
-  createUserEntry() {
+  createUserEntry({ dispatch }) {
     const timeStamp = Date.now();
 
     db.collection("User").add({
@@ -181,6 +161,13 @@ export default {
     dispatch("verifyMail");
   },
   verifyMail() {
+    var actionCodeSettings = {
+      // todo change to android app
+      url: "https://roundtrips4you.de/login",
+      // This must be true.
+      handleCodeInApp: true
+    };
+
     if (!auth.user().emailVerified) {
       auth
         .user()

@@ -128,7 +128,7 @@
 		>
 			Du hast noch kein Konto?
 			<router-link
-				to="/registrieren"
+				to="/Registrieren"
 				class="text-secondary underlined"
 			>Jetzt registrieren</router-link>
 		</div>

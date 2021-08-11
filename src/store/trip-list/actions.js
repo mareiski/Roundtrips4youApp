@@ -236,7 +236,7 @@ export default {
         } else {
           newTripObject.TripId = newTripObject.TripId + "temp";
           commit("addTrip", newTripObject);
-          resolve(tempTripId);
+          resolve(newTripObject.TripId);
         }
       } catch (e) {
         console.log(e);

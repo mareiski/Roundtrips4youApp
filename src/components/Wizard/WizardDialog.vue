@@ -24,7 +24,12 @@
 						<h4 class="center-text">Reise erstellen</h4>
 					</q-card-section>
 					<q-card-section class="flex justify-center">
+						<p
+							class="text-red"
+							v-if="user && !user.emailVerified && userTripCount > 0"
+						>Bitte bestätige deine Email Adresse bevor du eine neue Reise erstellst</p>
 						<q-input
+							v-else
 							label="Titel der Reise"
 							v-model="title"
 							@input="titleChanged()"
@@ -34,6 +39,7 @@
                 val => (val !==null && val.length > 0) || 'Gib einen Titel an'
               ]"
 						/>
+
 					</q-card-section>
 				</div>
 				<q-card-actions
@@ -41,7 +47,7 @@
 					style="padding-bottom:30px;"
 				>
 					<q-btn
-						:disable="title == null || title.length <= 0"
+						:disable="(title == null || title.length <= 0) || (user && !user.emailVerified && userTripCount > 0)"
 						color="primary"
 						outline
 						@click="step = 2"
@@ -119,7 +125,15 @@
 				country: null,
 				arrivalDepartureValid: false,
 				arrivalDepartureValues: {},
+				userTripCount: 0,
 			};
+		},
+		created() {
+			this.$store.dispatch("tripList/fetchAllUserTrips").then((trips) => {
+				if (trips) {
+					this.userTripCount = trips.length;
+				}
+			});
 		},
 		computed: {
 			step: {
@@ -131,6 +145,9 @@
 						this.$emit("stepChange", newValue);
 					}
 				},
+			},
+			user() {
+				return this.$store.getters["user/user"];
 			},
 		},
 		watch: {

@@ -7,12 +7,13 @@
 			<h4>Registrieren</h4>
 		</div>
 		<p class="text-secondary align-center">
-			{{
-        !isInDemoSession
-          ? "Starte jetzt durch und nutze all unsere Funktionen komplett kostenlos"
-          : "Registriere dich jetzt um deine erstellte Rundreise zu speichern"
-      }}
+			Starte jetzt durch und nutze all unsere Funktionen komplett kostenlos
+
 		</p>
+		<a
+			@click="$emit('showWizard')"
+			class="text-primary"
+		>ohne Anmeldung testen</a>
 		<q-form
 			@submit="signUp"
 			bordered
@@ -21,7 +22,7 @@
 		>
 			<!-- add this above for auto mailchimp subcribtion action="https://roundtrips4you.us18.list-manage.com/subscribe/post?u=ca8f607f808c8e5a9812aec8f&id=c64c971288&gdpr[71542]=true" -->
 			<q-input
-				v-model="userEmail"
+				v-model="email"
 				outlined
 				type="email"
 				:rules="[
@@ -106,9 +107,10 @@
 			<div class="flex justify-center">
 				<q-btn
 					:loading="googleLoading"
-					label="google konto verwenden"
+					label="Google Konto verwenden"
 					class="q-mt-md google-btn text-secondary"
 					style="width:300px; margin:0;"
+					no-caps
 					outline
 					icon="fab fa-google"
 					@click="signUpWithGoogle()"
@@ -120,7 +122,10 @@
 			</div>
 		</div>
 		<br />
-		<div class="text-secondary center-text">
+		<div
+			class="text-secondary center-text"
+			v-if="!$route.query.TripId"
+		>
 			Du hast bereits einen Account?
 			<router-link
 				to="/Login"
@@ -212,7 +217,7 @@
 		name: "Register",
 		data() {
 			return {
-				userEmail: "",
+				email: "",
 				password: "",
 				passwordRepeat: "",
 				isPwd: true,
@@ -221,49 +226,76 @@
 				googleLoading: false,
 				showCancelDialog: false,
 				cancelDialogNext: null,
-				disableLeave: true,
 			};
 		},
 		computed: {
-			isInDemoSession() {
-				return this.$store.getters["demoSession/isInDemoSession"];
-			},
 			sharedMethods() {
 				return sharedMethods;
 			},
 		},
 		methods: {
 			signUp() {
-				$store
-					.dispatch("user/signUp", {
-						email: this.email,
-						password: this.password,
-						context: this,
-					})
-					.then((success) => {
-						if (success) context.disableLeave = false;
-					});
+				const TripId = this.$route.query.TripId;
+
+				// if we have a tripid given, we get the trip from vuex
+				if (TripId) {
+					this.$store
+						.dispatch("tripList/fetchSingleTrip", {
+							isUserTrip: false,
+							TripId: TripId,
+							forceRefresh: false,
+						})
+						.then((trip) => {
+							this.$store
+								.dispatch("user/signUp", {
+									email: this.email,
+									password: this.password,
+									context: this,
+								})
+								.then((success) => {
+									// if profile was created, we add the trip of vuex store to users profile
+									if (success && trip) {
+										this.$store.dispatch("tripList/addTrip", trip);
+									}
+								});
+						});
+				}
+
+				this.$store.dispatch("user/signUp", {
+					email: this.email,
+					password: this.password,
+					context: this,
+				});
 			},
 			signUpWithGoogle() {
-				$store
-					.dispatch("user/signInOrUpWithGoogle", {
-						signUp: true,
-						context: this,
-					})
-					.then((success) => {
-						if (success) context.disableLeave = false;
-					});
-			},
-			beforeRouteLeave(to, from, next) {
-				if (
-					this.$store.getters["demoSession/isInDemoSession"] &&
-					this.disableLeave
-				) {
-					this.showCancelDialog = true;
-					this.cancelDialogNext = next;
-				} else {
-					next();
+				const TripId = this.$route.query.TripId;
+
+				// if we have a tripid given, we get the trip from vuex
+				if (TripId) {
+					this.$store
+						.dispatch("tripList/fetchSingleTrip", {
+							isUserTrip: false,
+							TripId: TripId,
+							forceRefresh: false,
+						})
+						.then((trip) => {
+							this.$store
+								.dispatch("user/signInOrUpWithGoogle", {
+									signUp: true,
+									context: this,
+								})
+								.then((success) => {
+									if (success && trip) {
+										this.$store.dispatch("tripList/addTrip", trip);
+									}
+								});
+						});
 				}
+
+				this.$store.dispatch("user/signInOrUpWithGoogle", {
+					signUp: true,
+					context: this,
+				});
 			},
 		},
 	};

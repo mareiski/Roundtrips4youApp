@@ -56,62 +56,69 @@
 		<q-footer
 			style="height:60px;"
 			class="flex justify-around bg-white shadow-8"
+			v-show="!$router.currentRoute.meta.guestOnly"
 		>
-			<router-link
-				to="/"
-				class="center-content-horizontal"
-			>
-				<q-icon
-					class="icon-outline"
-					size="md"
-					name="home"
-				/>
-			</router-link>
-			<router-link
-				to="/Inspiration"
-				class="center-content-horizontal"
-			>
-				<q-icon
-					class="icon-outline"
-					size="md"
-					name="lightbulb"
-				/>
-			</router-link>
-			<router-link
-				to=""
-				class="center-content-horizontal"
-				style="width:54px;"
-			>
-				<q-btn
-					icon="add"
-					size="18px"
-					color="primary"
-					round
-					class="add-btn shadow-15-orange"
-					@click="actionButtonClicked()"
-				></q-btn>
-			</router-link>
-			<router-link
-				to=""
-				class="center-content-horizontal"
-			>
-				<q-icon
-					size="md"
-					color="primary"
-					:name="showNotifications ? 'notifications' : 'notifications_none'"
-					@click="showNotifications = !showNotifications"
-				/>
-			</router-link>
-			<router-link
-				to="/Profil"
-				class="center-content-horizontal"
-			>
-				<q-icon
-					class="icon-outline"
-					size="md"
-					name="person"
-				/>
-			</router-link>
+			<template v-if="user">
+				<router-link
+					to="/"
+					class="center-content-horizontal"
+				>
+					<q-icon
+						class="icon-outline"
+						size="md"
+						name="home"
+					/>
+				</router-link>
+				<router-link
+					to="/Inspiration"
+					class="center-content-horizontal"
+				>
+					<q-icon
+						class="icon-outline"
+						size="md"
+						name="lightbulb"
+					/>
+				</router-link>
+				<router-link
+					to=""
+					class="center-content-horizontal"
+					style="width:54px;"
+				>
+					<q-btn
+						icon="add"
+						size="18px"
+						color="primary"
+						round
+						class="add-btn shadow-15-orange"
+						@click="actionButtonClicked()"
+					></q-btn>
+				</router-link>
+				<router-link
+					to=""
+					class="center-content-horizontal"
+				>
+					<q-icon
+						size="md"
+						color="primary"
+						:name="showNotifications ? 'notifications' : 'notifications_none'"
+						@click="showNotifications = !showNotifications"
+					/>
+				</router-link>
+				<router-link
+					to="/Profil"
+					class="center-content-horizontal"
+				>
+					<q-icon
+						class="icon-outline"
+						size="md"
+						name="person"
+					/>
+				</router-link>
+			</template>
+			<template v-else>
+				<p class="text-secondary q-pl-sm">Du bist nicht Angemeldet! Um deine Reise zu speichern musst du dich später links oben Registrieren
+				</p>
+			</template>
 		</q-footer>
 	</q-layout>
 </template>
@@ -136,6 +143,11 @@
 				redirectionFinished: false,
 				mountFinished: false,
 			};
+		},
+		computed: {
+			user() {
+				return this.$store.getters["user/user"];
+			},
 		},
 		methods: {
 			actionButtonClicked() {

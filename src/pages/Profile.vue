@@ -4,7 +4,7 @@
 			class="user q-px-lg q-pb-md"
 			v-if="user"
 		>
-			<h5>Hallo, {{ user.displayName }}</h5>
+			<h5>{{ user.displayName ? 'Hallo, ' + user.displayName : 'Willkommen' }}</h5>
 
 			<q-tabs
 				v-model="tab"
@@ -50,14 +50,8 @@
 						<q-input
 							v-model="userDisplayName"
 							outlined
-							:rules="[
-                val =>
-                  (val !== null && val !== '' && user.displayName === val) ||
-                  'Bitte wähle einen anderen Benutzernamen'
-              ]"
 							label="Benutzername"
 							@blur="userNameChanged()"
-							lazy-rules
 						/>
 					</q-list>
 					<q-form

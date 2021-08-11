@@ -13,7 +13,7 @@ const routes = [
         }
       },
       {
-        path: "Login",
+        path: "/Login",
         component: () => import("pages/Login.vue"),
         name: "login",
         meta: {

@@ -13,7 +13,14 @@
 						:top="0"
 						size="md"
 						@click="$router.push('/')"
+						v-if="user"
 					></close-button>
+					<save-button
+						:top="0"
+						size="md"
+						@click="$router.push('/Registrieren?TripId=' + trip.TripId)"
+						v-else
+					></save-button>
 				</div>
 				<b class="raleway text-primary">{{ trip.title }}</b>
 				<q-icon
@@ -175,6 +182,7 @@
 	import Trip from "src/classes/trip";
 	import BottomDialog from "src/components/Map/BottomDialog.vue";
 	import CloseButton from "../components/Buttons/CloseButton.vue";
+	import SaveButton from "src/components/Buttons/SaveButton.vue";
 	import { uuid } from "vue-uuid";
 	import sharedMethods from "app/sharedMethods";
 	import shp from "shpjs";
@@ -205,6 +213,7 @@
 			CloseButton,
 			ZoomToRoute,
 			MglPopup,
+			SaveButton,
 		},
 		computed: {
 			isMobile() {
@@ -216,6 +225,9 @@
 			// need this beause of watcher below
 			stopList() {
 				return this.trip ? this.trip.stopList : [];
+			},
+			user() {
+				return this.$store.getters["user/user"];
 			},
 		},
 		data() {

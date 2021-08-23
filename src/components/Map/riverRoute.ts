@@ -106,11 +106,14 @@ export default {
           [intersectingRivers],
           false
         );
+        console.log(bestIntersectingRiver);
 
         let intersectingPoints = lineIntersect(
           currentRiverBBox,
           bestIntersectingRiver
         );
+
+        console.log(intersectingPoints);
 
         // get closest intersecting point to end location
         // @ts-ignore
@@ -273,22 +276,29 @@ export default {
     riverArr.forEach(riverCollection => {
       riverCollection.features.forEach(river => {
         let within = false;
-
-        if (checkIfInBBox && river.geometry.bbox) {
+        let bbox;
+        if (river.geometry.bbox) {
+          bbox = river.geometry.bbox;
+        } else {
           // @ts-ignore
-          let bboxPolygon = turf.bboxPolygon(river.geometry.bbox);
+          bbox = turf.bbox(turf.multiPoint(river.geometry.coordinates[0]));
+        }
+
+        if (checkIfInBBox) {
+          // @ts-ignore
+          let bboxPolygon = turf.bboxPolygon(bbox);
           bboxPolygon = turf.buffer(bboxPolygon, 5);
           within = booleanWithin(point, bboxPolygon);
         } else {
           // @ts-ignore
-          let bboxPolygon = turf.bboxPolygon(river.geometry.bbox);
+          let bboxPolygon = turf.bboxPolygon(bbox);
 
           // we create a very big polygon (max km a route can take)
           bboxPolygon = turf.buffer(bboxPolygon, 900);
           within = booleanWithin(point, bboxPolygon);
         }
 
-        if (!river.geometry.bbox || within) {
+        if (!bbox || within) {
           let distanceToCheck = -1;
           let closestPoint;
 
@@ -309,6 +319,10 @@ export default {
       });
     });
 
+    if (foundRiver.geometry.type === "MultiLineString") {
+      // @ts-ignore
+      foundRiver = turf.lineString(foundRiver.geometry.coordinates[0]);
+    }
     return foundRiver;
   },
   getLocks(

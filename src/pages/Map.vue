@@ -79,7 +79,6 @@
 				<MapLayerPlugin
 					@styleChanged="
           addAllRoutes(true);
-          loadRiverLayers();
         "
 					class="mapboxgl-ctrl"
 					position="top-right"
@@ -185,13 +184,12 @@
 	import SaveButton from "src/components/Buttons/SaveButton.vue";
 	import { uuid } from "vue-uuid";
 	import sharedMethods from "app/sharedMethods";
-	import shp from "shpjs";
 	import { LocalStorage } from "quasar";
+	import worldRivers from "../assets/WorldRivers.json";
+	import europeanRivers from "../assets/EuropeanRivers.json"
+	import bavariaBuildings from "../assets/BavariaBuildings.json";
 
 	let map;
-	let rawEuropeanRivers;
-	let rawRivers;
-	let rawBuildings;
 
 	export default {
 		meta: {
@@ -289,38 +287,9 @@
 				map = event.map;
 
 				// try to get routes again
-				this.loadRiverLayers().then(() => {
-					this.addAllRoutes().then(() => {
-						this.fitToBounds();
-					});
+				this.addAllRoutes().then(() => {
+					this.fitToBounds();
 				});
-			},
-			loadRiverLayers() {
-				this.mapLoadingText = "Flüsse werden geladen";
-
-				let promiseList = [];
-				promiseList.push(
-					shp("../buildings_bavaria.zip").then((geojson) => {
-						this.mapLoadingText = "Routen werden berechnet";
-						rawBuildings = geojson;
-					})
-				);
-
-				promiseList.push(
-					shp("../rivers.zip").then((geojson) => {
-						this.mapLoadingText = "Routen werden berechnet";
-						rawRivers = geojson;
-					})
-				);
-
-				promiseList.push(
-					shp("../european_rivers.zip").then((geojson) => {
-						this.mapLoadingText = "Routen werden berechnet";
-						rawEuropeanRivers = geojson;
-					})
-				);
-
-				return Promise.all(promiseList);
 			},
 			flyTo(event) {
 				this.lastClickCoordinates = event;
@@ -544,11 +513,12 @@
 
 				let promise;
 				// load route from local storage -> only if already set and its a full load of the page
-				if (cachedRoute && cachedRouteIndex === -1) {
+				if (cachedRoute && cachedRouteIndex === -2) {
 					this.tempTotalDistance += cachedRoute.rawDistance;
 					promise = new Promise((resolve, reject) => {
 						resolve(cachedRoute);
 					});
+					console.log("loaded route from cache")
 				} else {
 					promise = this.getRoute(profile, startStop.location, endStop.location);
 				}
@@ -699,7 +669,7 @@
 						let route = riverRoute.getRiverRoute(
 							startLocation,
 							endLocation,
-							[rawRivers, rawEuropeanRivers],
+							[worldRivers, europeanRivers],
 							[]
 						);
 
@@ -713,7 +683,7 @@
 							},
 						};
 
-						console.log(riverRoute.getLocks(routeLineString, rawBuildings));
+						console.log(riverRoute.getLocks(routeLineString, bavariaBuildings));
 
 						// get distance
 						let rawRouteDistance = Math.round(

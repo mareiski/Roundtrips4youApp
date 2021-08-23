@@ -3,7 +3,9 @@ const rawRivers = require("../../src/assets/WorldRivers.json");
 const rawEuropeanRivers = require("../../src/assets/EuropeanRivers.json");
 
 exports.handler = async function(event: { body: string }) {
-  const { startLocation, endLocation } = JSON.parse(event.body);
+  const startLocation = event.queryStringParameters.startLocation;
+  const endLocation = event.queryStringParameters.endLocation;
+
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",

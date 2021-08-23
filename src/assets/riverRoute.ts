@@ -27,8 +27,8 @@ const booleanWithin = require("@turf/boolean-within");
  * @returns a array of coordinates for a route
  */
 function getRiverRoute(
-  startLocation: PointLocation,
-  endLocation: PointLocation,
+  startLocation: InstanceType<typeof PointLocation>,
+  endLocation: InstanceType<typeof PointLocation>,
   riverCollection: FeatureCollection<
     LineString | MultiLineString,
     GeoJsonProperties
@@ -257,7 +257,7 @@ function revertRiver(
 }
 
 function getClosestRiver(
-  location: PointLocation,
+  location: InstanceType<typeof PointLocation>,
   riverArr: FeatureCollection<
     LineString | MultiLineString,
     GeoJsonProperties

@@ -170,7 +170,6 @@
 	const MglMap = () => import("vue-mapbox");
 	const MglGeocoderControl = () => import("vue-mapbox-geocoder");
 	import turf from "turf";
-	import riverRoute from "components/Map/riverRoute.ts";
 
 	import Mapbox from "mapbox-gl";
 	import MapLayerPlugin from "../components/Map/MapLayerPlugin.vue";
@@ -666,13 +665,10 @@
 			getRoute(profile, startLocation, endLocation) {
 				return new Promise((resolve, reject) => {
 					if (profile === "SUP") {
-						let route = riverRoute.getRiverRoute(
+						sharedMethods.getRiverRoute(
 							startLocation,
-							endLocation,
-							[worldRivers, europeanRivers],
-							[]
-						);
-
+							endLocation
+						).then(route => {
 						var routeLineString = {
 							id: "SUPRoute",
 							type: "Feature",
@@ -683,7 +679,7 @@
 							},
 						};
 
-						console.log(riverRoute.getLocks(routeLineString, bavariaBuildings));
+					//	console.log(riverRoute.getLocks(routeLineString, bavariaBuildings));
 
 						// get distance
 						let rawRouteDistance = Math.round(
@@ -706,6 +702,7 @@
 							from: startLocation.label,
 							to: endLocation.label,
 						});
+						})
 					} else {
 						var url =
 							"https://api.mapbox.com/directions/v5/mapbox/" +

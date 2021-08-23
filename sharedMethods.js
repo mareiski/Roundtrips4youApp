@@ -54,6 +54,19 @@ export default {
       "00"
     );
   },
+  getRiverRoute(startLocation, endLocation) {
+    return new Promise((resolve, reject) => {
+      getAxios().then(axios => {
+        let url =
+          "https://app.roundtrips4you.de/.netlify/functions/getRiverRoute?startLocation" +
+          JSON.stringify(startLocation) +
+          "&endLocation=" +
+          JSON.stringify(endLocation);
+
+        resolve(axios.get(url));
+      });
+    });
+  },
   /**
    * @returns a promise resoving country as a param
    */

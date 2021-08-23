@@ -14,7 +14,7 @@ import {
   Position
 } from "geojson";
 const PointLocation = require("../classes/pointLocation.ts");
-const booleanWithin = require("@turf/boolean-within");
+import booleanWithin from "@turf/boolean-within";
 
 /**
  * calculates a river route to given locations

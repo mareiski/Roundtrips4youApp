@@ -2,7 +2,9 @@ const riverRoute = require("../../src/assets/riverRoute.ts");
 const rawRivers = require("../../src/assets/WorldRivers.json");
 const rawEuropeanRivers = require("../../src/assets/EuropeanRivers.json");
 
-exports.handler = async function(event: { body: string }) {
+exports.handler = async function(event: {
+  queryStringParameters: { startLocation: any; endLocation: any };
+}) {
   const startLocation = event.queryStringParameters.startLocation;
   const endLocation = event.queryStringParameters.endLocation;
 

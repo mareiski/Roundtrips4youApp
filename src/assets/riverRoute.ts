@@ -13,7 +13,7 @@ import {
   Point,
   Position
 } from "geojson";
-import PointLocation from "../classes/pointLocation.ts";
+import PointLocation from "../classes/pointLocation";
 import booleanWithin from "@turf/boolean-within";
 
 /**

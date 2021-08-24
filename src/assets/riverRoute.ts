@@ -1,5 +1,5 @@
-const lineIntersect = require("@turf/line-intersect");
-const nearestPoint = require("@turf/nearest-point");
+import lineIntersect from "@turf/line-intersect";
+import nearestPoint from "@turf/nearest-point";
 const turf = require("turf");
 import nearestPointOnLine from "@turf/nearest-point-on-line";
 import booleanIntersects from "@turf/boolean-intersects";

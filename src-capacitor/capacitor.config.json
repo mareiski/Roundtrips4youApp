@@ -1,7 +1,3 @@
-{
-  "appId": "org.capacitor.roundtrips4you.app",
-  "appName": "Roundtrips4you",
-  "bundledWebRuntime": false,
-  "npmClient": "npm",
-  "webDir": "www"
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:879765f2684c9e7c3e66ed0f2fd1c53619eb4b75d79c77881d568567e0a3cada
+size 151

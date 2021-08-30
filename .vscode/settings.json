@@ -1,6 +1,3 @@
-{
-  "vetur.validation.template": false,
-  "vetur.format.enable": true,
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "vue"],
-  "vetur.experimental.templateInterpolationService": true
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:aca8372f6d056ddc3773b2d66f654dc159584a44d6107e98a28a6ae3c4dd5907
+size 208

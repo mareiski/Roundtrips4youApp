@@ -1,12 +1,3 @@
-{
-  "recommendations": [
-    "dbaeumer.vscode-eslint",
-    "esbenp.prettier-vscode",
-    "octref.vetur"
-  ],
-  "unwantedRecommendations": [
-    "hookyqr.beautify",
-    "dbaeumer.jshint",
-    "ms-vscode.vscode-typescript-tslint-plugin"
-  ]
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:79c9e7f25f5d9e23d79d6ee3dcc6bcbbd3d60b6ac0bec18e7ac64cfa5180274d
+size 241

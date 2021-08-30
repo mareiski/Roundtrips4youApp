@@ -1,8 +1,8 @@
-const lineIntersect = require("@turf/line-intersect");
-const nearestPoint = require("@turf/nearest-point");
+import lineIntersect from "@turf/line-intersect";
+import nearestPoint from "@turf/nearest-point";
 const turf = require("turf");
-const nearestPointOnLine = require("@turf/nearest-point-on-line");
-const booleanIntersects = require("@turf/boolean-intersects");
+import nearestPointOnLine from "@turf/nearest-point-on-line";
+import booleanIntersects from "@turf/boolean-intersects";
 
 import {
   FeatureCollection,
@@ -13,7 +13,7 @@ import {
   Point,
   Position
 } from "geojson";
-const PointLocation = require("../classes/pointLocation.ts");
+import PointLocation from "../classes/pointLocation";
 import booleanWithin from "@turf/boolean-within";
 
 /**

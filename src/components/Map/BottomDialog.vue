@@ -92,7 +92,7 @@
 										<q-item-section>Infos</q-item-section>
 									</q-item>
 									<q-item
-										v-show="data.alreadyAdded"
+										v-show="data.alreadyAdded && data.ableToDelete"
 										@click="deleteStop(data.stop.stopId)"
 										clickable
 										v-close-popup

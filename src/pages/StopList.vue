@@ -136,6 +136,7 @@
 								v-if="trip.stopList && trip.stopList.length > 1"
 								flat
 								round
+								:disable="index === 0 || index === trip.stopList.length -1"
 								size="md"
 								icon="delete"
 							>
@@ -211,6 +212,9 @@
 				if (!date) {
 					date = sharedMethods.getFormattedDate(this.trip.startDate);
 				}
+				if (!date) {
+					date = this.trip.startDate;
+				}
 				return date.split(" ")[0];
 			},
 			// need this beause of watcher below
@@ -248,7 +252,13 @@
 					});
 			},
 			getStopDates() {
-				let startDate = sharedMethods.getDateFromTimeStamp(this.trip.startDate);
+				let startDate;
+				if (this.trip.startDate.seconds) {
+					startDate = sharedMethods.getDateFromTimeStamp(this.trip.startDate);
+				} else {
+					startDate = sharedMethods.getDateFromString(this.trip.startDate);
+				}
+				console.log(startDate);
 				this.trip.stopList[0].date = sharedMethods
 					.getFormattedDate(startDate)
 					.split(" ")[0];

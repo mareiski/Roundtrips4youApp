@@ -3,7 +3,7 @@ import PointLocation from "./pointLocation";
 import { date } from "quasar";
 
 export default class Trip {
-  private TripId: number;
+  private TripId: string;
   description: string;
   private userId: string;
   title: string;

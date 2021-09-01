@@ -17,6 +17,12 @@
 			autogrow
 			label="Beschreibung"
 		></q-input>
+		<image-upload
+			:titleImgUrl="trip.titleImageUrl"
+			:galeryImages="false"
+			:TripId="trip.getTripId()"
+			@titleImageChanged="url => trip.titleImageUrl = url"
+		></image-upload>
 		<p class="text-secondary">Startdatum:</p>
 		<q-input
 			v-model="startDate"
@@ -69,7 +75,7 @@
 			v-model.number="trip.price"
 			label="Preis"
 		></q-input>
-		<q-input
+		<!-- <q-input
 			v-for="num in 3"
 			:key="num"
 			v-model="trip.highlights[num]"
@@ -80,7 +86,7 @@
 			:key="num"
 			v-model="trip.tags[num]"
 			:label="'Tag ' + num++"
-		></q-input>
+		></q-input> -->
 		<h5 style="padding-top:30px;">Danger Zone</h5>
 		<q-list
 			bordered
@@ -136,10 +142,12 @@
 	import BackButton from "src/components/Buttons/BackButton.vue";
 	import Trip from "src/classes/trip";
 	import sharedMethods from "app/sharedMethods";
+	import ImageUpload from "src/components/ImageUpload.vue";
 	export default {
 		name: "settings",
 		components: {
 			BackButton,
+			ImageUpload,
 		},
 		data() {
 			return {

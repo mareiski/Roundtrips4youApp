@@ -114,7 +114,7 @@
 										startDate: this.startDate,
 										startLocation: this.startLocation,
 										endLocation: endLocation,
-										startCountry: country.data.countryName,
+										startCountry: country.countryName,
 									});
 								});
 							return true;

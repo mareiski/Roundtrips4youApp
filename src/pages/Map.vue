@@ -512,7 +512,7 @@
 
 				let promise;
 				// load route from local storage -> only if already set and its a full load of the page
-				if (cachedRoute && cachedRouteIndex === -2) {
+				if (cachedRoute && cachedRouteIndex === -1) {
 					this.tempTotalDistance += cachedRoute.rawDistance;
 					promise = new Promise((resolve, reject) => {
 						resolve(cachedRoute);
@@ -523,8 +523,8 @@
 				}
 
 				await promise.then((data) => {
-					if(!data) {
-						console.log("route could not be loaded")
+					if (!data) {
+						console.log("route could not be loaded");
 						return;
 					}
 					var geojson = {
@@ -668,53 +668,54 @@
 			},
 			getRoute(profile, startLocation, endLocation) {
 				return new Promise((resolve, reject) => {
-					this.mapLoadingText = "Routen werden berechnet"
+					this.mapLoadingText = "Routen werden berechnet";
 					if (profile === "SUP") {
 						sharedMethods
 							.getRiverRoute(startLocation, endLocation)
 							.then((response) => {
-								if(response) {
-								let route = response.data;
-								var routeLineString = {
-									id: "SUPRoute",
-									type: "Feature",
-									properties: {},
-									geometry: {
-										type: "LineString",
-										coordinates: route,
-									},
-								};
+								if (response) {
+									let route = response.data;
+									var routeLineString = {
+										id: "SUPRoute",
+										type: "Feature",
+										properties: {},
+										geometry: {
+											type: "LineString",
+											coordinates: route,
+										},
+									};
 
-								//	console.log(riverRoute.getLocks(routeLineString, bavariaBuildings));
+									//	console.log(riverRoute.getLocks(routeLineString, bavariaBuildings));
 
-								// get distance
-								let rawRouteDistance = Math.round(
-									turf.lineDistance(routeLineString, "kilometers")
-								);
+									// get distance
+									let rawRouteDistance = Math.round(
+										turf.lineDistance(routeLineString, "kilometers")
+									);
 
-								let routeDistance =
-									rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
+									let routeDistance =
+										rawRouteDistance > 0 ? rawRouteDistance + " km" : null;
 
-								let rawDurationHours = rawRouteDistance / 5;
+									let rawDurationHours = rawRouteDistance / 5;
 
-								this.tempTotalDistance += rawRouteDistance;
+									this.tempTotalDistance += rawRouteDistance;
 
-								resolve({
-									route: route,
-									rawDuration: rawDurationHours,
-									duration: Math.round(rawDurationHours) + "h",
-									rawDistance: rawRouteDistance,
-									distance: routeDistance,
-									from: startLocation.label,
-									to: endLocation.label,
-								});
+									resolve({
+										route: route,
+										rawDuration: rawDurationHours,
+										duration: Math.round(rawDurationHours) + "h",
+										rawDistance: rawRouteDistance,
+										distance: routeDistance,
+										from: startLocation.label,
+										to: endLocation.label,
+									});
 								} else {
-									resolve()
+									resolve();
 								}
-							}).catch(e => {
-								console.log(e)
-									resolve()
 							})
+							.catch((e) => {
+								console.log(e);
+								resolve();
+							});
 					} else {
 						var url =
 							"https://api.mapbox.com/directions/v5/mapbox/" +
@@ -817,7 +818,7 @@
 					this.markerClicked = true;
 				}
 
-				let index = this.trip.stopList.indexOf(stop)
+				let index = this.trip.stopList.indexOf(stop);
 				this.dialogObject = {
 					title: stop.title,
 					subtitle: subtitle,
@@ -829,7 +830,7 @@
 					adults: this.trip.adults,
 					rooms: this.trip.rooms,
 					childrenAges: this.trip.childrenAges,
-					ableToDelete: index !== 0 && index !== this.trip.stopList.length -1
+					ableToDelete: index !== 0 && index !== this.trip.stopList.length - 1,
 				};
 
 				let context = this;
@@ -852,22 +853,22 @@
 						lastStop.location,
 						this.lastClickCoordinates
 					).then((data) => {
-						if(data)
- {						this.showBottomDialog(
-							{
-								title: this.lastClickCoordinates.label,
-								location: this.lastClickCoordinates,
-							},
-							false,
-							true,
-							data.duration + " ab " + lastStop.location.label
-						);
- } else {
-	 console.log("data is not existing")
-            sharedMethods.showErrorNotification(
-              "Ups da ist wohl etwas schief gelaufen"
-            );
- }
+						if (data) {
+							this.showBottomDialog(
+								{
+									title: this.lastClickCoordinates.label,
+									location: this.lastClickCoordinates,
+								},
+								false,
+								true,
+								data.duration + " ab " + lastStop.location.label
+							);
+						} else {
+							console.log("data is not existing");
+							sharedMethods.showErrorNotification(
+								"Ups da ist wohl etwas schief gelaufen"
+							);
+						}
 					});
 				} else {
 					this.showBottomDialog(

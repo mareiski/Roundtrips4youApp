@@ -25,8 +25,14 @@
 					>
 						<q-avatar class="background-light-grey">
 							<img
-								style="width:30px"
+								v-if="trip.titleImageUrl !== '../assets/aircraft.svg'"
+								:src="trip.titleImageUrl"
+								
+							/>
+							<img
+								v-else
 								src="../assets/aircraft.svg"
+								style="width:30px"
 							/>
 						</q-avatar>
 					</q-item-section>

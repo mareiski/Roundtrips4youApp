@@ -11,7 +11,14 @@ const ESLintPlugin = require("eslint-webpack-plugin");
 module.exports = function(/* ctx */) {
   return {
     // https://v1.quasar.dev/quasar-cli/supporting-ts
-    supportTS: true,
+    supportTS: {
+      tsCheckerConfig: {
+        eslint: {
+          enabled: true,
+          memoryLimit: 8192
+        }
+      }
+    },
 
     // https://v1.quasar.dev/quasar-cli/prefetch-feature
     // preFetch: true,

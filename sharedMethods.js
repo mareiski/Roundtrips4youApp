@@ -2,6 +2,7 @@ import { Notify, date } from "quasar";
 const getAxios = () => import("axios");
 import wiki from "wikijs";
 import { Loader } from "@googlemaps/js-api-loader";
+import Geonames from "geonames.js";
 
 let cachedWikivoyageData = [];
 
@@ -78,16 +79,13 @@ export default {
    */
   getCountryForLatLng(lat, lng) {
     return new Promise((resolve, reject) => {
-      getAxios().then(axios => {
-        let url =
-          "http://api.geonames.org/countryCodeJSON?lang=de&lat=" +
-          lat +
-          "&lng=" +
-          lng +
-          "&username=roundtrips4you";
-
-        resolve(axios.get(url));
+      const geonames = Geonames({
+        username: "roundtrips4you",
+        lan: "de",
+        encoding: "JSON"
       });
+
+      resolve(geonames.countryCode({ lat: lat, lng: lng }));
     });
   },
   /**

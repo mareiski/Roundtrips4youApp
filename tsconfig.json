@@ -1,3 +1,8 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f6040e36d77ee7c3714e2dc6105cf08217eaff3a463e5fe1c00e23f5a619b631
-size 169
+{
+    "extends": "@quasar/app/tsconfig-preset",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "allowJs": true,
+        "skipLibCheck": true
+        }
+}

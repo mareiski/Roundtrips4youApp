@@ -114,7 +114,7 @@ export default {
 
       let roundtipsRef = db
         .collection("Tips")
-        .where("location", "contains", country)
+        .where("country", "==", country)
         .orderBy("createdAt")
         .limit(20);
       roundtipsRef.get().then(snapshot => {

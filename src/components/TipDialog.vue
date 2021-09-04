@@ -75,7 +75,8 @@
 			if (this.defaultTip) {
 				this.tip = this.defaultTip;
 			} else {
-				this.tip = new Tip("", user.uid, "", Date.now());
+				let timestamp = Date.now();
+				this.tip = new Tip("", user.uid, "", new Date(timestamp));
 			}
 		},
 		methods: {

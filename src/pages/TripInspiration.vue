@@ -11,6 +11,7 @@
 			></q-icon>
 		</h5>
 		<q-scroll-area
+			v-if="tips"
 			horizontal
 			style="height: 280px; width: 100vh; padding-left:10px;"
 			class="bg-grey-1 rounded-borders"
@@ -24,19 +25,29 @@
 					<q-img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimages.hellogiggles.com%2Fuploads%2F2017%2F07%2F10085540%2FPuertoRicoSummer-e1500342104215.jpg&f=1&nofb=1" />
 					<q-card-section>
 						<q-item-label class="text-primary">{{tip.title}}</q-item-label>
-						<q-item-label caption>
-							<q-icon name="location_on" /> {{tip.location}}
+						<q-item-label
+							caption
+							class="ellipsis"
+						>
+							<q-icon name="location_on" />
+							{{tip.location.label}}
 						</q-item-label>
 					</q-card-section>
 					<q-card-section
 						class="text-grey ellipsis-3-lines	"
 						style="padding-top:0; height:65px;"
+						v-html="tip.content"
 					>
-						{{tip.content}}
 					</q-card-section>
 				</q-card>
 			</div>
 		</q-scroll-area>
+		<div
+			v-else
+			class="q-pl-lg"
+		>
+			<p class="text-secondary">Es wurden leider noch keine Tipps in {{country}} veröffentlicht.</p>
+		</div>
 		<h5 class="q-pl-lg">Reisen <q-icon
 				@click="$emit('showWizard')"
 				name="add"
@@ -77,12 +88,13 @@
 		</div>
 		<h5 class="q-pl-lg">Personen</h5>
 		<q-scroll-area
+			v-if="false"
 			horizontal
 			style="height: 280px; width: 100vh; padding-left:10px;"
 			class="bg-grey-1 rounded-borders"
 		>
 			<div class="flex flex-nowrap full-height">
-				<p class="text-secondary q-pt-lg">coming soon</p>
+
 				<!-- <q-card
 					v-for="n in 10"
 					:key="n"
@@ -102,6 +114,7 @@
 				</q-card> -->
 			</div>
 		</q-scroll-area>
+		<p class="text-secondary q-px-lg">coming soon</p>
 	</q-page>
 </template>
 
@@ -115,6 +128,7 @@
 			return {
 				country: "Deutschland",
 				publicTrips: [],
+				tips: [],
 				disableAdding: false,
 			};
 		},
@@ -136,7 +150,7 @@
 			},
 			fetchTips() {
 				this.$store
-					.dispatch("tripList/fetchPublicTipsForCountry", this.country)
+					.dispatch("tipList/fetchPublicTipsForCountry", this.country)
 					.then((tips) => {
 						this.tips = tips;
 					});

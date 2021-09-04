@@ -8,6 +8,7 @@ export default class Tip {
   createdAt: Date | any;
   location: PointLocation;
   TipId: string;
+  country: string;
 
   static fromObject(obj: any) {
     return new this(
@@ -45,7 +46,15 @@ export default class Tip {
 
     if (location) {
       this.location = PointLocation.fromObject(location);
+
+      if (this.location.label.includes(",")) {
+        let locationParts = this.location.label.split(",");
+        this.country = locationParts[locationParts.length - 1].substring(1);
+      } else {
+        this.country = this.location.label;
+      }
     } else {
+      this.country = "";
       this.location = new PointLocation(0, 0, "");
     }
 
@@ -72,13 +81,23 @@ export default class Tip {
   }
 
   toObject() {
+    if (!this.country) {
+      if (this.location.label.includes(",")) {
+        let locationParts = this.location.label.split(",");
+        this.country = locationParts[locationParts.length - 1].substring(1);
+      } else {
+        this.country = this.location.label;
+      }
+    }
+
     return {
       title: this.title,
       creator: this.creator,
       content: this.content,
       createdAt: this.createdAt,
       location: this.location.toObject(),
-      TipId: this.TipId
+      TipId: this.TipId,
+      country: this.country
     };
   }
 }

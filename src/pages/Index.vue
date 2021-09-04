@@ -81,7 +81,7 @@
 			style="height:40px;"
 			@click="$emit('showWizard')"
 		/>
-		<template v-if="tips">
+		<template v-if="tips && tips.length > 0">
 			<div class="width-80-percent">
 				<h4>Deine Tipps</h4>
 			</div>

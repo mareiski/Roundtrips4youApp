@@ -1,10 +1,15 @@
 <template>
-	<q-page class="flex flex-center">
+	<q-page>
 		<geocoder
 			id="geocoder4"
+			class="q-px-lg"
 			@inputCountry="e => (country = e)"
 		></geocoder>
-		<h5 style="margin:0;">Tipps</h5>
+		<h5 class="q-pl-lg">Tipps <q-icon
+				@click="$emit('showTipWizard')"
+				name="add"
+			></q-icon>
+		</h5>
 		<q-scroll-area
 			horizontal
 			style="height: 280px; width: 100vh; padding-left:10px;"
@@ -12,61 +17,73 @@
 		>
 			<div class="flex flex-nowrap full-height">
 				<q-card
-					v-for="n in 10"
-					:key="n"
+					v-for="tip in tips"
+					:key="tip.TipId"
 					style="width:200px; margin:5px;"
 				>
 					<q-img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimages.hellogiggles.com%2Fuploads%2F2017%2F07%2F10085540%2FPuertoRicoSummer-e1500342104215.jpg&f=1&nofb=1" />
 					<q-card-section>
-						<q-item-label class="text-primary">Titel Tipp {{ n }}</q-item-label>
+						<q-item-label class="text-primary">{{tip.title}}</q-item-label>
 						<q-item-label caption>
-							<q-icon name="location_on" /> Ort
+							<q-icon name="location_on" /> {{tip.location}}
 						</q-item-label>
 					</q-card-section>
 					<q-card-section
 						class="text-grey ellipsis-3-lines	"
 						style="padding-top:0; height:65px;"
 					>
-						Beschreibung zu dieser Nachricht die bis zu drei Zeilen lang sein
-						kann. Wenn Sie länger ist, kann sie auch abgeschnitten werden.
+						{{tip.content}}
 					</q-card-section>
 				</q-card>
 			</div>
 		</q-scroll-area>
-		<h5>Reisen</h5>
+		<h5 class="q-pl-lg">Reisen <q-icon
+				@click="$emit('showWizard')"
+				name="add"
+			></q-icon>
+		</h5>
 		<q-scroll-area
 			horizontal
 			style="height: 280px; width: 100vh; padding-left:10px;"
 			class="bg-grey-1 rounded-borders"
+			v-if="publicTrips"
 		>
 			<div class="flex flex-nowrap full-height">
 				<q-card
-					v-for="n in 10"
-					:key="n"
+					v-for="trip in publicTrips"
+					:key="trip.TripId"
 					style="width:200px; margin:5px;"
+					@click="$router.push('/Karte/'+trip.TripId)"
 				>
-					<q-img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimages.hellogiggles.com%2Fuploads%2F2017%2F07%2F10085540%2FPuertoRicoSummer-e1500342104215.jpg&f=1&nofb=1" />
+					<q-img :src="trip.titleImageUrl" />
 					<q-card-section class="flex">
-						<div class="text-primary">Reise {{ n }}</div>
+						<div class="text-primary">{{ trip.title }}</div>
 					</q-card-section>
 					<q-card-section
 						class="text-grey ellipsis-3-lines	"
 						style="padding-top:0; height:65px;"
 					>
-						Beschreibung zu dieser Nachricht die bis zu drei Zeilen lang sein
-						kann. Wenn Sie länger ist, kann sie auch abgeschnitten werden.
+						{{trip.description}}
 					</q-card-section>
 				</q-card>
 			</div>
+
 		</q-scroll-area>
-		<h5>Personen</h5>
+		<div
+			v-else
+			class="q-pl-lg"
+		>
+			<p class="text-secondary">Es wurden leider noch keine Reisen in {{country}} veröffentlicht.</p>
+		</div>
+		<h5 class="q-pl-lg">Personen</h5>
 		<q-scroll-area
 			horizontal
 			style="height: 280px; width: 100vh; padding-left:10px;"
 			class="bg-grey-1 rounded-borders"
 		>
 			<div class="flex flex-nowrap full-height">
-				<q-card
+				<p class="text-secondary q-pt-lg">coming soon</p>
+				<!-- <q-card
 					v-for="n in 10"
 					:key="n"
 					style="width:200px; margin:5px;"
@@ -82,7 +99,7 @@
 						Beschreibung zu dieser Nachricht die bis zu drei Zeilen lang sein
 						kann. Wenn Sie länger ist, kann sie auch abgeschnitten werden.
 					</q-card-section>
-				</q-card>
+				</q-card> -->
 			</div>
 		</q-scroll-area>
 	</q-page>
@@ -96,8 +113,38 @@
 		},
 		data() {
 			return {
-				country: {},
+				country: "Deutschland",
+				publicTrips: [],
+				disableAdding: false,
 			};
+		},
+		watch: {
+			country: function (newCountry, oldCountry) {
+				if (newCountry !== oldCountry) {
+					this.fetchTrips();
+					this.fetchTips();
+				}
+			},
+		},
+		methods: {
+			fetchTrips() {
+				this.$store
+					.dispatch("tripList/fetchPublicTripsForCountry", this.country)
+					.then((trips) => {
+						this.publicTrips = trips;
+					});
+			},
+			fetchTips() {
+				this.$store
+					.dispatch("tripList/fetchPublicTipsForCountry", this.country)
+					.then((tips) => {
+						this.tips = tips;
+					});
+			},
+		},
+		created() {
+			this.fetchTrips();
+			this.fetchTips();
 		},
 	};
 </script>

@@ -1,6 +1,10 @@
 <template>
-  <q-scroll-area class="fit" style="padding-top:40px;">
-    <q-card v-for="n in 10" :key="n" flat>
+	<q-scroll-area
+		class="fit q-pl-md"
+		style="padding-top:40px;"
+	>
+		coming soon
+		<!-- <q-card v-for="n in 10" :key="n" flat>
       <q-card-section class="flex">
         <div class="center-content-horizontal" style="padding-right:10px;">
           <q-icon name="notifications" size="sm" color="primary" />
@@ -15,10 +19,10 @@
         Wenn Sie länger ist, kann sie auch abgeschnitten werden.
       </q-card-section>
       <q-separator spaced inset></q-separator>
-    </q-card>
-  </q-scroll-area>
+    </q-card> -->
+	</q-scroll-area>
 </template>
 
 <script>
-export default {};
+	export default {};
 </script>

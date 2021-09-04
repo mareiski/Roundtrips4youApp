@@ -151,6 +151,24 @@ export default {
     }
     return false;
   },
+  async getWikivoyageImage(pageName) {
+    let index = cachedWikivoyageData.findIndex(x => x.title === pageName);
+    if (index >= 0) {
+      resolve(cachedWikivoyageData[index]);
+    } else {
+      await wiki({ apiUrl: "https://de.wikipedia.org/w/api.php" })
+        .find(pageName)
+        .then(page => {
+          page.mainImage().then(mainImage => {
+            resolve(mainImage);
+          });
+        })
+        .catch(function(error) {
+          console.log("Error " + error);
+          resolve(null);
+        });
+    }
+  },
   /**
    * gets data from wikivoyage/wikipedia for a given page name
    * @param {string} pageName the page name to get data from

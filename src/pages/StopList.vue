@@ -244,11 +244,21 @@
 						forceRefresh: !!done,
 					})
 					.then((fetchedTrip) => {
-						this.trip = fetchedTrip;
-						this.getStopDates();
+						console.log("trip");
+						console.log(fetchedTrip);
+						if (!fetchedTrip) {
+							this.$router.push("/");
+						} else {
+							if (this.$store.getters["user/user"].uid === fetchedTrip.userId) {
+								this.trip = fetchedTrip;
+								this.getStopDates();
 
-						console.log("fetched");
-						if (done) done();
+								console.log("fetched");
+								if (done) done();
+							} else {
+								this.$router.push("/");
+							}
+						}
 					});
 			},
 			getStopDates() {

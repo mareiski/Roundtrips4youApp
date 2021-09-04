@@ -28,7 +28,9 @@
 					@click="$router.push('/Einstellungen/' + trip.TripId)"
 					name="settings"
 					size="sm"
+					v-if="isCreator"
 				/>
+				<div v-else></div>
 			</div>
 		</q-pull-to-refresh>
 		<q-inner-loading
@@ -65,12 +67,14 @@
 					@result="handleGeocoderSearch"
 					placeholder="Ort suchen"
 					ref="geocoder"
+					v-if="isCreator"
 				/>
 				<q-btn
 					color="white"
 					text-color="secondary"
 					icon="list"
 					round
+					v-if="isCreator"
 					@click="$router.push('/Liste/' + trip.TripId)"
 					style="position:absolute; right:9px; top:16px;"
 				>
@@ -184,9 +188,6 @@
 	import { uuid } from "vue-uuid";
 	import sharedMethods from "app/sharedMethods";
 	import { LocalStorage } from "quasar";
-	import worldRivers from "../assets/WorldRivers.json";
-	import europeanRivers from "../assets/EuropeanRivers.json";
-	import bavariaBuildings from "../assets/BavariaBuildings.json";
 
 	let map;
 
@@ -225,6 +226,9 @@
 			},
 			user() {
 				return this.$store.getters["user/user"];
+			},
+			isCreator() {
+				return this.$store.getters["user/user"].uid === this.trip.userId;
 			},
 		},
 		data() {
@@ -453,7 +457,7 @@
 				this.showBottomDialogFromLastClick();
 			},
 			getTrip(done) {
-				let userTrip = auth.user() !== null;
+				let userTrip = auth.user() !== null || this.isCreator;
 
 				this.$store
 					.dispatch("tripList/fetchSingleTrip", {
@@ -461,9 +465,13 @@
 						TripId: this.TripId,
 					})
 					.then((fetchedTrip) => {
-						this.trip = fetchedTrip;
-						this.addAllRoutes();
-						if (done) done();
+						if (!fetchedTrip) {
+							this.$router.push("/");
+						} else {
+							this.trip = fetchedTrip;
+							this.addAllRoutes();
+							if (done) done();
+						}
 					});
 			},
 			async addRoute(startStop, endStop, index, useCache) {
@@ -825,7 +833,7 @@
 					stop: stop,
 					TripId: this.TripId,
 					alreadyAdded: alreadyAdded,
-					buttons: buttons,
+					buttons: this.isCreator ? buttons : false,
 					locationIcon: subtitle === stop.location.label,
 					adults: this.trip.adults,
 					rooms: this.trip.rooms,

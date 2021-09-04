@@ -192,17 +192,26 @@
 						forceRefresh: !!done,
 					})
 					.then((fetchedTrip) => {
-						this.trip = fetchedTrip;
-
-						console.log(this.trip.startDate);
-						if (typeof this.trip.startDate === "string") {
-							this.startDate = JSON.parse(JSON.stringify(this.trip.startDate));
+						if (!fetchedTrip) {
+							this.$router.push("/");
 						} else {
-							this.startDate = sharedMethods
-								.getStringDateFromTimestamp(this.trip.startDate)
-								.split(" ")[0];
+							if (this.$store.getters["user/user"].uid === fetchedTrip.userId) {
+								this.trip = fetchedTrip;
+
+								if (typeof this.trip.startDate === "string") {
+									this.startDate = JSON.parse(
+										JSON.stringify(this.trip.startDate)
+									);
+								} else {
+									this.startDate = sharedMethods
+										.getStringDateFromTimestamp(this.trip.startDate)
+										.split(" ")[0];
+								}
+								if (done) done();
+							} else {
+								this.$router.push("/");
+							}
 						}
-						if (done) done();
 					});
 			},
 			deleteTrip() {

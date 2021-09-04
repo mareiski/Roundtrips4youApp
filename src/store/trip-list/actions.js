@@ -38,9 +38,9 @@ export default {
         roundtripsRef
           .get()
           .then(snapshot => {
-            snapshot.forEach(doc => {
-              if (snapshot.empty) resolve(null);
+            if (snapshot.empty) resolve(null);
 
+            snapshot.forEach(doc => {
               trip = Trip.fromObject(doc.data());
 
               // add trip to trip list
@@ -52,6 +52,9 @@ export default {
           .catch(function(error) {
             // sth went wrong (no user or not a public trip)
             console.log("Error " + error);
+            sharedMethods.showErrorNotification(
+              "Auf diese Reise kann nicht zugegriffen werden."
+            );
             resolve(null);
           });
       }
@@ -294,8 +297,8 @@ export default {
             sharedMethods
               .getCountryForLatLng(stop.location.lat, stop.location.lng)
               .then(response => {
-                if (!tempCountries.includes(response.data.countryName)) {
-                  tempCountries.push(response.data.countryName);
+                if (!tempCountries.includes(response.countryName)) {
+                  tempCountries.push(response.countryName);
                 }
               })
               .catch(function(error) {

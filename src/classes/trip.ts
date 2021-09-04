@@ -71,7 +71,7 @@ export default class Trip {
 
   // constructor only takes neccessary values
   constructor(
-    TripId: number,
+    TripId: string,
     title: string,
     description: string,
     userId: string,

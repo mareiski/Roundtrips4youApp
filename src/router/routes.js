@@ -55,7 +55,10 @@ const routes = [
       {
         path: "/Inspiration",
         name: "search",
-        component: () => import("src/pages/TripInspiration.vue")
+        component: () => import("src/pages/TripInspiration.vue"),
+        meta: {
+          fabMultipleActions: true
+        }
       }
     ]
   },

@@ -43,11 +43,35 @@
 			</div>
 		</q-dialog>
 
+		<q-dialog
+			maximized
+			v-model="showTipDialog"
+		>
+			<div>
+				<close-button
+					:top="10"
+					style="z-index: 2;"
+					@click="showTipDialog = !showTipDialog; defaultTip = null"
+				></close-button>
+				<h6
+					style="z-index: 1;"
+					class="position-absolute text-center text-primary full-width"
+				>
+					{{defaultTip ? defaultTip.title : 'Tipp erstellen'}}
+				</h6>
+				<tip-dialog
+					:defaultTip="defaultTip"
+					@hideDialog="showTipDialog = !showTipDialog; defaultTip = null"
+				></tip-dialog>
+			</div>
+		</q-dialog>
+
 		<q-page-container ref="pages">
 			<keep-alive>
 				<router-view
 					:key="$route.fullPath"
 					@showWizard="showWizardDialog = !showWizardDialog"
+					@showTipWizard="openTipDialog($event)"
 					@clickActionButton="actionButtonClicked()"
 				/>
 			</keep-alive>
@@ -84,14 +108,38 @@
 					class="center-content-horizontal"
 					style="width:54px;"
 				>
+					<!-- floating action button with single option -->
 					<q-btn
+						v-if="!$router.currentRoute.meta.fabMultipleActions"
 						icon="add"
-						size="18px"
 						color="primary"
 						round
 						class="add-btn shadow-15-orange"
 						@click="actionButtonClicked()"
 					></q-btn>
+
+					<!-- fab with multiple actions -->
+					<q-fab
+						v-else
+						icon="add"
+						color="primary"
+						round
+						class="add-btn shadow-15-orange"
+						direction="up"
+					>
+						<q-fab-action
+							color="secondary"
+							icon="add"
+							label="Reise"
+							@click="showWizardDialog = !showWizardDialog;"
+						/>
+						<q-fab-action
+							color="secondary"
+							icon="add"
+							label="Tipp"
+							@click="showTipDialog = !showTipDialog"
+						/>
+					</q-fab>
 				</router-link>
 				<router-link
 					to=""
@@ -128,11 +176,18 @@
 	import CloseButton from "src/components/Buttons/CloseButton.vue";
 	import Notifications from "src/components/Notifications.vue";
 	import BackButton from "src/components/Buttons/BackButton.vue";
+	import TipDialog from "src/components/TipDialog.vue";
 	import { Loading } from "quasar";
 	import { auth } from "../firebaseInit.js";
 
 	export default {
-		components: { WizardDialog, CloseButton, Notifications, BackButton },
+		components: {
+			WizardDialog,
+			CloseButton,
+			Notifications,
+			BackButton,
+			TipDialog,
+		},
 		name: "MainLayout",
 		data() {
 			return {
@@ -142,6 +197,8 @@
 				wizardTitle: null,
 				redirectionFinished: false,
 				mountFinished: false,
+				showTipDialog: false,
+				defaultTip: null,
 			};
 		},
 		computed: {
@@ -158,6 +215,18 @@
 					this.getChild(name)[actionButtonMethod]();
 				} else {
 					this.showWizardDialog = !this.showWizardDialog;
+				}
+			},
+			openTipDialog(e) {
+				console.log(e);
+				if (this.showTipDialog) {
+					this.showTipDialog = false;
+					this.defaultTip = null;
+				} else {
+					this.showTipDialog = true;
+					if (e) {
+						this.defaultTip = e;
+					}
 				}
 			},
 			getChild(name) {

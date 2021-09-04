@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 
 import tripList from "./trip-list";
+import tipList from "./tip-list";
 import user from "./user";
 import api from "./api";
 
@@ -21,7 +22,8 @@ export default function(/* { ssrContext } */) {
     modules: {
       tripList,
       user,
-      api
+      api,
+      tipList
     }
 
     // enable strict mode (adds overhead!)

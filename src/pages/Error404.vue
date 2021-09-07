@@ -26,7 +26,11 @@
 </template>
 
 <script>
+	import { Loading } from "quasar";
 	export default {
 		name: "Error404",
+		mounted() {
+			Loading.hide();
+		},
 	};
 </script>

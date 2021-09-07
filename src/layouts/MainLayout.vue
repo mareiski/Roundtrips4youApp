@@ -168,6 +168,8 @@
 				</p>
 			</template>
 		</q-footer>
+		<CookieBanner></CookieBanner>
+
 	</q-layout>
 </template>
 
@@ -179,6 +181,7 @@
 	import TipDialog from "src/components/TipDialog.vue";
 	import { Loading } from "quasar";
 	import { auth } from "../firebaseInit.js";
+	import CookieBanner from "src/components/CookieBanner/CookieBanner.vue";
 
 	export default {
 		components: {
@@ -187,6 +190,7 @@
 			Notifications,
 			BackButton,
 			TipDialog,
+			CookieBanner,
 		},
 		name: "MainLayout",
 		data() {

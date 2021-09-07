@@ -277,6 +277,18 @@
 					class="q-mt-md"
 				>Reise erstellen</q-btn>
 			</div>
+			<router-link
+				class="text-primary q-pl-xs"
+				to="/Impressum"
+			>Impressum</router-link>
+			<router-link
+				class="text-primary q-pl-xs"
+				to="/Datenschutz"
+			>Datenschutz</router-link>
+			<router-link
+				class="text-primary q-pl-xs"
+				to="/Haftungsausschluss"
+			>Haftungsausschluss</router-link>
 			<!-- <p style="text-align:center; font-size:20px; padding-top:40px;">Möchtest du erstmal ein paar Beispiele sehen?<br> Wähle ein Land und sehe dir von anderen Usern mit unserem Reiseplaner kostenlos und online erstellte Rundreisen an</p>
 			<div class="card-container">
 				<div

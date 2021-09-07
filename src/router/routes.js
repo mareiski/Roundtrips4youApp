@@ -77,6 +77,21 @@ const routes = [
       }
     ]
   },
+  {
+    path: "/Impressum",
+    name: "impress",
+    component: () => import("src/pages/Legal/Impressum.vue")
+  },
+  {
+    path: "/Haftungsausschluss",
+    name: "haftunsausschluss",
+    component: () => import("../pages/Legal/Haftungsausschluss.vue")
+  },
+  {
+    path: "/Datenschutz",
+    name: "privacy",
+    component: () => import("src/pages/Legal/Datenschutz.vue")
+  },
 
   // Always leave this as last one,
   // but you can also remove it

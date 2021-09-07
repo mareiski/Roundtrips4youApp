@@ -247,16 +247,19 @@
 						console.log("trip");
 						console.log(fetchedTrip);
 						if (!fetchedTrip) {
-							this.$router.push("/");
+							this.$router.push("/Home");
 						} else {
-							if (this.$store.getters["user/user"].uid === fetchedTrip.userId) {
+							if (
+								this.$route.params.tripId.includes("temp") ||
+								this.$store.getters["user/user"].uid === fetchedTrip.userId
+							) {
 								this.trip = fetchedTrip;
 								this.getStopDates();
 
 								console.log("fetched");
 								if (done) done();
 							} else {
-								this.$router.push("/");
+								this.$router.push("/Home");
 							}
 						}
 					});

@@ -84,7 +84,7 @@
 		>
 			<template v-if="user">
 				<router-link
-					to="/"
+					to="/Home"
 					class="center-content-horizontal"
 				>
 					<q-icon
@@ -239,7 +239,9 @@
 			let loggedIn = auth.user() !== null;
 
 			if (!loggedIn) {
-				this.$router.push("/Registrieren");
+				if (!process.env.MODE === "spa") {
+					this.$router.push("/Registrieren");
+				}
 			}
 		},
 		mounted() {

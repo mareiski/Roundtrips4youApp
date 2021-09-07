@@ -10,13 +10,14 @@
 		<q-form
 			@submit="onUserLogin"
 			bordered
-			class="q-gutter-md rounded-borders flex column"
+			class="q-gutter-md rounded-borders flex column align-center"
 		>
 			<q-input
 				v-model="userEmail"
 				outlined
 				type="email"
 				lazy-rules
+				class="max-with-400 width-90-percent"
 				:rules="[
           val => (val !== null && val !== '') || 'Bitte gib eine Email an',
           val =>
@@ -30,6 +31,7 @@
 				outlined
 				:type="isPwd ? 'password' : 'text'"
 				label="Passwort"
+				class="max-with-400 width-90-percent"
 				:rules="[
           val => (val !== null && val !== '') || 'Bitte gib dein Passwort ein'
         ]"
@@ -42,15 +44,14 @@
 					/>
 				</template>
 			</q-input>
-			<div class="flex justify-center">
+			<div class="flex justify-center width-90-percent">
 				<q-btn
 					type="submit"
 					:loading="loginLoading"
 					label="Login"
-					class="q-mt-md"
+					class="q-mt-md full-width max-with-400"
 					color="primary"
 					outline
-					style="width:300px;"
 				>
 					<template v-slot:loading>
 						<q-spinner />
@@ -63,9 +64,10 @@
 				:loading="googleLoading"
 				outline
 				label="Anmelden mit Google"
-				class="q-mt-md google-btn text-secondary"
-				style="width:300px; text-transform:none; margin-top: 0"
+				class="q-mt-md google-btn text-secondary max-with-400 width-90-percent"
+				style="margin-top: 0; height:36px;"
 				icon="fab fa-google"
+				no-caps
 				@click="signInWithGoogle()"
 			>
 				<template v-slot:loading>

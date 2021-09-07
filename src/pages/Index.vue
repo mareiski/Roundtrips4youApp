@@ -25,7 +25,7 @@
 					>
 						<q-avatar class="background-light-grey">
 							<img
-								v-if="trip.titleImageUrl !== '../assets/aircraft.svg'"
+								v-if="trip.titleImageUrl && trip.titleImageUrl !== '../assets/aircraft.svg'"
 								:src="trip.titleImageUrl"
 							/>
 							<img

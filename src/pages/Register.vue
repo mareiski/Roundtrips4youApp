@@ -12,13 +12,13 @@
 		</p>
 		<a
 			@click="$emit('showWizard')"
-			class="text-primary"
+			class="text-primary cursor-pointer"
 		>ohne Anmeldung testen</a>
 		<q-form
 			@submit="signUp"
 			bordered
 			style="margin-bottom:10px;"
-			class="q-gutter-md rounded-borders flex column"
+			class="q-gutter-md rounded-borders flex column justify-center align-center"
 		>
 			<!-- add this above for auto mailchimp subcribtion action="https://roundtrips4you.us18.list-manage.com/subscribe/post?u=ca8f607f808c8e5a9812aec8f&id=c64c971288&gdpr[71542]=true" -->
 			<q-input
@@ -34,6 +34,7 @@
 				lazy-rules
 				name="EMAIL"
 				style="padding:0;"
+				class="max-with-400 width-90-percent"
 			/>
 			<q-input
 				v-model="password"
@@ -42,6 +43,7 @@
 				label="neues Passwort"
 				lazy-rules
 				style="padding:0;"
+				class="max-with-400 width-90-percent"
 				:rules="[
           val =>
             (val !== null && val !== '') || 'Bitte gib dein neues Passwort ein'
@@ -62,6 +64,7 @@
 				label="neues Passwort wiederholen"
 				lazy-rules
 				style="padding:0;"
+				class="max-with-400 width-90-percent"
 				:rules="[
           val =>
             (val !== null && val !== '') || 'Bitte wiederhole dein Passwort',
@@ -77,18 +80,15 @@
 					/>
 				</template>
 			</q-input>
-			<div
-				style="padding:10px;"
-				class="flex justify-center"
-			>
+			<div class="flex justify-center width-90-percent">
 				<q-btn
 					type="submit"
 					:loading="submitting"
 					label="Registrieren"
-					class="q-mt-md"
+					class="q-mt-md max-with-400 full-width"
 					color="primary"
 					outline
-					style="width:300px; margin:0;"
+					style="margin:0;"
 				>
 					<template v-slot:loading>
 						<q-spinner />
@@ -108,8 +108,8 @@
 				<q-btn
 					:loading="googleLoading"
 					label="Google Konto verwenden"
-					class="q-mt-md google-btn text-secondary"
-					style="width:300px; margin:0;"
+					class="q-mt-md google-btn text-secondary max-with-400 width-90-percent"
+					style="margin:0;"
 					no-caps
 					outline
 					icon="fab fa-google"

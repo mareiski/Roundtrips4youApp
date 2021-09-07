@@ -13,7 +13,7 @@ export default {
         .signInWithEmailAndPassword(payload.email, payload.password)
         .then(function() {
           resolve(true);
-          payload.context.$router.replace({ path: "/" });
+          payload.context.$router.replace({ path: "/Home" });
         })
         .catch(function(error) {
           console.log(error);
@@ -42,7 +42,7 @@ export default {
               dispatch("createUserEntry");
             }
 
-            payload.context.$router.replace("/");
+            payload.context.$router.replace("/Home");
             resolve(true);
           })
           .catch(function(error) {
@@ -93,7 +93,7 @@ export default {
               "Juhuuu dein Konto wurde erfolgreich erstellt"
             );
 
-            payload.context.$router.replace("/");
+            payload.context.$router.replace("/Home");
             resolve(true);
           },
           err => {

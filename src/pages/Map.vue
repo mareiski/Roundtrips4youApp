@@ -228,7 +228,10 @@
 				return this.$store.getters["user/user"];
 			},
 			isCreator() {
-				return this.$store.getters["user/user"].uid === this.trip.userId;
+				return (
+					this.$route.params.tripId.includes("temp") ||
+					this.$store.getters["user/user"].uid === this.trip.userId
+				);
 			},
 		},
 		data() {
@@ -466,7 +469,7 @@
 					})
 					.then((fetchedTrip) => {
 						if (!fetchedTrip) {
-							this.$router.push("/");
+							this.$router.push("/Home");
 						} else {
 							this.trip = fetchedTrip;
 							this.addAllRoutes();

@@ -5,192 +5,198 @@
 			v-model="dialogShowed"
 			position="bottom"
 		>
-			<q-carousel
-				animated
-				:autoplay="7000"
-				arrows
-				infinite
-				v-model="slideNum"
-				v-show="data.buttons && imageSrcs.length > 0"
-				height="100px"
+			<div
+				class="flex bg-white"
+				style="flex-direction:column;"
 			>
-				<q-carousel-slide
-					v-for="(url, index) in imageSrcs"
-					:name="index"
-					:key="index"
-					:img-src="url"
-					@click="showImageDialog(url)"
+				<q-carousel
+					animated
+					:autoplay="7000"
+					arrows
+					infinite
+					v-model="slideNum"
+					v-show="data.buttons && imageSrcs.length > 0"
+					height="100px"
 				>
-				</q-carousel-slide>
-			</q-carousel>
-			<q-card :class="max ? 'dialog-max-height' : 'dialog-min-height'">
-				<q-card-section
-					class="column flex-nowrap"
-					style="height: 120px"
-				>
-					<div
-						class="row flex justify-between no-wrap"
-						@click="data.buttons ? (max = !max) : false"
+					<q-carousel-slide
+						v-for="(url, index) in imageSrcs"
+						:name="index"
+						:key="index"
+						:img-src="url"
+						@click="showImageDialog(url)"
 					>
-						<div>
-							<div class="text-weight-bold text-secondary">
-								{{ data.title }}
-							</div>
-							<div class="text-grey">
-								<q-icon
-									v-show="data.locationIcon"
-									name="location_on"
-								/>{{
+					</q-carousel-slide>
+				</q-carousel>
+				<q-card :class="max ? 'dialog-max-height' : 'dialog-min-height'">
+					<q-card-section
+						class="column flex-nowrap"
+						style="height: 120px"
+					>
+						<div
+							class="row flex justify-between no-wrap"
+							@click="data.buttons ? (max = !max) : false"
+						>
+							<div>
+								<div class="text-weight-bold text-secondary">
+									{{ data.title }}
+								</div>
+								<div class="text-grey">
+									<q-icon
+										v-show="data.locationIcon"
+										name="location_on"
+									/>{{
                   data.subtitle
                 }}
+								</div>
 							</div>
+							<q-icon
+								:class="(max ? 'rotate' : '') + ' text-secondary'"
+								style="transition: 0.2s all;"
+								name="expand_less"
+								size="sm"
+								v-show="data.buttons"
+							/>
 						</div>
-						<q-icon
-							:class="(max ? 'rotate' : '') + ' text-secondary'"
-							style="transition: 0.2s all;"
-							name="expand_less"
-							size="sm"
-							v-show="data.buttons"
-						/>
-					</div>
-					<div
-						class="flex justify-end"
-						style="margin-top:10px;"
-					>
-						<q-btn
-							v-show="data.buttons"
-							style="margin-right:5px"
-							flat
-							color="secondary"
-							label="Optionen"
+						<div
+							class="flex justify-end"
+							style="margin-top:10px;"
 						>
-							<q-menu>
-								<q-list
-									style="min-width: 100px"
-									class="text-secondary"
-								>
-									<q-item
-										clickable
-										v-close-popup
-										@click="addStop()"
-										v-show="data.alreadyAdded"
+							<q-btn
+								v-show="data.buttons"
+								style="margin-right:5px"
+								flat
+								color="secondary"
+								label="Optionen"
+							>
+								<q-menu>
+									<q-list
+										style="min-width: 100px"
+										class="text-secondary"
 									>
-										<q-item-section>Erneut hinzufügen</q-item-section>
-									</q-item>
-									<q-item
-										clickable
-										v-close-popup
-										@click="$router.push('/Liste/' + data.TripId)"
-									>
-										<q-item-section>Neu anordnen</q-item-section>
-									</q-item>
-									<q-item
-										clickable
-										v-close-popup
-										@click="max = !max"
-									>
-										<q-item-section>Infos</q-item-section>
-									</q-item>
-									<q-item
-										v-show="data.alreadyAdded && data.ableToDelete"
-										@click="deleteStop(data.stop.stopId)"
-										clickable
-										v-close-popup
-									>
-										<q-item-section>Löschen</q-item-section>
-									</q-item>
-								</q-list>
-							</q-menu>
-						</q-btn>
-						<!-- add or edit depending if already added -->
-						<q-btn
-							icon="add"
-							outline
-							color="primary"
-							v-show="data.buttons"
-							@click="
+										<q-item
+											clickable
+											v-close-popup
+											@click="addStop()"
+											v-show="data.alreadyAdded"
+										>
+											<q-item-section>Erneut hinzufügen</q-item-section>
+										</q-item>
+										<q-item
+											clickable
+											v-close-popup
+											v-show="data.alreadyAdded"
+											@click="$router.push('/Liste/' + data.TripId)"
+										>
+											<q-item-section>Neu anordnen</q-item-section>
+										</q-item>
+										<q-item
+											clickable
+											v-close-popup
+											@click="max = !max"
+										>
+											<q-item-section>Infos</q-item-section>
+										</q-item>
+										<q-item
+											v-show="data.alreadyAdded && data.ableToDelete"
+											@click="deleteStop(data.stop.stopId)"
+											clickable
+											v-close-popup
+										>
+											<q-item-section>Löschen</q-item-section>
+										</q-item>
+									</q-list>
+								</q-menu>
+							</q-btn>
+							<!-- add or edit depending if already added -->
+							<q-btn
+								icon="add"
+								outline
+								color="primary"
+								v-show="data.buttons"
+								@click="
                 data.alreadyAdded ? (showEditStopDialog = true) : addStop()
               "
-							:label="data.alreadyAdded ? 'Bearbeiten' : 'Hinzufügen'"
-						/>
-					</div>
-				</q-card-section>
-				<q-card-section
-					class="row items-center no-wrap"
-					style="padding-top:30px; flex-direction:column;"
-				>
-					<div
-						@click="textMax = !textMax"
-						:class="'text-secondary ' + (textMax ? '' : 'ellipsis-8-lines')"
+								:label="data.alreadyAdded ? 'Bearbeiten' : 'Hinzufügen'"
+							/>
+						</div>
+					</q-card-section>
+					<q-card-section
+						class="row items-center no-wrap"
+						style="padding-top:30px; flex-direction:column;"
 					>
-						{{ mainDescription }}
-					</div>
-					<h6
-						class="bold text-secondary"
-						style="padding-top:20px; padding-bottom:10px;"
-					>
-						{{ suggestedPOIs.length }} Top Sehenswürdigkeiten
-					</h6>
-					<q-card
-						class="city-card cursor-pointer full-width"
-						style="margin-bottom:10px;"
-						v-for="(poi, index) in suggestedPOIs"
-						:key="index"
-						:id="'POI' + poi.name"
-						@click="
+						<div
+							@click="textMax = !textMax"
+							:class="'text-secondary ' + (textMax ? '' : 'ellipsis-8-lines')"
+						>
+							{{ mainDescription }}
+						</div>
+						<h6
+							class="bold text-secondary"
+							style="padding-top:20px; padding-bottom:10px;"
+						>
+							{{ suggestedPOIs.length }} Top Sehenswürdigkeiten
+						</h6>
+						<q-card
+							class="city-card cursor-pointer full-width"
+							style="margin-bottom:10px;"
+							v-for="(poi, index) in suggestedPOIs"
+							:key="index"
+							:id="'POI' + poi.name"
+							@click="
               $emit('poiClicked', {
                 lat: poi.location.lat,
                 lng: poi.location.lng,
                 label: poi.name
               })
             "
-					>
-						<div>
+						>
 							<div>
-								<q-img
-									:alt="'Bild von' + poi.name"
-									v-if="poi.photoUrl"
-									:src="poi.photoUrl"
-									style="height:170px;"
-									placeholder-src="statics/dummy-image-landscape-1-150x150.jpg"
-								>
-									<div class="absolute-bottom text-h6 ellipsis">
-										{{ poi.name }}
-										<q-tooltip>{{ poi.name }}</q-tooltip>
-									</div>
-								</q-img>
-							</div>
+								<div>
+									<q-img
+										:alt="'Bild von' + poi.name"
+										v-if="poi.photoUrl"
+										:src="poi.photoUrl"
+										style="height:170px;"
+										placeholder-src="statics/dummy-image-landscape-1-150x150.jpg"
+									>
+										<div class="absolute-bottom text-h6 ellipsis">
+											{{ poi.name }}
+											<q-tooltip>{{ poi.name }}</q-tooltip>
+										</div>
+									</q-img>
+								</div>
 
-							<div
-								class="text-secondary text-raleway"
-								style="padding-left:20px; padding-top:10px"
-							>
-								{{ poi.rating }}
-								<q-rating
-									class="stars"
-									:value="poi.rating"
-									size="15px"
-									color="gold"
-									readonly
-									style="margin-right:10px;"
-								/>
-								({{ poi.totalRatings }})
-							</div>
-							<a
-								:href="
+								<div
+									class="text-secondary text-raleway"
+									style="padding-left:20px; padding-top:10px"
+								>
+									{{ poi.rating }}
+									<q-rating
+										class="stars"
+										:value="poi.rating"
+										size="15px"
+										color="gold"
+										readonly
+										style="margin-right:10px;"
+									/>
+									({{ poi.totalRatings }})
+								</div>
+								<a
+									:href="
                   'https://www.google.com/maps/search/?api=1&query=' + poi.name
                 "
-								target="_blank"
-							>
-								<q-card-section class="text-secondary">
-									<q-icon name="location_on" />
-									{{ poi.location.label }}
-								</q-card-section>
-							</a>
-						</div>
-					</q-card>
-				</q-card-section>
-			</q-card>
+									target="_blank"
+								>
+									<q-card-section class="text-secondary">
+										<q-icon name="location_on" />
+										{{ poi.location.label }}
+									</q-card-section>
+								</a>
+							</div>
+						</q-card>
+					</q-card-section>
+				</q-card>
+			</div>
 		</q-dialog>
 		<q-dialog
 			maximized
@@ -344,10 +350,12 @@
 
 	.dialog-max-height {
 		height: 50vh;
+		box-shadow: none;
 	}
 
 	.dialog-min-height {
 		height: 120px;
 		overflow: hidden !important;
+		box-shadow: none;
 	}
 </style>

@@ -193,9 +193,12 @@
 					})
 					.then((fetchedTrip) => {
 						if (!fetchedTrip) {
-							this.$router.push("/");
+							this.$router.push("/Home");
 						} else {
-							if (this.$store.getters["user/user"].uid === fetchedTrip.userId) {
+							if (
+								this.$route.params.tripId.includes("temp") ||
+								this.$store.getters["user/user"].uid === fetchedTrip.userId
+							) {
 								this.trip = fetchedTrip;
 
 								if (typeof this.trip.startDate === "string") {
@@ -209,7 +212,7 @@
 								}
 								if (done) done();
 							} else {
-								this.$router.push("/");
+								this.$router.push("/Home");
 							}
 						}
 					});
@@ -218,7 +221,7 @@
 				const TripId = this.$route.params.tripId;
 
 				this.$store.dispatch("tripList/deleteTrip", TripId).then(() => {
-					this.$router.push("/");
+					this.$router.push("/Home");
 				});
 			},
 		},

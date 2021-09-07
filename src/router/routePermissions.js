@@ -14,9 +14,13 @@ export default {
             let guestOnly = to.matched.some(record => record.meta.guestOnly);
 
             if (requireAuth && !loggedIn) {
-              next("/Registrieren");
+              if (process.env.MODE === "spa") {
+                next("/");
+              } else {
+                next("/Registrieren");
+              }
             } else if (guestOnly && loggedIn) {
-              next("/");
+              next("/Home");
             } else next();
 
             resolve(true);

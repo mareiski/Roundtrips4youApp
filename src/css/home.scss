@@ -1,0 +1,425 @@
+/*
+top of page > end of page
+> media queries 
+> keyframes
+*/
+
+#HomeTimeLine {
+    .q-timeline__subtitle {
+        margin: 0;
+    }
+}
+
+#MainImg,
+#MainImgOverlay {
+    background: url('../assets/switserland.jpg') top fixed;
+    width: 100%;
+    height: 90vh;
+    background-size: cover;
+    z-index: -2;
+    position: absolute;
+    left: 0;
+}
+
+#MainImgOverlay {
+    // #b5ac88
+    background: #333333;
+    opacity: 0.3;
+    position: absolute;
+    width: 100%;
+    z-index: -1;
+}
+
+.box-seperator {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    padding: 10px 5px;
+
+    h1 {
+        margin: 0;
+    }
+}
+
+.box-seperator-placholder {
+    height: 110px;
+}
+
+#MainImgPlacholder {
+    width: 100%;
+    height: 89vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+
+    .main-qoute {
+        z-index: 100;
+        color: white;
+        margin-top: 0;
+        margin-bottom: 10px;
+        font-weight: bold;
+    }
+
+    .quote-subtext {
+        font-size: 20px;
+        z-index: 100;
+        color: #fff;
+        margin: 0;
+        max-width: 54%;
+        line-height: 1.3;
+    }
+
+    .main-search-bar {
+        width: 100%;
+        height: 50px;
+        padding-left: 10px;
+        max-width: 552px;
+
+        &>div {
+            background-color: white;
+        }
+    }
+
+    .scroll-down-icon {
+        height: 100px;
+        position: absolute;
+        top: 65vh;
+        color: $primary;
+        z-index: 2;
+
+        -webkit-animation: jump 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+        -moz-animation: jump 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+        -ms-animation: jump 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+        animation: jump 1.25s infinite cubic-bezier(0.66, 0, 0, 1);
+    }
+}
+
+.description-container {
+    font-family: 'raleway';
+    margin-bottom: 80px;
+    margin-top: 40px;
+    margin-left: 17px;
+    padding-left: 16px;
+    border-left: $primary solid;
+    animation-delay: 2s;
+
+    a {
+        text-decoration: underline;
+    }
+
+    p {
+        margin: 5px;
+    }
+}
+
+#scroll-container {
+    flex-wrap: nowrap;
+    height: calc(3.1*70vh);
+    margin-bottom: 60px;
+
+    .left-scroll-col {
+        flex-direction: column;
+        padding-right: 20px;
+        position: sticky;
+        top: calc(50% - 250px);
+        height: 70vh;
+    }
+
+    .right-scroll-col>div {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        height: 70vh;
+    }
+
+    .scroll-col {
+        width: 50%
+    }
+}
+
+.clouds {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+
+    img {
+        position: absolute;
+        bottom: 0;
+        max-width: 100%;
+        animation: animate calc(3s * var(--i)) linear infinite;
+    }
+
+    @keyframes animate {
+        0% {
+            opacity: 0;
+            transform: scale(1);
+        }
+
+        25%,
+        75% {
+            opacity: 0.8;
+        }
+
+        100% {
+            opacity: 0;
+            transform: scale(2);
+        }
+    }
+}
+
+#OfferContainer {
+    width: 100%;
+    color: white;
+    margin-top: 80px;
+    margin-bottom: 70px;
+
+    &>div {
+        display: flex;
+        justify-content: space-between;
+        flex-direction: column;
+        padding: 10px;
+
+        button {
+            max-width: 522px;
+            padding-left: 20px;
+            padding-right: 20px;
+            font-size: 20px;
+
+            margin-top: 10px;
+            opacity: 0;
+            -webkit-animation: fadeInUp 0.7s ease-in both;
+            -moz-animation: fadeInUp 0.7s ease-in both;
+            -ms-animation: fadeInUp 0.7s ease-in both;
+            animation: fadeInUp 0.7s ease-in both;
+            animation-delay: 0.9s;
+        }
+    }
+}
+
+.card-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 40px 0 50px 0;
+
+    .card-wrap {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-top: 30px;
+
+        &.left {
+            justify-content: flex-start;
+        }
+
+        &.right {
+            justify-content: flex-end;
+        }
+
+        .card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            text-align: center;
+            align-items: center;
+            width: 300px;
+            padding: 10px 10px 50px 10px;
+            background-color: white;
+            transition: 0.6s;
+            color: $secondary;
+            text-decoration: none;
+
+            &:hover {
+                color: $secondary;
+                transform: scale(1.1);
+            }
+
+            h3 {
+                font-weight: normal;
+                margin-bottom: 5px;
+            }
+
+            #PortugalImg {
+                background-image: url("../assets/portugal.jpeg");
+            }
+
+            #BaliImg {
+                background-image: url("../assets/bali.jpeg");
+            }
+
+            #ItalyImg {
+                background-image: url("../assets/venice.jpeg");
+            }
+
+            div {
+                height: 200px;
+                width: 200px;
+                border-radius: 5px;
+                background-position: center;
+                background-size: cover;
+            }
+
+            .q-icon {
+                font-size: 80px;
+                color: $primary;
+            }
+        }
+    }
+}
+
+.section-img {
+    background: center fixed url('../assets/venice.jpeg');
+    background-size: cover;
+    height: 500px;
+    position: absolute;
+    left: 0;
+    width: 100%;
+    z-index: -2;
+}
+
+.section-img-placeholder {
+    height: 500px;
+    color: white;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    padding: 0 10% 0 10%;
+}
+
+.register-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 30px;
+    padding-top: 30px;
+}
+
+.create-roundtrip-ol {
+    font-family: 'raleway';
+
+    h2 {
+        line-height: normal;
+        text-align: left;
+    }
+
+    p {
+        line-height: normal;
+
+    }
+
+    &>li {
+        font-family: 'raleway';
+
+        &>div:nth-child(2) {
+            justify-content: center;
+            display: flex;
+            width: 100%;
+        }
+
+        &::marker {
+            font-family: 'raleway';
+        }
+    }
+}
+
+// @-webkit-keyframes jump {
+//     0% {
+//         padding-top: 30px;
+//         font-size: @size-very-large;
+//     }
+
+//     50% {
+//         padding-top: 90px;
+//         font-size: 55px;
+//     }
+
+//     100% {
+//         padding-top: 30px;
+//         font-size: @size-very-large;
+//     }
+// }
+
+// @-moz-keyframes jump {
+//     0% {
+//         padding-top: 30px;
+//         font-size: @size-very-large;
+//     }
+
+//     50% {
+//         padding-top: 90px;
+//         font-size: 55px;
+//     }
+
+//     100% {
+//         padding-top: 30px;
+//         font-size: @size-very-large;
+//     }
+// }
+
+// @-ms-keyframes jump {
+//     0% {
+//         padding-top: 30px;
+//         font-size: @size-very-large;
+//     }
+
+//     50% {
+//         padding-top: 90px;
+//         font-size: 55px;
+//     }
+
+//     100% {
+//         padding-top: 30px;
+//         font-size: @size-very-large;
+//     }
+// }
+
+// @keyframes jump {
+//     0% {
+//         padding-top: 30px;
+//         font-size: @size-very-large;
+//     }
+
+//     50% {
+//         padding-top: 90px;
+//         font-size: 55px;
+//     }
+
+//     100% {
+//         padding-top: 30px;
+//         font-size: @size-very-large;
+//     }
+// }
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 30%, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes fadeInLeft {
+    from {
+        opacity: 0;
+        transform: translate3d(-90%, 0, 0);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}

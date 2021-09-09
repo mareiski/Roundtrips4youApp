@@ -1,8 +1,29 @@
-/*
-top of page > end of page
-> media queries 
-> keyframes
-*/
+@mixin lg-screen {
+    @media only screen and (max-width: 1170px) {
+        @content;
+    }
+}
+
+//Medium Screen - 768 to 992 screen size
+@mixin md-screen {
+    @media only screen and (max-width: 992px) {
+        @content;
+    }
+}
+
+//Medium Screen - 575 to 767 screen size
+@mixin sm-screen {
+    @media only screen and (max-width: 767px) {
+        @content;
+    }
+}
+
+//Medium Screen - below 575 screen size
+@mixin xs-screen {
+    @media only screen and (max-width: 575px) {
+        @content;
+    }
+}
 
 #HomeTimeLine {
     .q-timeline__subtitle {
@@ -42,8 +63,18 @@ top of page > end of page
 
     h1 {
         margin: 0;
+
+        @include sm-screen {
+            font-size: 18px;
+        }
+
+        @include xs-screen {
+            font-size: 16px;
+            line-height: normal;
+        }
     }
 }
+
 
 .box-seperator-placholder {
     height: 110px;
@@ -71,6 +102,11 @@ top of page > end of page
         margin: 0;
         max-width: 54%;
         line-height: 1.3;
+
+        @include sm-screen {
+            font-size: 18px;
+        }
+
     }
 
     .main-search-bar {
@@ -127,6 +163,10 @@ top of page > end of page
         position: sticky;
         top: calc(50% - 250px);
         height: 70vh;
+
+        @include sm-screen {
+            display: none;
+        }
     }
 
     .right-scroll-col>div {
@@ -137,7 +177,11 @@ top of page > end of page
     }
 
     .scroll-col {
-        width: 50%
+        width: 50%;
+
+        @include sm-screen {
+            width: 100%;
+        }
     }
 }
 
@@ -208,12 +252,12 @@ top of page > end of page
 .card-container {
     display: flex;
     justify-content: space-between;
+    flex-wrap: wrap;
     padding: 40px 0 50px 0;
 
     .card-wrap {
         display: flex;
         justify-content: center;
-        width: 100%;
         margin-top: 30px;
 
         &.left {

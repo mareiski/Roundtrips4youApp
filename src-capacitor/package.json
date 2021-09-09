@@ -1,3 +1,12 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b25d52099e770946b324c8c2b1eb2e85ebfa9712c9f9c6f70489c312ac26d928
-size 283
+{
+  "name": "roundtrips4you",
+  "version": "0.0.1",
+  "description": "Trip planner",
+  "author": "mareiski <marco.reisinger@t-online.de>",
+  "private": true,
+  "dependencies": {
+    "@capacitor/android": "^2.4.7",
+    "@capacitor/cli": "^2.0.0",
+    "@capacitor/core": "^2.0.0"
+  }
+}

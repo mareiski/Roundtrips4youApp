@@ -2,13 +2,13 @@
 	<q-page style="padding-top:0;">
 		<div
 			class="home q-px-xl"
-			style="margin-bottom 0; padding-bottom: 0;"
+			style="margin-bottom: 0; padding-bottom: 0;"
 		>
 			<div id="MainImg"></div>
 			<div id="MainImgOverlay"></div>
 			<div id="MainImgPlacholder">
 				<div>
-					<h2 class="main-qoute">Plane deine eigene Reise</h2>
+					<h2 class="main-qoute">Plane deine Reise</h2>
 					<h3 class="quote-subtext">
 						Mit unserem Reiseplaner kannst du deine eigene Reise individuell zusammenstellen.
 						Ganz einfach, perfekt geplant und ohne Einschränkungen.
@@ -277,18 +277,20 @@
 					class="q-mt-md"
 				>Reise erstellen</q-btn>
 			</div>
-			<router-link
-				class="text-primary q-pl-xs"
-				to="/Impressum"
-			>Impressum</router-link>
-			<router-link
-				class="text-primary q-pl-xs"
-				to="/Datenschutz"
-			>Datenschutz</router-link>
-			<router-link
-				class="text-primary q-pl-xs"
-				to="/Haftungsausschluss"
-			>Haftungsausschluss</router-link>
+			<div class="flex q-px-md q-pt-sm q-pb-sm">
+				<router-link
+					class="text-primary"
+					to="/Impressum"
+				>Impressum</router-link>
+				<router-link
+					class="text-primary q-pl-sm"
+					to="/Datenschutz"
+				>Datenschutz</router-link>
+				<router-link
+					class="text-primary q-pl-sm"
+					to="/Haftungsausschluss"
+				>Haftungsausschluss</router-link>
+			</div>
 			<!-- <p style="text-align:center; font-size:20px; padding-top:40px;">Möchtest du erstmal ein paar Beispiele sehen?<br> Wähle ein Land und sehe dir von anderen Usern mit unserem Reiseplaner kostenlos und online erstellte Rundreisen an</p>
 			<div class="card-container">
 				<div

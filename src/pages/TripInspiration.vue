@@ -13,7 +13,7 @@
 		<q-scroll-area
 			v-if="tips"
 			horizontal
-			style="height: 280px; width: 100vh; padding-left:10px;"
+			style="height: 280px; width: 100vw; padding-left:10px;"
 			class="bg-grey-1 rounded-borders"
 		>
 			<div class="flex flex-nowrap full-height">
@@ -55,7 +55,7 @@
 		</h5>
 		<q-scroll-area
 			horizontal
-			style="height: 280px; width: 100vh; padding-left:10px;"
+			style="height: 280px; width: 100vw; padding-left:10px;"
 			class="bg-grey-1 rounded-borders"
 			v-if="publicTrips"
 		>
@@ -90,8 +90,8 @@
 		<q-scroll-area
 			v-if="false"
 			horizontal
-			style="height: 280px; width: 100vh; padding-left:10px;"
-			class="bg-grey-1 rounded-borders"
+			style="height: 280px; width: 100vw; padding-left:10px;"
+			class="bg-grey-1 rounded-borders q-pr-md"
 		>
 			<div class="flex flex-nowrap full-height">
 

@@ -168,7 +168,7 @@
 				</p>
 			</template>
 		</q-footer>
-		<CookieBanner></CookieBanner>
+		<CookieBanner v-if="!isSPA"></CookieBanner>
 
 	</q-layout>
 </template>
@@ -209,6 +209,9 @@
 			user() {
 				return this.$store.getters["user/user"];
 			},
+			isSPA() {
+				return process.env.MODE === "spa";
+			},
 		},
 		methods: {
 			actionButtonClicked() {
@@ -243,7 +246,8 @@
 			let loggedIn = auth.user() !== null;
 
 			if (!loggedIn) {
-				if (!process.env.MODE === "spa") {
+				console.log(process.env.MODE);
+				if (process.env.MODE !== "spa") {
 					this.$router.push("/Registrieren");
 				}
 			}

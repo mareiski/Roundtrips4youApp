@@ -26,9 +26,13 @@ const auth = {
       appId: "1:295257024914:web:11432138a1faf186"
     };
 
+    try {
     firebase.initializeApp(config);
+    } catch(e) {
+      console.log(e)
+    }
     this.uiConfig = {
-      signInSuccessUrl: "/#/meine-rundreisen",
+      signInSuccessUrl: "/Home",
       signInOptions: [
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
         firebase.auth.EmailAuthProvider.PROVIDER_ID
@@ -59,7 +63,7 @@ const auth = {
         );
 
         if (requireAuth && !user) router.push("/login");
-        else if (guestOnly && user) router.push("/meine-rundreisen");
+        else if (guestOnly && user) router.push("/Home");
       }
     });
   },

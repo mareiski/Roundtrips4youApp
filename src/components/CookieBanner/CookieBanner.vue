@@ -33,19 +33,6 @@
 			</q-card-actions>
 		</q-card>
 	</q-dialog>
-	<!-- <div
-    class="cookie-banner"
-    v-if="!cookiesAllowed"
-  >
-    <span>Wir benutzen funktionale Cookies und Analyse tools. Mit der Benutzung dieser Seite erklärst du dich damit einverstanden.</span>
-    <q-btn
-      label="Ok"
-      class="q-mt-md"
-      color="primary"
-      @click="[cookiesAllowed = true, setAllowedCookie()]"
-      text-color="white"
-    ></q-btn>
-  </div> -->
 </template>
 <style lang="scss">
 	@import url("../../css/cookie.scss");

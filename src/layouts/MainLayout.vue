@@ -168,7 +168,7 @@
 				</p>
 			</template>
 		</q-footer>
-		<CookieBanner v-if="!isSPA"></CookieBanner>
+		<CookieBanner v-if="isSPA"></CookieBanner>
 
 	</q-layout>
 </template>

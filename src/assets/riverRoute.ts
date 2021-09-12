@@ -64,7 +64,6 @@ function getRiverRoute(
     let currentRiverBBox = turf.bbox(currentRiver);
     // @ts-ignore
     currentRiverBBox = turf.buffer(currentRiver, 0.2);
-    // todo dget intersecing rivers with current river bbox +200m padding
 
     // we need to check if there are other rivers to get to end location
     let intersectingRivers: FeatureCollection<

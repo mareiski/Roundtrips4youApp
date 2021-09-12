@@ -16,6 +16,67 @@
     <link rel="icon" type="image/ssvg" href="/icons/favicon.svg">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://roundtrips4you.de/">
+    <meta property="og:title" content="roundtrips4you">
+    <meta property="og:description"
+      content="Orte planen, Hotels finden, Reisen teilen und die beste Route finden. Reise mit unserem Reiseplaner kostenlos erstellen & online planen">
+    <meta property="og:image" content="https://roundtrips4you.de/statics/bagan-1137015_1280.jpg">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:site" content="@roundtrips4you" />
+    <meta property="twitter:creator" content="@roundtrips4you" />
+    <meta property=" twitter:url" content="https://roundtrips4you.de/">
+    <meta property="twitter:title" content="roundtrips4you">
+    <meta property="twitter:description"
+      content="Orte planen, Hotels finden, Reisen teilen und die beste Route finden. Reise mit unserem Reiseplaner kostenlos erstellen & online planen">
+    <meta property="twitter:image" content="https://roundtrips4you.de/statics/bagan-1137015_1280.jpg">
+    <!-- seo -->
+    <meta name="keywords"
+      content="roadtrip planen, reiseplaner, reise planen online, reise planen app, reise planen tool, reise planen website, roundtrips4you" />
+    <!-- google page verfication-->
+    <meta name="google-site-verification" content="z2N-10QbQdQVnN5Dud5KARbVblFf19F-hQ0b3rGdVig" />
+    <!-- Hotjar Tracking Code for https://roundtrips4you.de -->
+    <script>
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== 'roundtrips4you.netlify.app') {
+        (function (h, o, t, j, a, r) {
+          h.hj = h.hj || function () { (h.hj.q = h.hj.q || []).push(arguments) };
+          h._hjSettings = { hjid: 1554806, hjsv: 6 };
+          a = o.getElementsByTagName('head')[0];
+          r = o.createElement('script'); r.async = 1;
+          r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+          a.appendChild(r);
+        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+      }
+    </script>
+    <!-- Google Analytics -->
+    <script>
+      if (window.location.hostname !== 'localhost') {
+        let cookiesAllowed = false
+        var acc = 'UA-160605825-1'
+
+        if (!cookiesAllowed) { //functions you've defined elsewhere
+          window['ga-disable-' + acc] = true;
+        }
+
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', acc]);
+        _gaq.push(['_trackPageview']);
+
+        (function () {
+          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+
+        function onOptIn() { // have this run when/if they opt-in.
+          window['ga-disable-UA-160605825-1'] = false
+          // set a cookie to express that the user has opted-in to tracking, for future pageviews
+          _gaq.push(['_trackPageview']) // now run the pageview that you 'missed'
+        }
+      }
+    </script>
     <style>
          @font-face {
       font-family: 'Raleway';
@@ -102,6 +163,18 @@
     <div id="q-app"></div>
   </body>
 
+    <script type="application/ld+json">
+        {
+          "@context" : "http://schema.org",
+          "@type" : "Organization",
+          "name" : "Roundtrips4you",
+         "url" : "https://roundtrips4you.de",
+         "sameAs" : [
+           "https://www.instagram.com/roundtrips4you",
+           "https://www.facebook.com/roundtrips4you/"
+           ]
+        }
+        </script>
       <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
       <link rel="stylesheet"
         href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css">

@@ -80,8 +80,10 @@
 			<q-tab-panel
 				:name="3"
 				class="flex justify-between flex-direction-col flex-nowrap"
+				style="padding-top:0;"
 			>
 				<q-card-section>
+					<h5 style="margin-top:0;">Wähle eine Vorlage oder starte ohne Vorgaben</h5>
 					<geocoder
 						id="geocoder3"
 						ref="suggestionGeocoder"

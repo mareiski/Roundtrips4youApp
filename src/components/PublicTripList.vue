@@ -1,30 +1,6 @@
 <template>
 	<div class="public-trip-list">
 		<q-card
-			flat
-			bordered
-			v-for="trip in publicTrips"
-			:key="trip.TripId"
-			@click="$emit('createTrip', trip)"
-		>
-			<q-card-section horizontal>
-				<q-card-section class="col-5 flex flex-center">
-					<q-img
-						class="rounded-borders fit"
-						contain
-						src="../assets/aircraft.svg"
-					/>
-				</q-card-section>
-				<q-card-section class="q-pt-xs">
-					<div class="text-h5 q-mt-sm q-mb-xs text-secondary">{{trip.title}}</div>
-					<div class="text-caption text-grey">{{trip.days}} Tage</div>
-					<div class="text-secondary">
-						{{trip.description}}
-					</div>
-				</q-card-section>
-			</q-card-section>
-		</q-card>
-		<q-card
 			v-if="showEmpty"
 			flat
 			bordered
@@ -43,6 +19,38 @@
 					<div class="text-secondary">
 						Erstelle deine Reise von Anfang an ohne Einschränkungen oder
 						Vorgaben.
+					</div>
+				</q-card-section>
+			</q-card-section>
+		</q-card>
+		<q-card
+			flat
+			bordered
+			v-for="trip in publicTrips"
+			:key="trip.TripId"
+			class="cursor-pointer"
+			@click="$emit('createTrip', trip)"
+		>
+			<q-card-section horizontal>
+				<q-card-section class="col-5 flex flex-center">
+					<q-img
+						class="rounded-borders"
+						cover
+						v-if="trip.titleImageUrl && trip.titleImageUrl !== '../assets/aircraft.svg'"
+						:src="trip.titleImageUrl"
+					/>
+					<q-img
+						v-else
+						src="../assets/aircraft.svg"
+						class="rounded-borders fit"
+						contain
+					/>
+				</q-card-section>
+				<q-card-section class="q-pt-xs">
+					<div class="text-h5 q-mt-sm q-mb-xs text-secondary">{{trip.title}}</div>
+					<div class="text-caption text-grey">{{trip.days}} Tage</div>
+					<div class="text-secondary">
+						{{trip.description}}
 					</div>
 				</q-card-section>
 			</q-card-section>

@@ -1,12 +1,14 @@
 import Vue from "vue";
 import firebase from "firebase";
 import { firestorePlugin } from "vuefire";
+
 Vue.config.productionTip = false;
 
 Vue.use(firestorePlugin);
 
 let db = null;
 let storage = null;
+let messaging = null;
 
 const auth = {
   context: null,
@@ -27,10 +29,23 @@ const auth = {
     };
 
     try {
-    firebase.initializeApp(config);
-    } catch(e) {
-      console.log(e)
+      firebase.initializeApp(config);
+    } catch (e) {
+      console.log(e);
     }
+
+    navigator.serviceWorker
+      .register("firebase-messaging-sw.js", {
+        scope: "firebase-cloud-messaging-push-scope"
+      })
+      .then(registration => {
+        messaging = firebase.messaging();
+        messaging.useServiceWorker(registration);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+
     this.uiConfig = {
       signInSuccessUrl: "/Home",
       signInOptions: [
@@ -85,4 +100,4 @@ const auth = {
   }
 };
 
-export { auth, db, storage };
+export { auth, db, storage, messaging };

@@ -6,7 +6,7 @@
 		>
 			<close-button
 				:top="0"
-				@click="showNotifications = !showNotifications"
+				@click="showNotifications = !showNotifications;"
 			></close-button>
 			<notifications></notifications>
 		</q-drawer>
@@ -145,12 +145,19 @@
 					to=""
 					class="center-content-horizontal"
 				>
-					<q-icon
-						size="md"
-						color="primary"
-						:name="showNotifications ? 'notifications' : 'notifications_none'"
-						@click="showNotifications = !showNotifications"
-					/>
+					<div>
+						<div
+							style="width:8px; height:8px; position:absolute; border-radius:50%; border: white 1px;"
+							class="bg-primary"
+							v-if="unreadMessages"
+						></div>
+						<q-icon
+							size="md"
+							color="primary"
+							:name="showNotifications ? 'notifications' : 'notifications_none'"
+							@click="showNotifications = !showNotifications"
+						/>
+					</div>
 				</router-link>
 				<router-link
 					to="/Profil"
@@ -211,6 +218,16 @@
 			},
 			isSPA() {
 				return process.env.MODE === "spa";
+			},
+			unreadMessages() {
+				return this.$store.getters["user/unreadMessages"];
+			},
+		},
+		watch: {
+			showNotifications: function (newVal, oldVal) {
+				if (newVal !== oldVal && !newVal) {
+					this.$store.dispatch("user/markAllMessagesAsSeen");
+				}
 			},
 		},
 		methods: {

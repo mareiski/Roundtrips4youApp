@@ -74,6 +74,14 @@ const routes = [
         meta: {
           fabMultipleActions: true
         }
+      },
+      {
+        path: "/MessageAdmin",
+        name: "messageAdmin",
+        component: () => import("pages/MessageAdmin.vue"),
+        meta: {
+          requireAuth: true
+        }
       }
     ]
   },

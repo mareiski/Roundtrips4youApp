@@ -1,7 +1,7 @@
 <template>
 	<div
 		style="overflow:hidden;"
-		class="map fit"
+		:class="'map fit ' + (routePopupsVisible ? '' : 'hideRoutePopups')"
 	>
 		<q-pull-to-refresh @refresh="getTrip">
 			<div
@@ -69,6 +69,7 @@
 					ref="geocoder"
 					v-if="isCreator"
 				/>
+				<MglGeolocateControl :trackUserLocation="true"></MglGeolocateControl>
 				<q-btn
 					color="white"
 					text-color="secondary"
@@ -160,6 +161,29 @@
 					@click="showBottomDialogFromLastClick()"
 				>
 				</MglMarker>
+
+				<!-- native geolocation marker -->
+				<MglMarker
+					:coordinates="[geolocationCoordinates.lng, geolocationCoordinates.lat]"
+					color="blue"
+					:offset="[5, 10]"
+					v-if="showGeolocationMarker"
+				>
+					<template slot="marker">
+						<q-icon
+							name="trip_origin"
+							color="white"
+							style="font-size:20px; border-radius:50%;"
+							class="bg-blue"
+						></q-icon>
+						<q-icon
+							name="trip_origin"
+							color="blue"
+							style="font-size:40px; border-radius:50%;"
+							class="bg-blue"
+						></q-icon>
+					</template>
+				</MglMarker>
 			</MglMap>
 		</keep-alive>
 		<bottom-dialog
@@ -167,6 +191,7 @@
 			:data="dialogObject"
 			@poiClicked="flyTo($event)"
 		></bottom-dialog>
+		<native-geolocation @positionChanged="updateGeolocationMarker($event)"></native-geolocation>
 	</div>
 </template>
 
@@ -188,6 +213,12 @@
 	.mapboxgl-popup-content {
 		padding: 6px !important;
 	}
+
+	.hideRoutePopups {
+		.mapboxgl-popup {
+			display: none;
+		}
+	}
 </style>
 
 <script>
@@ -200,11 +231,17 @@
 	import ZoomToRoute from "../components/Map/ZoomToRoute.vue";
 	import { auth } from "../firebaseInit.js";
 
-	import { MglMarker, MglNavigationControl, MglPopup } from "vue-mapbox";
+	import {
+		MglMarker,
+		MglNavigationControl,
+		MglPopup,
+		MglGeolocateControl,
+	} from "vue-mapbox";
 	import Trip from "src/classes/trip";
 	import BottomDialog from "src/components/Map/BottomDialog.vue";
 	import CloseButton from "../components/Buttons/CloseButton.vue";
 	import SaveButton from "src/components/Buttons/SaveButton.vue";
+	import NativeGeolocation from "../components/Map/NativeGeolocation.vue";
 	import { uuid } from "vue-uuid";
 	import sharedMethods from "app/sharedMethods";
 	import { LocalStorage } from "quasar";
@@ -232,6 +269,8 @@
 			ZoomToRoute,
 			MglPopup,
 			SaveButton,
+			MglGeolocateControl,
+			NativeGeolocation,
 		},
 		computed: {
 			isMobile() {
@@ -273,6 +312,9 @@
 				routeIds: [],
 				hoveredStateId: null,
 				tempTotalDistance: 0,
+				routePopupsVisible: true,
+				geolocationCoordinates: { lat: 0, lng: 0 },
+				showGeolocationMarker: false,
 				whitelistedLabels: [
 					"airport-label",
 					"place-label",
@@ -316,6 +358,11 @@
 				this.addAllRoutes().then(() => {
 					this.fitToBounds();
 				});
+			},
+			updateGeolocationMarker(event) {
+				this.geolocationCoordinates.lat = event.coords.latitude;
+				this.geolocationCoordinates.lng = event.coords.longitude;
+				this.showGeolocationMarker = true;
 			},
 			flyTo(event) {
 				this.lastClickCoordinates = event;
@@ -649,6 +696,14 @@
 								data.duration,
 								data.distance
 							);
+						});
+
+						map.on("zoomend", (e) => {
+							if (e.target.getZoom() < 7) {
+								context.routePopupsVisible = false;
+							} else {
+								context.routePopupsVisible = true;
+							}
 						});
 
 						// When the user moves their mouse over the route, we'll update the

@@ -1,5 +1,6 @@
 import { auth, db } from "../../firebaseInit.js";
 import sharedMethods from "../../../sharedMethods.js";
+import Message from "src/classes/message.ts";
 const getFirebase = () => import("firebase");
 
 export default {
@@ -113,7 +114,40 @@ export default {
         );
     });
   },
-  updateUserReputation(reputation) {
+  async fetchUserEntry({ commit }) {
+    let roundtripsRef = db
+      .collection("User")
+      .where("UserUID", "==", auth.user().uid)
+      .limit(1);
+
+    await roundtripsRef.get().then(snapshot => {
+      commit("setUserEntry", snapshot.docs[0].data());
+
+      return snapshot.docs[0].data();
+    });
+  },
+  markAllMessagesAsSeen({ commit, dispatch, getters }) {
+    commit("markAllMessagesAsSeen");
+    dispatch("updateUserMessages", getters.userEntry.messages);
+  },
+  appendUserMessage({ dispatch, getters, commit }, msg) {
+    commit("appendMessage", msg);
+    dispatch("updateUserMessages", getters.userEntry.messages);
+  },
+  updateUserMessages({}, messages) {
+    let roundtripsRef = db
+      .collection("User")
+      .where("UserUID", "==", auth.user().uid)
+      .limit(1);
+    roundtripsRef.get().then(snapshot => {
+      snapshot.forEach(doc => {
+        db.collection("User")
+          .doc(doc.id)
+          .update({ messages: messages });
+      });
+    });
+  },
+  updateUserReputation({}, reputation) {
     let roundtripsRef = db
       .collection("User")
       .where("UserUID", "==", auth.user().uid)
@@ -151,11 +185,13 @@ export default {
   },
   createUserEntry({ dispatch }) {
     const timeStamp = Date.now();
+    const message = Message.createWelcomeMessage();
 
     db.collection("User").add({
       reputation: 0,
       userUID: auth.user().uid,
-      createdAt: new Date(timeStamp)
+      createdAt: new Date(timeStamp),
+      messages: [message]
     });
 
     dispatch("verifyMail");

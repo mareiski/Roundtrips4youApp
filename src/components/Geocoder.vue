@@ -57,5 +57,21 @@
 </script>
 
 <style lang="scss">
-	@import url("../css/map.scss");
+	.map,
+	.geocoder {
+		.mapboxgl-ctrl-geocoder {
+			border: 1px solid rgba(0, 0, 0, 0.12);
+			margin-right: 65px !important;
+			width: 75%;
+			box-shadow: none;
+		}
+	}
+
+	.geocoder .mapboxgl-ctrl-geocoder {
+		width: 100%;
+	}
+
+	.mapboxgl-popup-content {
+		padding: 6px !important;
+	}
 </style>

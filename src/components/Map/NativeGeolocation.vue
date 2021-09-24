@@ -1,6 +1,7 @@
 <template>
 	<div>
 		<q-btn
+			v-if="false"
 			@click="getCurrentPosition"
 			label="track position"
 		></q-btn>

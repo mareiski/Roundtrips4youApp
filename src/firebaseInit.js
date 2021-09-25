@@ -30,7 +30,7 @@ const auth = {
 
     const app = firebase.initializeApp(config);
 
-    if (process.env.MODE === "spa") {
+    if (process.env.MODE !== "spa") {
       navigator.serviceWorker
         .register("firebase-messaging-sw.js", {
           scope: "firebase-cloud-messaging-push-scope"

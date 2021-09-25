@@ -6,6 +6,8 @@ exports.handler = async function(event) {
   const message = JSON.parse(event.queryStringParameters.message);
 
   const cred = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+  
+  console.log(firebase.default.apps);
 
   if (
     firebase.default.apps.findIndex(x => x.name === "adminMessaging") === -1

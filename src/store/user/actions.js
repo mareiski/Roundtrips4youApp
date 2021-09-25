@@ -151,10 +151,10 @@ export default {
   sendPushNotification({}, payload) {
     axios
       .get(
-        "https://roundtrips4you.de/.netlify/function/sendMessage?token=" +
+        "https://roundtrips4you.de/.netlify/functions/sendMessage?token=" +
           payload.token +
           "&message=" +
-          payload.message
+          JSON.stringify(payload.message)
       )
       .then(response => {
         resolve(response);

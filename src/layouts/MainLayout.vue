@@ -276,12 +276,12 @@
 					messaging.onMessage((payload) => {
 						console.log(payload);
 
-						const notification = payload.notification;
+						const notification = payload.data;
 						const msg = new Message(
 							notification.title,
-							notification.body,
+							notification.description,
 							notification.icon || "notifications",
-							"",
+							notification.url,
 							new Date(Date.now())
 						);
 						context.$store.dispatch("user/appendUserMessage", msg);

@@ -132,7 +132,14 @@
 			sendPush() {
 				const message = {
 					notification: {
-						title: "abc",
+						title: "Test titel",
+						body: "Beschreibung",
+					},
+					data: {
+						title: "Test Titel",
+						description: "Beschreibung in der Zentrale <a href='/Home'>link</a>",
+						icon: "celebration",
+						url: "/Home",
 					},
 				};
 

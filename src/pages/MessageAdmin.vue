@@ -1,5 +1,9 @@
 <template>
 	<q-page class="q-px-lg">
+		<q-btn
+			@click="sendPush"
+			label="send push"
+		></q-btn>
 		<q-input
 			label="Title"
 			v-model="title"
@@ -90,7 +94,7 @@
 
 <script>
 	import Message from "src/classes/message";
-	import { db } from "src/firebaseInit";
+	import { db, auth } from "src/firebaseInit";
 	export default {
 		data() {
 			return {
@@ -124,6 +128,19 @@
 						});
 					});
 				}
+			},
+			sendPush() {
+				const message = {
+					notification: {
+						title: "abc",
+					},
+				};
+
+				const user = this.$store.getters["user/userEntry"];
+				this.$store.dispatch("user/sendPushNotification", {
+					message: message,
+					token: user.fcmToken,
+				});
 			},
 		},
 	};

@@ -1,6 +1,7 @@
 import { auth, db } from "../../firebaseInit.js";
 import sharedMethods from "../../../sharedMethods.js";
 import Message from "src/classes/message.ts";
+import axios from "axios";
 const getFirebase = () => import("firebase");
 
 export default {
@@ -146,6 +147,18 @@ export default {
           .update({ messages: messages });
       });
     });
+  },
+  sendPushNotification({}, payload) {
+    axios
+      .get(
+        "https://roundtrips4you.de/.netlify/function/sendMessage?token=" +
+          payload.token +
+          "&message=" +
+          payload.message
+      )
+      .then(response => {
+        resolve(response);
+      });
   },
   setFCMToken({}, token) {
     let roundtripsRef = db

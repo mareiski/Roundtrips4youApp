@@ -6,6 +6,8 @@ exports.handler = async function(event) {
 
   const cred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
 
+  console.log(cred);
+
   admin.initializeApp({
     credential: admin.credential.cert(cred),
     databaseURL: "https://roundtrips4you.firebaseio.com",

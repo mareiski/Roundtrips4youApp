@@ -7,19 +7,21 @@ exports.handler = async function(event) {
 
   const cred = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
-  if (
-    firebase.default.apps.findIndex(x => x.name === "adminMessaging") === -1
-  ) {
-    admin.initializeApp(
+  let index = firebase.apps.findIndex(x => x.name === "adminMessaging");
+  let app;
+  if (index === -1) {
+    app = admin.initializeApp(
       {
         credential: admin.credential.cert(cred),
         databaseURL: "https://roundtrips4you.firebaseio.com"
       },
       "adminMessaging"
     );
+  } else {
+    app = firebase.apps[index];
   }
 
-  const messaging = admin.messaging();
+  const messaging = admin.messaging(app);
 
   await messaging.sendToDevice(token, message);
 

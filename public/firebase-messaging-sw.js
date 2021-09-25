@@ -2,7 +2,7 @@ importScripts("https://www.gstatic.com/firebasejs/5.5.0/firebase-app.js");
 importScripts("https://www.gstatic.com/firebasejs/5.5.0/firebase-messaging.js");
 
 let config = {
-  apiKey: "AIzaSyBVkBCl3dY49g3lyX8ns1SYsErNdkCO8sc",
+  apiKey: "",
   authDomain: "roundtrips4you.firebaseapp.com",
   databaseURL: "https://roundtrips4you.firebaseio.com",
   projectId: "roundtrips4you",

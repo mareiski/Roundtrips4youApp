@@ -149,16 +149,12 @@ export default {
     });
   },
   sendPushNotification({}, payload) {
-    axios
-      .get(
-        "https://roundtrips4you.de/.netlify/functions/sendMessage?token=" +
-          payload.token +
-          "&message=" +
-          JSON.stringify(payload.message)
-      )
-      .then(response => {
-        resolve(response);
-      });
+    axios.get(
+      "https://roundtrips4you.de/.netlify/functions/sendMessage?token=" +
+        payload.token +
+        "&message=" +
+        JSON.stringify(payload.message)
+    );
   },
   setFCMToken({}, token) {
     let roundtripsRef = db

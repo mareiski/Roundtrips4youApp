@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+const firebase = require("firebase");
 
 exports.handler = async function(event) {
   const token = event.queryStringParameters.token;

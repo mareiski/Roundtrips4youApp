@@ -10,11 +10,13 @@ exports.handler = async function(event) {
   if (
     firebase.default.apps.findIndex(x => x.name === "adminMessaging") === -1
   ) {
-    admin.initializeApp({
-      credential: admin.credential.cert(cred),
-      databaseURL: "https://roundtrips4you.firebaseio.com",
-      name: "adminMessaging"
-    });
+    admin.initializeApp(
+      {
+        credential: admin.credential.cert(cred),
+        databaseURL: "https://roundtrips4you.firebaseio.com"
+      },
+      "adminMessaging"
+    );
   }
 
   const messaging = admin.messaging();

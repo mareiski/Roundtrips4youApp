@@ -10,13 +10,12 @@ let config = {
   projectId: "roundtrips4you",
   storageBucket: "gs://roundtrips4you.appspot.com",
   messagingSenderId: "295257024914",
-  appId: "1:295257024914:web:11432138a1faf186",
-  name: "serviceWorker"
+  appId: "1:295257024914:web:11432138a1faf186"
 };
 
 if (firebase.default.apps.findIndex(x => x.name === "serviceWorker") === -1) {
   try {
-    firebase.initializeApp(config);
+    firebase.initializeApp(config, "serviceWorker");
   } catch (e) {
     console.log(e);
   }

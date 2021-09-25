@@ -4,7 +4,7 @@ exports.handler = async function(event) {
   const token = event.queryStringParameters.token;
   const message = JSON.parse(event.queryStringParameters.message);
 
-  const cred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  const cred = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
   console.log(cred);
 

@@ -91,8 +91,6 @@ a
 </style>
 
 <script>
-	// import { messaging } from "../firebaseInit";
-
 	export default {
 		computed: {
 			userEntry() {
@@ -101,15 +99,6 @@ a
 		},
 		data() {
 			return {};
-		},
-		created() {
-			this.$store.dispatch("user/fetchUserEntry");
-			// messaging.getToken().then((token) => {
-			// 	messaging.onMessage(messaging, (payload) => {
-			// 		console.log("got message");
-			// 		console.log(payload);
-			// 	});
-			// });
 		},
 	};
 </script>

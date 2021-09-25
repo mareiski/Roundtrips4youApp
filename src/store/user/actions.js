@@ -147,6 +147,19 @@ export default {
       });
     });
   },
+  setFCMToken({}, token) {
+    let roundtripsRef = db
+      .collection("User")
+      .where("UserUID", "==", auth.user().uid)
+      .limit(1);
+    roundtripsRef.get().then(snapshot => {
+      snapshot.forEach(doc => {
+        db.collection("User")
+          .doc(doc.id)
+          .update({ fcmToken: token });
+      });
+    });
+  },
   updateUserReputation({}, reputation) {
     let roundtripsRef = db
       .collection("User")

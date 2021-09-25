@@ -21,9 +21,9 @@ export default class Message {
   static createWelcomeMessage() {
     return new this(
       "Willkommen",
-      "Herzlich Willkommen bei Roundtrips4you! <a href='/Home'>Erstelle jetzt deine erste Reise</a>",
-      "",
-      "",
+      "Herzlich Willkommen bei Roundtrips4you! <a href='/Home'>Erstelle jetzt gleich deine erste Reise.</a>",
+      "celebration",
+      "/Home",
       new Date(Date.now())
     );
   }

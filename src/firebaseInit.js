@@ -12,8 +12,8 @@ let messaging = null;
 
 const auth = {
   context: null,
-  uiConfig: null,
   ui: null,
+  fcmToken: null,
 
   init(context, store, router) {
     this.context = context;
@@ -28,33 +28,38 @@ const auth = {
       appId: "1:295257024914:web:11432138a1faf186"
     };
 
-    try {
-      firebase.initializeApp(config);
-    } catch (e) {
-      console.log(e);
+    const app = firebase.initializeApp(config);
+
+    if (process.env.MODE === "spa") {
+      navigator.serviceWorker
+        .register("firebase-messaging-sw.js", {
+          scope: "firebase-cloud-messaging-push-scope"
+        })
+        .then(registration => {
+          messaging = firebase.messaging(app);
+          messaging
+            .getToken({
+              serviceWorkerRegistration: registration
+            })
+            .then(token => {
+              this.fcmToken = token;
+              console.log(token);
+            });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    } else {
+      messaging = firebase.messaging(app);
+
+      messaging.getToken().then(token => {
+        this.fcmToken = token;
+        console.log(token);
+      });
     }
 
-    navigator.serviceWorker
-      .register("firebase-messaging-sw.js", {
-        scope: "firebase-cloud-messaging-push-scope"
-      })
-      .then(registration => {
-        messaging = firebase.messaging();
-        messaging.useServiceWorker(registration);
-      })
-      .catch(err => {
-        console.log(err);
-      });
-
-    this.uiConfig = {
-      signInSuccessUrl: "/Home",
-      signInOptions: [
-        firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        firebase.auth.EmailAuthProvider.PROVIDER_ID
-      ]
-    };
-    db = firebase.firestore();
-    storage = firebase.storage();
+    db = firebase.firestore(app);
+    storage = firebase.storage(app);
 
     // enables offline usage of data
     db.enablePersistence().catch(err => {
@@ -69,11 +74,13 @@ const auth = {
     firebase.auth().onAuthStateChanged(user => {
       store.dispatch("user/setCurrentUser");
 
-      if (this.context.$route) {
-        let requireAuth = this.context.$route.matched.some(
+      store.dispatch("user/setFCMToken", this.fcmToken);
+
+      if (router.$route) {
+        let requireAuth = router.$route.matched.some(
           record => record.meta.requireAuth
         );
-        let guestOnly = this.context.$route.matched.some(
+        let guestOnly = router.$route.matched.some(
           record => record.meta.guestOnly
         );
 
@@ -83,7 +90,7 @@ const auth = {
     });
   },
   user() {
-    return this.context ? firebase.auth().currentUser : null;
+    return firebase.auth().currentUser;
   },
   logout(router, store) {
     firebase

@@ -6,6 +6,7 @@
 		>
 			<close-button
 				:top="0"
+				size="md"
 				@click="showNotifications = !showNotifications;"
 			></close-button>
 			<notifications></notifications>
@@ -187,8 +188,9 @@
 	import BackButton from "src/components/Buttons/BackButton.vue";
 	import TipDialog from "src/components/TipDialog.vue";
 	import { Loading } from "quasar";
-	import { auth } from "../firebaseInit.js";
+	import { auth, messaging } from "../firebaseInit.js";
 	import CookieBanner from "src/components/CookieBanner/CookieBanner.vue";
+	import Message from "src/classes/message.ts";
 
 	export default {
 		components: {
@@ -267,6 +269,24 @@
 				if (process.env.MODE !== "spa") {
 					this.$router.push("/Registrieren");
 				}
+			} else {
+				let context = this;
+
+				this.$store.dispatch("user/fetchUserEntry").then(() => {
+					messaging.onMessage((payload) => {
+						console.log(payload);
+
+						const notification = payload.notification;
+						const msg = new Message(
+							notification.title,
+							notification.body,
+							notification.icon || "notifications",
+							"",
+							new Date(Date.now())
+						);
+						context.$store.dispatch("user/appendUserMessage", msg);
+					});
+				});
 			}
 		},
 		mounted() {

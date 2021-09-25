@@ -1,8 +1,10 @@
-importScripts("https://www.gstatic.com/firebasejs/5.5.0/firebase-app.js");
-importScripts("https://www.gstatic.com/firebasejs/5.5.0/firebase-messaging.js");
+importScripts("https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js");
+importScripts(
+  "https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"
+);
 
 let config = {
-  apiKey: "AIzaSyBVkBCl3dY49g3lyX8ns1SYsErNdkCO8sc",
+  apiKey: process.env.FIREBASE_KEY,
   authDomain: "roundtrips4you.firebaseapp.com",
   databaseURL: "https://roundtrips4you.firebaseio.com",
   projectId: "roundtrips4you",
@@ -19,7 +21,7 @@ try {
 
 const messaging = firebase.messaging();
 
-messaging.setBackgroundMessageHandler(function(payload) {
+messaging.onBackgroundMessage(function(payload) {
   console.log(
     "[firebase-messaging-sw.js] Received background message ",
     payload

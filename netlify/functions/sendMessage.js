@@ -7,6 +7,8 @@ exports.handler = async function(event) {
 
   const cred = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
+  console.log(firebase.apps);
+
   let index = firebase.apps.findIndex(x => x.name === "adminMessaging");
   let app;
   if (index === -1) {

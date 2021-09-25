@@ -25,7 +25,7 @@ exports.handler = async function(event) {
 
   const messaging = admin.messaging(app);
 
-  await messaging.sendToDevice(token, message);
+  messaging.sendToDevice(token, message);
 
   const headers = {
     "Access-Control-Allow-Origin": "*",

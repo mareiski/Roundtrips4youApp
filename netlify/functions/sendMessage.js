@@ -1,27 +1,27 @@
 const admin = require("firebase-admin");
 const firebase = require("firebase");
 
+const cred = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+
+console.log(firebase.apps);
+
+let index = firebase.apps.findIndex(x => x.name === "adminMessaging");
+let app;
+if (index === -1) {
+  app = admin.initializeApp(
+    {
+      credential: admin.credential.cert(cred),
+      databaseURL: "https://roundtrips4you.firebaseio.com"
+    },
+    "adminMessaging"
+  );
+} else {
+  app = firebase.apps[index];
+}
+
 exports.handler = async function(event) {
   const token = event.queryStringParameters.token;
   const message = JSON.parse(event.queryStringParameters.message);
-
-  const cred = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
-
-  console.log(firebase.apps);
-
-  let index = firebase.apps.findIndex(x => x.name === "adminMessaging");
-  let app;
-  if (index === -1) {
-    app = admin.initializeApp(
-      {
-        credential: admin.credential.cert(cred),
-        databaseURL: "https://roundtrips4you.firebaseio.com"
-      },
-      "adminMessaging"
-    );
-  } else {
-    app = firebase.apps[index];
-  }
 
   const messaging = admin.messaging(app);
 

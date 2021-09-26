@@ -14,7 +14,7 @@
 						Ganz einfach, perfekt geplant und ohne Einschränkungen.
 					</h3>
 					<q-btn
-						@click="$router.push('/Registrieren')"
+						@click="$emit('showWizard')"
 						color="primary"
 						style="margin-top:40px;"
 					>kostenlos starten</q-btn>
@@ -201,7 +201,7 @@
 							style="padding-top:20px;"
 						>
 							<a
-								@click="$router.push('/Registrieren')"
+								@click="$emit('showWizard')"
 								class="font-medium cursor-pointer"
 							>Zum Reiseplaner</a>
 							<div
@@ -226,7 +226,7 @@
 							style="padding-top:20px;"
 						>
 							<a
-								@click="$router.push('/Registrieren')"
+								@click="$emit('showWizard')"
 								class="font-medium cursor-pointer"
 							>Zum Reiseplaner</a>
 							<div
@@ -250,7 +250,7 @@
 							style="padding-top:20px;"
 						>
 							<a
-								@click="$router.push('/Registrieren')"
+								@click="$emit('showWizard')"
 								class="font-medium cursor-pointer"
 							>Zum Reiseplaner</a>
 							<div
@@ -273,7 +273,7 @@
 				<h3 class="text-white text-h4">Plane jetzt gleich und ohne Anmeldung deine ganz eigene Reise</h3>
 				<q-btn
 					color="primary"
-					@click="$router.push('/Registrieren')"
+					@click="$emit('showWizard')"
 					class="q-mt-md"
 				>Reise erstellen</q-btn>
 			</div>

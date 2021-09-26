@@ -271,7 +271,7 @@
 				} else {
 					startDate = sharedMethods.getDateFromString(this.trip.startDate);
 				}
-				console.log(startDate);
+
 				this.trip.stopList[0].date = sharedMethods
 					.getFormattedDate(startDate)
 					.split(" ")[0];

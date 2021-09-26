@@ -13,19 +13,27 @@
 						Mit unserem Reiseplaner kannst du deine eigene Reise individuell zusammenstellen.
 						Ganz einfach, perfekt geplant und ohne Einschränkungen.
 					</h3>
-					<q-btn
-						@click="$emit('showWizard')"
-						color="primary"
-						style="margin-top:40px;"
-					>kostenlos starten</q-btn>
+					<div class="flex">
+						<q-btn
+							@click="$emit('showWizard')"
+							color="primary"
+							style="margin-top:40px;"
+						>kostenlos starten</q-btn>
+						<q-btn
+							@click="$router.push('/login')"
+							color="secondary"
+							class="q-ml-md"
+							style="margin-top:40px;"
+						>login</q-btn>
+					</div>
 				</div>
-				<div class="flex justify-center">
+				<!-- <div class="flex justify-center">
 					<q-icon
 						class="scroll-down-icon cursor-pointer"
 						name="keyboard_arrow_down"
 						@click="sharedMethods.scrollToRef($refs['sndSection'])"
 					/>
-				</div>
+				</div> -->
 			</div>
 			<div
 				class="clouds"
@@ -33,19 +41,19 @@
 			>
 				<img
 					v-for="index in 4"
-					:key="index"
+					:key="index+ 'c1'"
 					:src="'../cloud' + (index + 1) + '.png'"
 					:style="'--i:' + (index + 1) + '; max-height: 350px;'"
 				/>
 				<img
 					v-for="index in 3"
-					:key="index"
+					:key="index + 'c2'"
 					:src="'../cloud' + (index + 1) + '.png'"
 					:style="'--i:' + (index + 6)+ '; max-height: 400px; left:100px;'"
 				/>
 				<img
 					v-for="index in 2"
-					:key="index"
+					:key="index + 'c3'"
 					:src="'../cloud' + (index + 1) + '.png'"
 					:style="'--i:' + (index + 9)+ '; max-height: 350px; left:100px;'"
 				/>
@@ -119,7 +127,7 @@
 						>
 							<q-item
 								v-for="(stop) in demoStops"
-								:key="stop"
+								:key="stop.id"
 								v-ripple
 								clickable
 								style="padding-left:8px; padding-right:5px;"
@@ -377,6 +385,7 @@
 				scrollSectionVisibleIndex: 0,
 				demoStops: [
 					{
+						id: "abc",
 						title: "Stopp in Paris",
 						description: "Raum für Notizen, Beschreibungen...",
 						location: {
@@ -387,6 +396,7 @@
 						dayDuration: 1,
 					},
 					{
+						id: "def",
 						title: "Stopp in Straßburg",
 						description: "Raum für Notizen, Beschreibungen...",
 						location: {
@@ -397,6 +407,7 @@
 						dayDuration: 1,
 					},
 					{
+						id: "hij",
 						title: "Stopp in Lyon",
 						description: "Raum für Notizen, Beschreibungen...",
 						location: {
@@ -419,6 +430,8 @@
 					rooms: 1,
 					childrenAges: [],
 					ableToDelete: false,
+					stopList: [],
+					getStopDates: new Date(Date.now()),
 				},
 				demoRoundtrip: { Title: "Meine Reise" },
 				demoStars: 5,
@@ -441,6 +454,10 @@
 		},
 		destroyed() {
 			window.removeEventListener("scroll", this.handleScroll);
+		},
+		beforeRouteLeave(to, from, next) {
+			this.bottomDialogShowed = false;
+			next();
 		},
 		methods: {
 			scrollTo(refName) {

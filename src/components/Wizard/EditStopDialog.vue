@@ -69,6 +69,9 @@
 				},
 			},
 		},
+		created() {
+			this.getStopDates();
+		},
 		methods: {
 			openInNewTab(link) {
 				window.open(link, "_blank");
@@ -79,6 +82,32 @@
 					text += "&age=" + child;
 				});
 				return text;
+			},
+			getStopDates() {
+				let startDate;
+				if (this.trip.startDate.seconds) {
+					startDate = sharedMethods.getDateFromTimeStamp(this.trip.startDate);
+				} else {
+					startDate = sharedMethods.getDateFromString(this.trip.startDate);
+				}
+
+				if (this.trip.stopList[0] === this.stop) {
+					this.stop.date = sharedMethods
+						.getFormattedDate(startDate)
+						.split(" ")[0];
+				} else {
+					let context = this;
+					this.trip.stopList.forEach((stop) => {
+						startDate.setDate(startDate.getDate() + stop.dayDuration);
+
+						if (stop === context.stop) {
+							context.stop.date = sharedMethods
+								.getFormattedDate(startDate)
+								.split(" ")[0];
+							return true;
+						}
+					});
+				}
 			},
 			getCheckOutDate() {
 				let date = sharedMethods.getDateFromString(this.stop.date);

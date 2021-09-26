@@ -121,6 +121,7 @@ export default {
       .where("UserUID", "==", auth.user().uid)
       .limit(1);
 
+    console.log(auth.user().uid);
     await roundtripsRef.get().then(snapshot => {
       commit("setUserEntry", snapshot.docs[0].data());
 

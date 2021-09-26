@@ -288,7 +288,8 @@
 			},
 			isCreator() {
 				return (
-					this.$route.params.tripId.includes("temp") ||
+					(this.$route.params.tripId &&
+						this.$route.params.tripId.includes("temp")) ||
 					this.$store.getters["user/user"].uid === this.trip.userId
 				);
 			},
@@ -755,7 +756,18 @@
 			getRoute(profile, startLocation, endLocation) {
 				return new Promise((resolve, reject) => {
 					this.mapLoadingText = "Routen werden berechnet";
-					if (profile === "SUP") {
+
+					if (startLocation === endLocation) {
+						resolve({
+							route: [],
+							rawDuration: 0,
+							duration: "0h",
+							rawDistance: 0,
+							distance: "0km",
+							from: startLocation.label,
+							to: endLocation.label,
+						});
+					} else if (profile === "SUP") {
 						sharedMethods
 							.getRiverRoute(startLocation, endLocation)
 							.then((response) => {
@@ -913,9 +925,7 @@
 					alreadyAdded: alreadyAdded,
 					buttons: this.isCreator ? buttons : false,
 					locationIcon: subtitle === stop.location.label,
-					adults: this.trip.adults,
-					rooms: this.trip.rooms,
-					childrenAges: this.trip.childrenAges,
+					trip: this.trip,
 					ableToDelete: index !== 0 && index !== this.trip.stopList.length - 1,
 				};
 

@@ -1,6 +1,7 @@
 import Stop from "./stop";
 import PointLocation from "./pointLocation";
 import { date } from "quasar";
+import sharedMethods from "app/sharedMethods";
 
 export default class Trip {
   private TripId: string;
@@ -21,7 +22,7 @@ export default class Trip {
   offerWholeYear: boolean;
   createdAt: Date | any;
   stopList: Array<Stop>;
-  depatureDate: Date;
+  departureDate: Date;
   transportProfile: string;
   origin: any;
   destination: any;
@@ -104,7 +105,7 @@ export default class Trip {
     this.totalDistance = 0;
 
     // arrival departure default values
-    this.depatureDate = new Date(timeStamp);
+    this.departureDate = new Date(timeStamp);
     this.transportProfile = "driving";
     this.origin = null;
     this.destination = null;
@@ -137,11 +138,21 @@ export default class Trip {
     this.offerStartPeriod = obj.offerStartPeriod;
     this.offerWholeYear = obj.offerWholeYear;
     this.createdAt = obj.createdAt;
-    this.depatureDate = obj.depatureDate;
+
+    if (obj.departureDate) {
+      this.departureDate = sharedMethods.getDateFromTimeStamp(
+        obj.departureDate
+      );
+    }
     this.transportProfile = obj.transportProfile;
     this.origin = obj.origin;
     this.destination = obj.destination;
-    this.returnDate = obj.returnDate;
+
+    if (obj.returnDate) {
+      this.returnDate = obj.returnDate;
+    } else if (obj.returnDAte) {
+      this.returnDate = obj.returnDAte;
+    }
     this.travelClass = obj.travelClass;
     this.nonStop = obj.nonStop;
     this.rooms = obj.rooms;
@@ -193,7 +204,7 @@ export default class Trip {
       offerWholeYear: this.offerWholeYear,
       createdAt: this.createdAt,
       stopList: stopListArray,
-      depatureDate: this.depatureDate,
+      departureDate: this.departureDate,
       transportProfile: this.transportProfile,
       origin: this.origin,
       destination: this.destination,
@@ -232,7 +243,7 @@ export default class Trip {
   }
 
   setArrivalDeparture(
-    depatureDate: Date,
+    departureDate: Date,
     transportProfile: string,
     origin: any,
     destination: any,
@@ -243,7 +254,7 @@ export default class Trip {
     adults: number,
     childrenAges: number[]
   ) {
-    this.depatureDate = depatureDate;
+    this.departureDate = departureDate;
     this.transportProfile = transportProfile;
     this.origin = origin;
     this.destination = destination;
@@ -259,18 +270,8 @@ export default class Trip {
    * adds a default stop when stop list is empty
    * !important does nothing if there is already a stop
    */
-  addFallbackStop(payloadDepartureDate: string) {
+  addFallbackStop() {
     if (this.stopList.length === 0) {
-      let depatureDate = null;
-      if (payloadDepartureDate) {
-        const dateParts = payloadDepartureDate.split(".");
-        depatureDate = new Date(
-          parseInt(dateParts[2]),
-          parseInt(dateParts[1]) - 1,
-          parseInt(dateParts[0])
-        );
-      }
-
       let stop = new Stop(
         0,
         1,

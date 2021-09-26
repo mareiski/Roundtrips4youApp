@@ -192,7 +192,7 @@ export default {
         if (payload.stopList) {
           newTripObject.setStopList(payload.stopList);
         } else {
-          newTripObject.addFallbackStop(payload.depatureDate);
+          newTripObject.addFallbackStop();
         }
 
         // add arrival departure

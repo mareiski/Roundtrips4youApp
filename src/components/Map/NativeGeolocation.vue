@@ -1,9 +1,12 @@
 <template>
 	<div>
 		<q-btn
-			v-if="false"
+			color="white"
+			:text-color="active ? 'blue' : 'secondary'"
 			@click="getCurrentPosition"
-			label="track position"
+			icon="my_location"
+			round
+			style="position:absolute; right:9px; top:210px;"
 		></q-btn>
 	</div>
 </template>
@@ -15,12 +18,14 @@
 		data() {
 			return {
 				geoId: null,
+				active: false,
 			};
 		},
 		methods: {
 			getCurrentPosition() {
 				Geolocation.getCurrentPosition().then((newPosition) => {
-					this.$emit("positionChanged", newPosition);
+					this.active = true;
+					this.$emit("positionDetected", newPosition);
 				});
 
 				// we start listening
@@ -32,6 +37,7 @@
 		beforeUnmount() {
 			// we do cleanup
 			Geolocation.clearWatch(this.geoId);
+			this.active = false;
 		},
 	};
 </script>

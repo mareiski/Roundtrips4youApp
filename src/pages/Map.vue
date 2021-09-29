@@ -69,7 +69,7 @@
 					ref="geocoder"
 					v-if="isCreator"
 				/>
-				<MglGeolocateControl :trackUserLocation="true"></MglGeolocateControl>
+				<!-- <MglGeolocateControl :trackUserLocation="true"></MglGeolocateControl> -->
 				<q-btn
 					color="white"
 					text-color="secondary"
@@ -173,14 +173,8 @@
 						<q-icon
 							name="trip_origin"
 							color="white"
-							style="font-size:20px; border-radius:50%;"
-							class="bg-blue"
-						></q-icon>
-						<q-icon
-							name="trip_origin"
-							color="blue"
-							style="font-size:40px; border-radius:50%;"
-							class="bg-blue"
+							style="font-size:20px; border-radius:50%; border-radius:50%; box-shadow: 0px 0px 1px 1px #0000001a;"
+							class="bg-blue pulse"
 						></q-icon>
 					</template>
 				</MglMarker>
@@ -191,7 +185,10 @@
 			:data="dialogObject"
 			@poiClicked="flyTo($event)"
 		></bottom-dialog>
-		<native-geolocation @positionChanged="updateGeolocationMarker($event)"></native-geolocation>
+		<native-geolocation
+			@positionChanged="updateGeolocationMarker($event, false)"
+			@positionDetected="updateGeolocationMarker($event, true)"
+		></native-geolocation>
 	</div>
 </template>
 
@@ -231,12 +228,7 @@
 	import ZoomToRoute from "../components/Map/ZoomToRoute.vue";
 	import { auth } from "../firebaseInit.js";
 
-	import {
-		MglMarker,
-		MglNavigationControl,
-		MglPopup,
-		MglGeolocateControl,
-	} from "vue-mapbox";
+	import { MglMarker, MglNavigationControl, MglPopup } from "vue-mapbox";
 	import Trip from "src/classes/trip";
 	import BottomDialog from "src/components/Map/BottomDialog.vue";
 	import CloseButton from "../components/Buttons/CloseButton.vue";
@@ -269,7 +261,6 @@
 			ZoomToRoute,
 			MglPopup,
 			SaveButton,
-			MglGeolocateControl,
 			NativeGeolocation,
 		},
 		computed: {
@@ -360,10 +351,19 @@
 					this.fitToBounds();
 				});
 			},
-			updateGeolocationMarker(event) {
+			updateGeolocationMarker(event, firstTime) {
 				this.geolocationCoordinates.lat = event.coords.latitude;
 				this.geolocationCoordinates.lng = event.coords.longitude;
 				this.showGeolocationMarker = true;
+
+				if (firstTime) {
+					map.flyTo({
+						center: [event.coords.longitude, event.coords.latitude],
+						speed: 0.8,
+						curve: 1,
+						zoom: 14,
+					});
+				}
 			},
 			flyTo(event) {
 				this.lastClickCoordinates = event;

@@ -5,7 +5,7 @@
 			text-color="secondary"
 			icon="layers"
 			round
-			style="position:absolute; right:9px; top:210px;"
+			style="position:absolute; right:9px; top:225px;"
 		>
 			<q-tooltip>Kartendesign</q-tooltip>
 			<q-menu>

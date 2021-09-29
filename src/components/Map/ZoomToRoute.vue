@@ -6,7 +6,7 @@
 			icon="fas fa-route"
 			round
 			@click="$emit('clicked')"
-			style="position:absolute; right:9px; top:260px;"
+			style="position:absolute; right:9px; top:275px;"
 		>
 		</q-btn>
 	</div>

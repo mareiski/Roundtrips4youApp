@@ -2,6 +2,7 @@ const admin = require("firebase-admin");
 const firebase = require("firebase");
 
 const cred = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+//const serviceAcc = require(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
 let index = firebase.apps.findIndex(x => x.name === "adminMessaging");
 let app;
@@ -23,17 +24,21 @@ exports.handler = async function(event) {
 
   const messaging = admin.messaging(app);
 
-  messaging.sendToDevice(token, message).then(response => {
-    const headers = {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type",
-      "Access-Control-Allow-Methods": "GET"
-    };
-
-    return {
-      statusCode: 200,
-      headers,
-      body: response || "error occured"
-    };
+  let resp;
+  await messaging.sendToDevice(token, message).then(response => {
+    resp = response;
+    console.log(response);
   });
+
+  const headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET"
+  };
+
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify(resp) || "error occured"
+  };
 };

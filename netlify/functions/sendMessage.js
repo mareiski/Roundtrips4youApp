@@ -22,19 +22,18 @@ exports.handler = async function(event) {
   const message = JSON.parse(event.queryStringParameters.message);
 
   const messaging = admin.messaging(app);
-  console.log(messaging);
 
-  messaging.sendToDevice(token, message);
+  messaging.sendToDevice(token, message).then(response => {
+    const headers = {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Methods": "GET"
+    };
 
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET"
-  };
-
-  return {
-    statusCode: 200,
-    headers,
-    body: "message sent"
-  };
+    return {
+      statusCode: 200,
+      headers,
+      body: response || "error occured"
+    };
+  });
 };

@@ -1,5 +1,5 @@
 <template>
-	<q-page class="flex flex-center">
+	<q-page>
 		<div
 			class="user q-px-lg q-pb-md"
 			v-if="user"
@@ -14,6 +14,7 @@
 				indicator-color="primary"
 				align="justify"
 				narrow-indicator
+				draggable
 				style="padding-top:40px;"
 			>
 				<q-tab
@@ -35,9 +36,7 @@
 				<q-tab-panel
 					name="publicProfile"
 					class="text-secondary"
-					style="height:500px"
 				>
-					Coming soon
 					<public-user-profile></public-user-profile>
 				</q-tab-panel>
 				<q-tab-panel name="settings">
@@ -204,8 +203,9 @@
 </template>
 
 <script>
-	import { auth, db } from "../firebaseInit.js";
+	import { auth } from "../firebaseInit.js";
 	import sharedMethods from "../../sharedMethods.js";
+	import publicUserProfile from "../components/PublicUserProfile.vue";
 
 	export default {
 		meta: {
@@ -219,12 +219,13 @@
 			},
 		},
 		name: "profile",
+		components: { publicUserProfile },
+
 		data() {
 			return {
 				userDisplayName: "",
 				userEmail: "",
 				submitting: false,
-				imageUrl: "",
 				password: "",
 				isPwd: true,
 				passwordRepeat: "",
@@ -284,9 +285,10 @@
 		},
 		// todo user name should be unique https://stackoverflow.com/questions/35243492/firebase-android-make-username-unique
 		created() {
+			this.$store.dispatch("tripList/fetchAllUserTrips");
+
 			auth.authRef().onAuthStateChanged(() => {
 				this.userDisplayName = auth.user().displayName;
-				this.imageUrl = auth.user().photoURL;
 			});
 		},
 	};

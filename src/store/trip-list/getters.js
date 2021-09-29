@@ -17,6 +17,23 @@ export default {
       return null;
     }
   },
+  getPublicUserTripList: state => {
+    try {
+      let userTrips = [];
+      state.TripList.reduce(function(trips, e) {
+        if (auth.user() && e.userId === auth.user().uid) {
+          userTrips.push(e);
+        }
+      }, []);
+
+      return userTrips.filter(obj => {
+        return obj.published;
+      });
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  },
   getPublicTripList: state => {
     try {
       let publicTrips = [];

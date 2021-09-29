@@ -3,8 +3,6 @@ const firebase = require("firebase");
 
 const cred = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS);
 
-console.log(firebase.apps);
-
 let index = firebase.apps.findIndex(x => x.name === "adminMessaging");
 let app;
 if (index === -1) {
@@ -24,6 +22,7 @@ exports.handler = async function(event) {
   const message = JSON.parse(event.queryStringParameters.message);
 
   const messaging = admin.messaging(app);
+  console.log(messaging);
 
   messaging.sendToDevice(token, message);
 

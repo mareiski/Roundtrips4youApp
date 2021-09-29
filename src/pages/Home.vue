@@ -456,7 +456,7 @@
 			window.removeEventListener("scroll", this.handleScroll);
 		},
 		beforeRouteLeave(to, from, next) {
-			this.bottomDialogShowed = false;
+			this.scrollSectionVisibleIndex = 0
 			next();
 		},
 		methods: {

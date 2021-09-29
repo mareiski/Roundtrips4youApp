@@ -149,13 +149,36 @@ export default {
       });
     });
   },
+  updateUserEntry({}, entry) {
+    let roundtripsRef = db
+      .collection("User")
+      .where("UserUID", "==", auth.user().uid)
+      .limit(1);
+    roundtripsRef.get().then(snapshot => {
+      snapshot.forEach(doc => {
+        db.collection("User")
+          .doc(doc.id)
+          .update(entry);
+      });
+    });
+  },
   sendPushNotification({}, payload) {
-    axios.get(
-      "https://roundtrips4you.de/.netlify/functions/sendMessage?token=" +
-        payload.token +
-        "&message=" +
-        JSON.stringify(payload.message)
-    );
+    axios
+      .get(
+        "https://roundtrips4you.de/.netlify/functions/sendMessage?token=" +
+          payload.token +
+          "&message=" +
+          JSON.stringify(payload.message)
+      )
+      .then(() => {
+        console.log("message sent");
+        console.log(
+          "https://roundtrips4you.de/.netlify/functions/sendMessage?token=" +
+            payload.token +
+            "&message=" +
+            JSON.stringify(payload.message)
+        );
+      });
   },
   setFCMToken({}, token) {
     let roundtripsRef = db

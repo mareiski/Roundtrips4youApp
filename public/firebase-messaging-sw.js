@@ -3,6 +3,7 @@ importScripts(
   "https://www.gstatic.com/firebasejs/8.10.0/firebase-messaging.js"
 );
 
+console.log(process.env);
 let config = {
   apiKey: process.env.FIREBASE_KEY,
   authDomain: "roundtrips4you.firebaseapp.com",

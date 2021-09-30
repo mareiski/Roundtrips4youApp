@@ -15,7 +15,6 @@ node_modules
 # Capacitor related directories and files
 /src-capacitor/www
 /src-capacitor/node_modules
-/src-capacitor/app/google-services.json
 
 # BEX related directories and files
 /src-bex/www
@@ -38,3 +37,4 @@ FirebaseKey
 FirebaseKeyProd
 # Local Netlify folder
 .netlify
+/src-capacitor/android/app/google-services.json

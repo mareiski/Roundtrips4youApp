@@ -29,34 +29,24 @@ const auth = {
     };
 
     const app = firebase.initializeApp(config);
-
-    if (process.env.MODE !== "spa") {
-      navigator.serviceWorker
-        .register("firebase-messaging-sw.js", {
-          scope: "firebase-cloud-messaging-push-scope"
-        })
-        .then(registration => {
-          messaging = firebase.messaging(app);
-          messaging
-            .getToken({
-              serviceWorkerRegistration: registration
-            })
-            .then(token => {
-              this.fcmToken = token;
-              console.log(token);
-            });
-        })
-        .catch(err => {
-          console.log(err);
-        });
-    } else {
-      messaging = firebase.messaging(app);
-
-      messaging.getToken().then(token => {
-        this.fcmToken = token;
-        console.log(token);
+    navigator.serviceWorker
+      .register("firebase-messaging-sw.js", {
+        scope: "firebase-cloud-messaging-push-scope"
+      })
+      .then(registration => {
+        messaging = firebase.messaging(app);
+        messaging
+          .getToken({
+            serviceWorkerRegistration: registration
+          })
+          .then(token => {
+            this.fcmToken = token;
+            console.log(token);
+          });
+      })
+      .catch(err => {
+        console.log(err);
       });
-    }
 
     db = firebase.firestore(app);
     storage = firebase.storage(app);

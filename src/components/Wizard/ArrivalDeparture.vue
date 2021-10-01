@@ -53,7 +53,7 @@
 		<q-toggle
 			v-model="roundtrip"
 			@input="validInput()"
-			label="Rundreise"
+			label="Rundreise (Start ist Ziel)"
 			class="text-secondary q-pt-md"
 		></q-toggle>
 		<div

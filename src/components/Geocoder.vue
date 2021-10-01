@@ -23,6 +23,7 @@
 			geocoder = new MapboxGeocoder({
 				accessToken: this.$store.getters["api/getMapboxKey"],
 				types: "country,region,place,postcode,locality,neighborhood",
+				language: "de-DE",
 			});
 
 			geocoder.addTo("#" + (this.id || "geocoder"));

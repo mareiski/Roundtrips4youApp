@@ -81,6 +81,13 @@
 				>
 				</q-btn>
 				<MglNavigationControl position="top-right" />
+				<native-geolocation
+					@positionChanged="updateGeolocationMarker($event, false)"
+					@positionDetected="updateGeolocationMarker($event, true)"
+					class="mapboxgl-ctrl"
+					position="top-right"
+				></native-geolocation>
+
 				<MapLayerPlugin
 					@styleChanged="
           addAllRoutes(true);
@@ -185,10 +192,6 @@
 			:data="dialogObject"
 			@poiClicked="flyTo($event)"
 		></bottom-dialog>
-		<native-geolocation
-			@positionChanged="updateGeolocationMarker($event, false)"
-			@positionDetected="updateGeolocationMarker($event, true)"
-		></native-geolocation>
 	</div>
 </template>
 

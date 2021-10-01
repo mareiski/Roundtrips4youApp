@@ -6,7 +6,7 @@
 			@click="getCurrentPosition"
 			icon="my_location"
 			round
-			style="position:absolute; right:9px; top:210px;"
+			style="position:absolute; right:9px; top:175px;"
 		></q-btn>
 	</div>
 </template>

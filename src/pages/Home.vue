@@ -299,51 +299,6 @@
 					to="/Haftungsausschluss"
 				>Haftungsausschluss</router-link>
 			</div>
-			<!-- <p style="text-align:center; font-size:20px; padding-top:40px;">Möchtest du erstmal ein paar Beispiele sehen?<br> Wähle ein Land und sehe dir von anderen Usern mit unserem Reiseplaner kostenlos und online erstellte Rundreisen an</p>
-			<div class="card-container">
-				<div
-					class="card-wrap left"
-					v-in-viewport.once
-				>
-					<router-link
-						class="card"
-						to="/rundreisen/Portugal"
-						itemtype="http://schema.org/Offer"
-					>
-						<div id="PortugalImg"></div>
-						<h3>Portugal</h3>
-						<span>Erlebe einzigartige Landschaften und fazinierende Städte</span>
-					</router-link>
-				</div>
-				<div
-					class="card-wrap"
-					v-in-viewport.once
-				>
-					<router-link
-						class="card"
-						to="/rundreisen/Indonesien"
-						itemtype="http://schema.org/Offer"
-					>
-						<div id="BaliImg"></div>
-						<h3>Indonesien</h3>
-						<span>Erlebe das Land der Tempel und Reisfelder</span>
-					</router-link>
-				</div>
-				<div
-					class="card-wrap right"
-					v-in-viewport.once
-				>
-					<router-link
-						class="card"
-						to="/rundreisen/Italien"
-						itemtype="http://schema.org/Offer"
-					>
-						<div id="ItalyImg"></div>
-						<h3>Italien</h3>
-						<span>Erlebe mediteranen Flair in antiken Städten</span>
-					</router-link>
-				</div>
-			</div> -->
 		</div>
 	</q-page>
 </template>
@@ -456,7 +411,7 @@
 			window.removeEventListener("scroll", this.handleScroll);
 		},
 		beforeRouteLeave(to, from, next) {
-			this.scrollSectionVisibleIndex = 0
+			this.scrollSectionVisibleIndex = 0;
 			next();
 		},
 		methods: {

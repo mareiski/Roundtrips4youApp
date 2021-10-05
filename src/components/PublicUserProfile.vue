@@ -1,5 +1,5 @@
 <template>
-	<div class="public-user-profile  q-px-lg q-pb-md">
+	<div class="public-user-profile">
 		<span v-if="userEntry.createdAt">Mitglied seit {{sharedMethods.getStringDateFromTimestamp(userEntry.createdAt)}}</span>
 		<br>
 		<span v-if="userEntry.companyWebsite">Unternehmenswebsite:
@@ -37,13 +37,13 @@
 					<li>{{ userEntry.RTEdited || 0 }}x wurden Reisen bereits bearbeitet</li>
 				</ul>
 			</div>
-			<div>
+			<!-- <div>
 				<h4></h4>
 				<q-img
 					width="100px"
 					:src="user.photoURL"
 				/>
-			</div>
+			</div> -->
 		</div>
 		<div class="badge-container q-pt-md">
 			<h4>Badges</h4>

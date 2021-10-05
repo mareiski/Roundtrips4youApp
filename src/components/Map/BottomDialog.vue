@@ -23,7 +23,7 @@
 						:name="index"
 						:key="index"
 						:img-src="url"
-						@click="showImageDialog(url)"
+						@click="showImageDialog(index)"
 					>
 					</q-carousel-slide>
 				</q-carousel>
@@ -217,7 +217,8 @@
 		</q-dialog>
 		<image-dialog
 			v-model="imageDialogShowed"
-			:dialogImgSrc="imageDialogSrc"
+			:imageSrcs="imageSrcs"
+			:activeIndex="imageDialogIndex"
 		></image-dialog>
 	</div>
 </template>
@@ -245,7 +246,7 @@
 				max: false,
 				imageSrcs: [],
 				imageDialogShowed: false,
-				imageDialogSrc: "",
+				imageDialogIndex: 0,
 				mainDescription: "",
 				textMax: false,
 				suggestedPOIs: [],
@@ -294,8 +295,8 @@
 			event: "showedChanged",
 		},
 		methods: {
-			showImageDialog(src) {
-				this.imageDialogSrc = src;
+			showImageDialog(index) {
+				this.imageDialogIndex = index;
 				this.imageDialogShowed = true;
 			},
 			addStop() {

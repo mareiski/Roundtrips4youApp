@@ -105,6 +105,9 @@
 				selfSend: true,
 			};
 		},
+		created() {
+			this.$store.dispatch("user/fetchUserEntry");
+		},
 		methods: {
 			sendMessage() {
 				const message = new Message(

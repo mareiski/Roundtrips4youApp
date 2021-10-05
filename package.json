@@ -11,8 +11,9 @@
     "writeJsonFile": "node writeJsonFile.js"
   },
   "dependencies": {
+    "@capacitor/app": "^1.0.3",
     "@capacitor/core": "^3.2.2",
-    "@capacitor/geolocation": "^1.1.0",
+    "@capacitor/push-notifications": "^1.0.4",
     "@googlemaps/js-api-loader": "^1.12.2",
     "@mapbox/mapbox-gl-geocoder": "^4.7.3",
     "@netlify/functions": "^0.7.2",
@@ -48,6 +49,7 @@
     "wikijs": "^6.3.2"
   },
   "devDependencies": {
+    "@capacitor/cli": "^3.2.4",
     "@quasar/app": "^2.2.10",
     "@quasar/quasar-app-extension-dotenv": "^1.1.0",
     "@types/turf": "^3.5.32",

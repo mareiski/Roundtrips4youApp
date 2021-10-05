@@ -23,14 +23,17 @@
 		},
 		methods: {
 			getCurrentPosition() {
-				Geolocation.getCurrentPosition().then((newPosition) => {
-					this.active = true;
-					this.$emit("positionDetected", newPosition);
-				});
+				console.log(Geolocation);
+				Geolocation.requestPermissions().then(() => {
+					Geolocation.getCurrentPosition().then((newPosition) => {
+						this.active = true;
+						this.$emit("positionDetected", newPosition);
+					});
 
-				// we start listening
-				this.geoId = Geolocation.watchPosition({}, (newPosition) => {
-					this.$emit("positionChanged", newPosition);
+					// we start listening
+					this.geoId = Geolocation.watchPosition({}, (newPosition) => {
+						this.$emit("positionChanged", newPosition);
+					});
 				});
 			},
 		},

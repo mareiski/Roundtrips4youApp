@@ -60,11 +60,11 @@
 						this.$emit("showedChanged", newValue);
 					}
 				},
-				slideNum: {
-					get: function () {
-						console.log(this.activeIndex);
-						return this.activeIndex;
-					},
+			},
+			slideNum: {
+				get: function () {
+					console.log(this.activeIndex);
+					return this.activeIndex;
 				},
 			},
 		},

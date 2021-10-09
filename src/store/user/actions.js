@@ -181,6 +181,10 @@ export default {
       });
   },
   setFCMToken({}, token) {
+    if (!auth.user()) {
+      return;
+    }
+
     let roundtripsRef = db
       .collection("User")
       .where("UserUID", "==", auth.user().uid)

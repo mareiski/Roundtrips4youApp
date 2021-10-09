@@ -1,7 +1,7 @@
 <template>
 	<div>
 		<div
-			:id="id || 'geocoder'"
+			:id="id"
 			class="geocoder"
 		></div>
 	</div>
@@ -9,7 +9,7 @@
 
 <script>
 	import PointLocation from "src/classes/pointLocation";
-	let geocoder;
+	let geocoder = null;
 	export default {
 		props: {
 			id: String,
@@ -20,15 +20,16 @@
 			},
 		},
 		mounted() {
+			let context = this;
+
 			geocoder = new MapboxGeocoder({
-				accessToken: this.$store.getters["api/getMapboxKey"],
+				accessToken: context.$store.getters["api/getMapboxKey"],
 				types: "country,region,place,postcode,locality,neighborhood",
 				language: "de-DE",
 			});
 
-			geocoder.addTo("#" + (this.id || "geocoder"));
+			geocoder.addTo("#" + context.id);
 
-			let context = this;
 			// Add geocoder result to container.
 			geocoder.on("result", function (e) {
 				let country;

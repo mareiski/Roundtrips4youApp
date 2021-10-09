@@ -12,7 +12,8 @@
 </template>
 
 <script>
-	import { Geolocation } from "@capacitor/geolocation";
+	import { Plugins } from "@capacitor/core";
+	const { Geolocation } = Plugins;
 
 	export default {
 		data() {
@@ -24,17 +25,17 @@
 		methods: {
 			getCurrentPosition() {
 				console.log(Geolocation);
-				Geolocation.requestPermissions().then(() => {
-					Geolocation.getCurrentPosition().then((newPosition) => {
-						this.active = true;
-						this.$emit("positionDetected", newPosition);
-					});
-
-					// we start listening
-					this.geoId = Geolocation.watchPosition({}, (newPosition) => {
-						this.$emit("positionChanged", newPosition);
-					});
+				//	Geolocation.requestPermissions().then(() => {
+				Geolocation.getCurrentPosition().then((newPosition) => {
+					this.active = true;
+					this.$emit("positionDetected", newPosition);
 				});
+
+				// we start listening
+				this.geoId = Geolocation.watchPosition({}, (newPosition) => {
+					this.$emit("positionChanged", newPosition);
+				});
+				//	});
 			},
 		},
 		beforeUnmount() {

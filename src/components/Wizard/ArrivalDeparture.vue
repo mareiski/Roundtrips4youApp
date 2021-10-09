@@ -45,7 +45,7 @@
 
 		<p class="text-secondary">Startort (Heimatadresse):</p>
 		<geocoder
-			id="geocoder"
+			:id="'geocoder' +Date.now()"
 			@inputLocation="(startLocation = $event); validInput()"
 			@clear="startLocation = {}; validInput()"
 		></geocoder>
@@ -62,7 +62,7 @@
 		>
 			<p class="text-secondary">Ziel:</p>
 			<geocoder
-				id="geocoder2"
+				:id="'geocoder2' + Date.now()"
 				@inputLocation="(endLocation = $event); validInput()"
 				@clear="endLocation = {}; validInput()"
 			></geocoder>

@@ -21,11 +21,18 @@ if (index === -1) {
 exports.handler = async function(event) {
   const token = event.queryStringParameters.token;
   const message = JSON.parse(event.queryStringParameters.message);
+  let tokens = [];
+
+  if (token.includes(",")) {
+    tokens = token.split(",");
+  } else {
+    tokens[0] = token;
+  }
 
   const messaging = admin.messaging(app);
 
   let resp;
-  await messaging.sendToDevice(token, message).then(response => {
+  await messaging.sendToDevice(tokens, message).then(response => {
     resp = response;
     console.log(response);
   });

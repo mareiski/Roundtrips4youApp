@@ -185,6 +185,8 @@ export default {
       return;
     }
 
+    console.log("update user push token");
+
     let roundtripsRef = db
       .collection("User")
       .where("UserUID", "==", auth.user().uid)
@@ -194,6 +196,25 @@ export default {
         db.collection("User")
           .doc(doc.id)
           .update({ fcmToken: token });
+      });
+    });
+  },
+  setFCMMobileToken({}, token) {
+    if (!auth.user()) {
+      return;
+    }
+
+    console.log("update user push token");
+
+    let roundtripsRef = db
+      .collection("User")
+      .where("UserUID", "==", auth.user().uid)
+      .limit(1);
+    roundtripsRef.get().then(snapshot => {
+      snapshot.forEach(doc => {
+        db.collection("User")
+          .doc(doc.id)
+          .update({ fcmMobileToken: token });
       });
     });
   },

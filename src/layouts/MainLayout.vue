@@ -192,6 +192,15 @@
 	import CookieBanner from "src/components/CookieBanner/CookieBanner.vue";
 	import Message from "src/classes/message.ts";
 
+	import {
+		Plugins,
+		PushNotification,
+		PushNotificationToken,
+		PushNotificationActionPerformed,
+	} from "@capacitor/core";
+
+	const { PushNotifications } = Plugins;
+
 	export default {
 		components: {
 			WizardDialog,
@@ -272,7 +281,57 @@
 			} else {
 				let context = this;
 
+				PushNotifications.requestPermission().then((result) => {
+					if (result.granted) {
+						// Register with Apple / Google to receive push via APNS/FCM
+						PushNotifications.register();
+					} else {
+						// Show some error
+						sharedMethods.showErroroNotification(
+							"Berechtigung für Push Benachrichtungen fehlt"
+						);
+					}
+				});
+
 				this.$store.dispatch("user/fetchUserEntry").then(() => {
+					// On success, we should be able to receive notifications
+					PushNotifications.addListener("registration", (token) => {
+						console.log("set mobile token " + token.value);
+						if (token.value) {
+							context.$store.dispatch("user/setFCMMobileToken", token.value);
+						}
+					});
+
+					// Some issue with our setup and push will not work
+					PushNotifications.addListener("registrationError", (error) => {
+						console.log("Push notification error", error);
+					});
+
+					// Show us the notification payload if the app is open on our device
+					PushNotifications.addListener("pushNotificationReceived", (payload) => {
+						console.log(payload);
+
+						const notification = payload.data;
+						const msg = new Message(
+							notification.title,
+							notification.description,
+							notification.icon || "notifications",
+							notification.url,
+							new Date(Date.now())
+						);
+						context.$store.dispatch("user/appendUserMessage", msg);
+					});
+
+					// Method called when tapping on a notification
+					PushNotifications.addListener(
+						"pushNotificationActionPerformed",
+						(notification) => {
+							alert("Push action performed: " + JSON.stringify(notification));
+						}
+					);
+				});
+
+				if (messaging) {
 					messaging.onMessage((payload) => {
 						console.log(payload);
 
@@ -286,7 +345,7 @@
 						);
 						context.$store.dispatch("user/appendUserMessage", msg);
 					});
-				});
+				}
 			}
 		},
 		mounted() {

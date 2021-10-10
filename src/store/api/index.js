@@ -1,4 +1,5 @@
 /* eslint-disable indent */
+import sharedMethods from "app/sharedMethods.js";
 import { db } from "../../firebaseInit.js";
 
 export default {
@@ -33,11 +34,20 @@ export default {
   },
   actions: {
     getAllKeys({ state }) {
+      let success = false;
       return new Promise(resolve => {
+        setTimeout(() => {
+          if (!success) {
+            console.log("failed to fetch api keys within 5sec");
+            resolve(false);
+          }
+        }, 5000);
+
         db.collection("API")
           .get()
           .then(snapshot => {
             snapshot.forEach(doc => {
+              success = true;
               let data = doc.data();
 
               switch (data.name) {
@@ -75,6 +85,9 @@ export default {
             });
           })
           .catch(() => {
+            sharedMethods.showErrorNotification(
+              "Website konnte nicht richtig geladen werden. Bitte wechsle den Browser"
+            );
             resolve(false);
           });
       });

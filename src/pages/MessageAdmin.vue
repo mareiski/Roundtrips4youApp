@@ -147,9 +147,23 @@
 				};
 
 				const user = this.$store.getters["user/userEntry"];
+				let tokenString = null;
+
+				if (user.fcmToken) {
+					tokenString = user.fcmToken;
+				}
+
+				if (user.fcmMobileToken) {
+					if (!tokenString) {
+						tokenString = user.fcmMobileToken;
+					} else {
+						tokenString += "," + user.fcmMobileToken;
+					}
+				}
+
 				this.$store.dispatch("user/sendPushNotification", {
 					message: message,
-					token: user.fcmToken,
+					token: tokenString,
 				});
 			},
 		},

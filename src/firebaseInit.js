@@ -13,7 +13,6 @@ let messaging = null;
 const auth = {
   context: null,
   ui: null,
-  fcmToken: null,
 
   init(context, store, router) {
     this.context = context;
@@ -41,7 +40,8 @@ const auth = {
           })
           .then(token => {
             this.fcmToken = token;
-            console.log(token);
+            if (this.fcmToken)
+              store.dispatch("user/setFCMToken", this.fcmToken);
           });
       })
       .catch(err => {
@@ -63,8 +63,7 @@ const auth = {
 
     firebase.auth().onAuthStateChanged(user => {
       store.dispatch("user/setCurrentUser");
-
-      store.dispatch("user/setFCMToken", this.fcmToken);
+      if (this.fcmToken) store.dispatch("user/setFCMToken", this.fcmToken);
 
       if (router.$route) {
         let requireAuth = router.$route.matched.some(

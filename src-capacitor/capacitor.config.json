@@ -5,8 +5,12 @@
   "npmClient": "npm",
   "webDir": "www",
   "plugins": {
-  "PushNotifications": {
-    "presentationOptions": ["badge", "sound", "alert"]
+    "PushNotifications": {
+      "presentationOptions": [
+        "badge",
+        "sound",
+        "alert"
+      ]
+    }
   }
-}
 }

@@ -28,25 +28,21 @@ const auth = {
     };
 
     const app = firebase.initializeApp(config);
-    navigator.serviceWorker
-      .register("firebase-messaging-sw.js", {
-        scope: "firebase-cloud-messaging-push-scope"
-      })
-      .then(registration => {
-        messaging = firebase.messaging(app);
-        messaging
-          .getToken({
-            serviceWorkerRegistration: registration
-          })
-          .then(token => {
-            this.fcmToken = token;
-            if (this.fcmToken)
-              store.dispatch("user/setFCMToken", this.fcmToken);
-          });
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    // navigator.serviceWorker
+    //   .register("firebase-messaging-sw.js", {
+    //     scope: "firebase-cloud-messaging-push-scope"
+    //   })
+    //   .then(registration => {
+
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   });
+    messaging = firebase.messaging(app);
+    messaging.getToken().then(token => {
+      this.fcmToken = token;
+      if (this.fcmToken) store.dispatch("user/setFCMToken", this.fcmToken);
+    });
 
     db = firebase.firestore(app);
     storage = firebase.storage(app);

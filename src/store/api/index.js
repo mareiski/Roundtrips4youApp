@@ -19,7 +19,11 @@ export default {
       UnsplashKey: null,
       UnsplashSecret: null
     },
-    FirebaseMessagingKey: null
+    FirebaseMessagingKey: null,
+    AppVersion: {
+      NewestVersion: 0,
+      Expires: null
+    }
   },
   getters: {
     getHotels4Key: state => state.Hotels4Key,
@@ -30,7 +34,8 @@ export default {
     getGooglePlacesKey: state => state.GooglePlacesKey,
     getStoryblokKey: state => state.StoryblokKey,
     getUnsplashKeys: state => state.UnsplashKeys,
-    getFirebaseMessagingKey: state => state.FirebaseMessagingKey
+    getFirebaseMessagingKey: state => state.FirebaseMessagingKey,
+    getAppVersion: state => state.AppVersion
   },
   actions: {
     getAllKeys({ state }) {
@@ -79,6 +84,14 @@ export default {
                   break;
                 case "FirebaseMessaging": {
                   state.FirebaseMessagingKey = data.apiKey;
+                  break;
+                }
+                case "AppVersion": {
+                  state.AppVersion.NewestVersion = data.version;
+                  state.AppVersion.Expires = sharedMethods.getDateFromTimeStamp(
+                    data.expires
+                  );
+                  break;
                 }
               }
               resolve(true);

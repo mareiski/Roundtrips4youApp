@@ -1,5 +1,5 @@
 import { Notify, date } from "quasar";
-const getAxios = () => import("axios");
+import axios from "axios";
 import wiki from "wikijs";
 import { Loader } from "@googlemaps/js-api-loader";
 import Geonames from "geonames.js";
@@ -57,21 +57,19 @@ export default {
   },
   getRiverRoute(startLocation, endLocation) {
     return new Promise((resolve, reject) => {
-      getAxios().then(axios => {
-        try {
-          let url =
-            "https://app.roundtrips4you.de/.netlify/functions/getRiverRoute?startLocation=" +
-            JSON.stringify(startLocation) +
-            "&endLocation=" +
-            JSON.stringify(endLocation);
+      try {
+        let url =
+          "https://app.roundtrips4you.de/.netlify/functions/getRiverRoute?startLocation=" +
+          JSON.stringify(startLocation) +
+          "&endLocation=" +
+          JSON.stringify(endLocation);
 
-          let response = axios.get(url);
-          resolve(response);
-        } catch (e) {
-          console.log(e);
-          resolve(null);
-        }
-      });
+        let response = axios.get(url);
+        resolve(response);
+      } catch (e) {
+        console.log(e);
+        resolve(null);
+      }
     });
   },
   /**
@@ -150,6 +148,95 @@ export default {
       }
     }
     return false;
+  },
+  /**
+   * get the best route for given stops
+   * @param startStop which stop to start with (mandatory!)
+   * @param endStop which stop to end (set startStop and endStop to the same for a roundtrip) optional
+   */
+  async getBestRoute(stopList, startStop, endStop) {
+    return new Promise(resolve => {
+      const jobs = [];
+      stopList.forEach((stop, index) => {
+        if (
+          stop.stopId !== startStop.stopId &&
+          (!endStop || stop.stopId !== endStop.stopId)
+        ) {
+          jobs.push({
+            id: index,
+            location: [stop.location.lng, stop.location.lat],
+            skills: [1]
+          });
+        }
+      });
+
+      let vehicles =
+        '"vehicles":[{"id":1,"profile":"driving-car","start":[' +
+        startStop.location.lng +
+        "," +
+        startStop.location.lat +
+        '], "skills":[1,14]';
+
+      if (endStop) {
+        vehicles +=
+          ', "end":[' + endStop.location.lng + "," + endStop.location.lat + "]";
+      }
+
+      vehicles += "}]";
+
+      const body = '{"jobs":' + JSON.stringify(jobs) + ", " + vehicles + "}";
+
+      // const body =
+      //   '{"jobs":[{"id":1,"location":[1.98935,48.701],"skills":[1]},{"id":2,"service":300,"amount":[1],"location":[2.03655,48.61128],"skills":[1]},{"id":3,"service":300,"amount":[1],"location":[2.39719,49.07611],"skills":[2]},{"id":4,"service":300,"amount":[1],"location":[2.41808,49.22619],"skills":[2]},{"id":5,"service":300,"amount":[1],"location":[2.28325,48.5958],"skills":[14]},{"id":6,"service":300,"amount":[1],"location":[2.89357,48.90736],"skills":[14]}],"vehicles":[{"id":1,"profile":"driving-car","start":[2.35044,48.71764],"end":[2.35044,48.71764],"capacity":[4],"skills":[1,14],"time_window":[28800,43200]},{"id":2,"profile":"driving-car","start":[2.35044,48.71764],"end":[2.35044,48.71764],"capacity":[4],"skills":[2,14],"time_window":[28800,43200]}]}';
+
+      const newStopList = [];
+
+      console.log(body);
+
+      axios
+        .post(
+          "https://api.openrouteservice.org/optimization",
+          JSON.parse(body),
+          {
+            headers: {
+              Accept:
+                "application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8",
+              Authorization:
+                "5b3ce3597851110001cf6248a1a70f8d612247f796b9dbbcf07910d7",
+              "Content-Type": "application/json"
+            }
+          }
+        )
+        .then(response => {
+          console.log(response.data.routes[0]);
+          console.log(stopList);
+
+          response.data.routes[0].steps.forEach((step, index) => {
+            let stop;
+            if (
+              index === 0 ||
+              index === response.data.routes[0].steps.length - 1
+            ) {
+              stop = stopList[index];
+            } else if (step.id) {
+              console.log(step.id);
+
+              stop = stopList[step.id];
+            }
+
+            console.log(stop);
+            if (stop) {
+              newStopList.push(stop);
+            }
+          });
+
+          resolve(newStopList);
+        })
+        .catch(e => {
+          console.log(e);
+          resolve(false);
+        });
+    });
   },
   async getWikivoyageImage(pageName) {
     let index = cachedWikivoyageData.findIndex(x => x.title === pageName);
@@ -289,10 +376,8 @@ export default {
    */
   requestURL(url) {
     return new Promise(resolve => {
-      getAxios().then(axios => {
-        axios.get(url).then(response => {
-          resolve(response);
-        });
+      axios.get(url).then(response => {
+        resolve(response);
       });
     });
   },

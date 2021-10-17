@@ -98,6 +98,8 @@
 
 				<zoom-to-route @clicked="fitToBounds()"></zoom-to-route>
 
+				<MapAutoRoute @clicked="setToBestRoute()"></MapAutoRoute>
+
 				<!-- popups for routes -->
 				<template v-if="cachedRouteLayers">
 					<MglPopup
@@ -229,6 +231,7 @@
 	import Mapbox from "mapbox-gl";
 	import MapLayerPlugin from "../components/Map/MapLayerPlugin.vue";
 	import ZoomToRoute from "../components/Map/ZoomToRoute.vue";
+	import MapAutoRoute from "../components/Map/MapAutoRoute.vue";
 	import { auth } from "../firebaseInit.js";
 
 	import { MglMarker, MglNavigationControl, MglPopup } from "vue-mapbox";
@@ -265,6 +268,7 @@
 			MglPopup,
 			SaveButton,
 			NativeGeolocation,
+			MapAutoRoute,
 		},
 		computed: {
 			isMobile() {
@@ -529,6 +533,18 @@
 
 				//this.loadMarkerInfos(placeName)
 				this.showBottomDialogFromLastClick();
+			},
+			setToBestRoute() {
+				sharedMethods
+					.getBestRoute(
+						this.trip.stopList,
+						this.trip.stopList[0],
+						this.trip.stopList[this.trip.stopList.length - 1]
+					)
+					.then((route) => {
+						this.trip.stopList = route;
+						this.$store.dispatch("tripList/updateTrip", this.trip);
+					});
 			},
 			getTrip(done) {
 				let userTrip = auth.user() !== null || this.isCreator;

@@ -22,7 +22,7 @@ export default class Trip {
   offerWholeYear: boolean;
   createdAt: Date | any;
   stopList: Array<Stop>;
-  departureDate: Date;
+  // departureDate: Date;
   transportProfile: string;
   origin: any;
   destination: any;
@@ -105,7 +105,7 @@ export default class Trip {
     this.totalDistance = 0;
 
     // arrival departure default values
-    this.departureDate = new Date(timeStamp);
+    // this.departureDate = new Date(timeStamp);
     this.transportProfile = "driving";
     this.origin = null;
     this.destination = null;
@@ -139,11 +139,11 @@ export default class Trip {
     this.offerWholeYear = obj.offerWholeYear;
     this.createdAt = obj.createdAt;
 
-    if (obj.departureDate) {
-      this.departureDate = sharedMethods.getDateFromTimeStamp(
-        obj.departureDate
-      );
-    }
+    // if (obj.departureDate) {
+    //   this.departureDate = sharedMethods.getDateFromTimeStamp(
+    //     obj.departureDate
+    //   );
+    // }
     this.transportProfile = obj.transportProfile;
     this.origin = obj.origin;
     this.destination = obj.destination;
@@ -204,7 +204,7 @@ export default class Trip {
       offerWholeYear: this.offerWholeYear,
       createdAt: this.createdAt,
       stopList: stopListArray,
-      departureDate: this.departureDate,
+      // departureDate: this.departureDate,
       transportProfile: this.transportProfile,
       origin: this.origin,
       destination: this.destination,
@@ -243,7 +243,7 @@ export default class Trip {
   }
 
   setArrivalDeparture(
-    departureDate: Date,
+    // departureDate: Date,
     transportProfile: string,
     origin: any,
     destination: any,
@@ -254,7 +254,7 @@ export default class Trip {
     adults: number,
     childrenAges: number[]
   ) {
-    this.departureDate = departureDate;
+    // this.departureDate = departureDate;
     this.transportProfile = transportProfile;
     this.origin = origin;
     this.destination = destination;

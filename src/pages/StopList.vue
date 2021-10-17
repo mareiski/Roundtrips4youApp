@@ -244,8 +244,6 @@
 						forceRefresh: !!done,
 					})
 					.then((fetchedTrip) => {
-						console.log("trip");
-						console.log(fetchedTrip);
 						if (!fetchedTrip) {
 							this.$router.push("/Home");
 						} else {

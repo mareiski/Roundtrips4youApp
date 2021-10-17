@@ -177,7 +177,13 @@
 			</template>
 		</q-footer>
 		<CookieBanner v-if="isSPA"></CookieBanner>
-
+		<q-dialog
+			maximized
+			v-model="showUpdateDialog"
+			persistent
+		>
+			<UpdateDialog @hideDialog="showUpdateDialog = false"></UpdateDialog>
+		</q-dialog>
 	</q-layout>
 </template>
 
@@ -191,13 +197,10 @@
 	import { auth, messaging } from "../firebaseInit.js";
 	import CookieBanner from "src/components/CookieBanner/CookieBanner.vue";
 	import Message from "src/classes/message.ts";
-
-	import {
-		Plugins,
-		PushNotification,
-		PushNotificationToken,
-		PushNotificationActionPerformed,
-	} from "@capacitor/core";
+	import UpdateDialog from "src/components/UpdateDialog.vue";
+	import { Plugins } from "@capacitor/core";
+	import sharedMethods from "app/sharedMethods.js";
+	const pjson = require("../../package.json");
 
 	const { PushNotifications } = Plugins;
 
@@ -209,6 +212,7 @@
 			BackButton,
 			TipDialog,
 			CookieBanner,
+			UpdateDialog,
 		},
 		name: "MainLayout",
 		data() {
@@ -221,6 +225,7 @@
 				mountFinished: false,
 				showTipDialog: false,
 				defaultTip: null,
+				showUpdateDialog: false,
 			};
 		},
 		computed: {
@@ -323,12 +328,9 @@
 					});
 
 					// Method called when tapping on a notification
-					PushNotifications.addListener(
-						"pushNotificationActionPerformed",
-						(notification) => {
-							alert("Push action performed: " + JSON.stringify(notification));
-						}
-					);
+					PushNotifications.addListener("pushNotificationActionPerformed", () => {
+						context.showNotifications = true;
+					});
 				});
 
 				if (messaging) {
@@ -346,6 +348,15 @@
 						context.$store.dispatch("user/appendUserMessage", msg);
 					});
 				}
+			}
+
+			const v = pjson.version.split(".");
+			const versionNumber = Number(v[0] + v[1] + v[2]);
+
+			const versionObject = this.$store.getters["api/getAppVersion"];
+
+			if (versionNumber < versionObject.NewestVersion) {
+				this.showUpdateDialog = true;
 			}
 		},
 		mounted() {

@@ -248,6 +248,7 @@
 
 	export default {
 		meta: {
+			title: "Karte",
 			link: {
 				material: {
 					rel: "stylesheet",

@@ -20,6 +20,8 @@ export default {
         // fetch this trip only
         let roundtripsRef;
 
+        console.log(payload);
+
         // fetch trip only if its a user trip or a public trip
         if (payload.isUserTrip) {
           roundtripsRef = db
@@ -31,13 +33,14 @@ export default {
           roundtripsRef = db
             .collection("Trips")
             .where("TripId", "==", payload.TripId)
-            .where("public", "==", true)
+            .where("published", "==", true)
             .limit(1);
         }
 
         roundtripsRef
           .get()
           .then(snapshot => {
+            console.log(snapshot);
             if (snapshot.empty) resolve(null);
 
             snapshot.forEach(doc => {

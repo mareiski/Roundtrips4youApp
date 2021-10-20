@@ -308,7 +308,6 @@
 <script>
 	import { scroll } from "quasar";
 	const { getScrollTarget, setScrollPosition } = scroll;
-	import { auth } from "../firebaseInit.js";
 	import sharedMethods from "../../sharedMethods.js";
 	import draggable from "vuedraggable";
 	import arrivalDeparture from "../components/Wizard/ArrivalDeparture.vue";

@@ -13,6 +13,7 @@
 
 <script>
 	import { Plugins } from "@capacitor/core";
+	import sharedMethods from "app/sharedMethods";
 	const { Geolocation } = Plugins;
 
 	export default {
@@ -20,22 +21,44 @@
 			return {
 				geoId: null,
 				active: false,
+				gotGeolocationPermission: false,
 			};
 		},
 		methods: {
 			getCurrentPosition() {
-				console.log(Geolocation);
-				//	Geolocation.requestPermissions().then(() => {
-				Geolocation.getCurrentPosition().then((newPosition) => {
-					this.active = true;
-					this.$emit("positionDetected", newPosition);
-				});
+				if (process.env !== "spa") {
+					Geolocation.requestPermissions()
+						.then(() => {
+							this.gotGeolocationPermission = true;
+						})
+						.catch((e) => {
+							console.log(e);
+							sharedMethods.showErrorNotification(
+								"Bitte überprüfe deine Standortberechtigung"
+							);
+						});
+				} else {
+					this.gotGeolocationPermission = true;
+				}
 
-				// we start listening
-				this.geoId = Geolocation.watchPosition({}, (newPosition) => {
-					this.$emit("positionChanged", newPosition);
-				});
-				//	});
+				if (this.gotGeolocationPermission === true) {
+					Geolocation.getCurrentPosition()
+						.then((newPosition) => {
+							this.active = true;
+							this.$emit("positionDetected", newPosition);
+						})
+						.catch((e) => {
+							console.log(e);
+							sharedMethods.showErrorNotification(
+								"Bitte aktiviere deinen Standort"
+							);
+						});
+
+					// we start listening
+					this.geoId = Geolocation.watchPosition({}, (newPosition) => {
+						this.$emit("positionChanged", newPosition);
+					});
+				}
 			},
 		},
 		beforeUnmount() {

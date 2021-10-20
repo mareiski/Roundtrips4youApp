@@ -38,11 +38,14 @@ const auth = {
     //   .catch(err => {
     //     console.log(err);
     //   });
-    messaging = firebase.messaging(app);
-    messaging.getToken().then(token => {
-      this.fcmToken = token;
-      if (this.fcmToken) store.dispatch("user/setFCMToken", this.fcmToken);
-    });
+
+    if (process.env.MODE === "spa") {
+      messaging = firebase.messaging(app);
+      messaging.getToken().then(token => {
+        this.fcmToken = token;
+        if (this.fcmToken) store.dispatch("user/setFCMToken", this.fcmToken);
+      });
+    }
 
     db = firebase.firestore(app);
     storage = firebase.storage(app);

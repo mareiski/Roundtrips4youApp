@@ -211,10 +211,10 @@
 		meta: {
 			title: "Profil",
 			meta: {
-				robot: {
+				description: {
 					name: "description",
 					content:
-						"Dein Profil auf roundtrips4you. Dein Reiseplaner mit Kartenfunktion, Städtevorschlag, Hotelsuche...",
+						"Dein Profil auf Roundtrips4you. Dein Reiseplaner mit Kartenfunktion, Städtevorschlag, Hotelsuche...",
 				},
 			},
 		},

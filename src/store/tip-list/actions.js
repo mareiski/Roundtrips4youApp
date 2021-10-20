@@ -31,7 +31,7 @@ export default {
           roundtipsRef = db
             .collection("Tips")
             .where("TipId", "==", payload.TipId)
-            .where("public", "==", true)
+            .where("published", "==", true)
             .limit(1);
         }
 

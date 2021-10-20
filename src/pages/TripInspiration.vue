@@ -10,6 +10,40 @@
 				name="add"
 			></q-icon>
 		</h5>
+		<q-dialog
+			v-model="tipDialogShowed"
+			style="max-width:auto;"
+			maximized
+		>
+			<close-button
+				color="white"
+				@click="tipDialogShowed = !tipDialogShowed"
+			></close-button>
+			<q-card v-if="tips[selectedTipIndex]">
+
+				<q-img
+					cover
+					height="200px"
+					src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimages.hellogiggles.com%2Fuploads%2F2017%2F07%2F10085540%2FPuertoRicoSummer-e1500342104215.jpg&f=1&nofb=1"
+				/>
+				<q-card-section>
+					<q-item-label class="text-primary">{{tips[selectedTipIndex].title}}</q-item-label>
+					<q-item-label
+						caption
+						class="ellipsis"
+					>
+						<q-icon name="location_on" />
+						{{tips[selectedTipIndex].location.label}}
+					</q-item-label>
+				</q-card-section>
+				<q-card-section
+					class="text-grey ellipsis-3-lines	"
+					style="padding-top:0; height:65px;"
+					v-html="tips[selectedTipIndex].content"
+				>
+				</q-card-section>
+			</q-card>
+		</q-dialog>
 		<q-scroll-area
 			v-if="tips"
 			horizontal
@@ -18,8 +52,9 @@
 		>
 			<div class="flex flex-nowrap full-height">
 				<q-card
-					v-for="tip in tips"
+					v-for="(tip, index) in tips"
 					:key="tip.TipId"
+					@click="selectedTipIndex = index; tipDialogShowed = true"
 					style="width:200px; margin:5px;"
 				>
 					<q-img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimages.hellogiggles.com%2Fuploads%2F2017%2F07%2F10085540%2FPuertoRicoSummer-e1500342104215.jpg&f=1&nofb=1" />
@@ -120,9 +155,11 @@
 
 <script>
 	import Geocoder from "src/components/Geocoder.vue";
+	import CloseButton from "src/components/Buttons/CloseButton.vue";
 	export default {
 		components: {
 			Geocoder,
+			CloseButton,
 		},
 		data() {
 			return {
@@ -130,6 +167,8 @@
 				publicTrips: [],
 				tips: [],
 				disableAdding: false,
+				selectedTipIndex: 0,
+				tipDialogShowed: false,
 			};
 		},
 		watch: {

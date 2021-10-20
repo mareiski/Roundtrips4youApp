@@ -82,6 +82,11 @@ const routes = [
         meta: {
           requireAuth: true
         }
+      },
+      {
+        path: "/publicTripView/:tripId",
+        name: "publicTripView",
+        component: () => import("pages/PublicTripView.vue")
       }
     ]
   },

@@ -105,10 +105,7 @@
 							}
 
 							sharedMethods
-								.getCountryForLatLng(
-									this.startLocation.lat,
-									this.startLocation.lng
-								)
+								.getCountryForLatLng(endLocation.lat, endLocation.lng)
 								.then((country) => {
 									this.$emit("input", {
 										startDate: this.startDate,

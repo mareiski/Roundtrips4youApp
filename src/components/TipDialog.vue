@@ -17,6 +17,17 @@
 			<p v-else>{{tip.location.label}}</p>
 		</q-card-section>
 		<q-card-section>
+			<image-upload
+				:galeryImages="false"
+				:titleImgUrl="tip.imageUrl"
+				@titleImageChanged="url => tip.imageUrl = url"
+				:trip="false"
+				:TripId="tip.TipId + ''"
+				ref="imageUploader"
+			>
+			</image-upload>
+		</q-card-section>
+		<q-card-section>
 			<q-editor
 				v-model="tip.content"
 				placeholder="Dein Tipp..."
@@ -60,8 +71,10 @@
 <script>
 	import Tip from "../classes/tip.ts";
 	import Geocoder from "../components/Geocoder.vue";
+	import ImageUpload from "src/components/ImageUpload.vue";
+
 	export default {
-		components: { Geocoder },
+		components: { Geocoder, ImageUpload },
 		data() {
 			return {
 				tip: new Tip(),
@@ -76,12 +89,13 @@
 				this.tip = this.defaultTip;
 			} else {
 				let timestamp = Date.now();
-				this.tip = new Tip("", user.uid, "", new Date(timestamp));
+				this.tip = new Tip("", user.uid, "", new Date(timestamp), "", "");
 			}
 		},
 		methods: {
 			createTip() {
 				this.$store.dispatch("tipList/addTip", this.tip).then(() => {
+					this.$refs.imageUploader.fileAdded(null, true);
 					this.$emit("hideDialog");
 				});
 			},

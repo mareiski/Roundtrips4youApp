@@ -3,12 +3,13 @@ import PointLocation from "./pointLocation";
 
 export default class Tip {
   title: string;
-  creator: number;
+  creator: string;
   content: string;
   createdAt: Date | any;
   location: PointLocation;
   TipId: string;
   country: string;
+  imageUrl: string;
 
   static fromObject(obj: any) {
     return new this(
@@ -16,6 +17,7 @@ export default class Tip {
       obj.creator,
       obj.content,
       obj.createdAt,
+      obj.imageUrl,
       obj.TipId,
       obj.location
     );
@@ -27,22 +29,25 @@ export default class Tip {
       this.creator &&
       this.content.length >= 50 &&
       this.createdAt &&
-      this.location
+      this.location &&
+      this.imageUrl
     );
   }
 
   constructor(
     title: string,
-    creator: number,
+    creator: string,
     content: string,
     createdAt: Date,
-    TipId?: string,
+    imageUrl: string,
+    TipId: string,
     location?: object
   ) {
     this.title = title;
     this.creator = creator;
     this.content = content;
     this.createdAt = createdAt;
+    this.imageUrl = imageUrl;
 
     if (location) {
       this.location = PointLocation.fromObject(location);
@@ -97,7 +102,8 @@ export default class Tip {
       createdAt: this.createdAt,
       location: this.location.toObject(),
       TipId: this.TipId,
-      country: this.country
+      country: this.country,
+      imageUrl: this.imageUrl
     };
   }
 }

@@ -1,5 +1,6 @@
 <template>
 	<div class="public-trip-list">
+		<h5 v-if="showEmpty">Neue Reise</h5>
 		<q-card
 			v-if="showEmpty"
 			flat
@@ -23,6 +24,7 @@
 				</q-card-section>
 			</q-card-section>
 		</q-card>
+		<h5>Vorlage wählen</h5>
 		<q-card
 			flat
 			bordered
@@ -113,5 +115,10 @@
 			margin-top: 10px;
 			margin-bottom: 10px;
 		}
+	}
+
+	h5 {
+		margin-top: 35px;
+		margin-bottom: 5px;
 	}
 </style>

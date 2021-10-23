@@ -21,6 +21,7 @@
 			:titleImgUrl="trip.titleImageUrl"
 			:galeryImages="false"
 			:TripId="trip.getTripId()"
+			:trip="true"
 			@titleImageChanged="url => trip.titleImageUrl = url"
 		></image-upload>
 		<p class="text-secondary">Startdatum:</p>

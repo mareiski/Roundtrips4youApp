@@ -79,12 +79,6 @@ h6 {
     background-color: $secondary-light;
 }
 
-:not(.update-dialog) {
-    &.q-card__actions .q-btn {
-        min-width: 80% !important;
-    }
-}
-
 .bold {
     font-weight: 500;
 }

@@ -29,7 +29,7 @@
 			hide-upload-btn
 			ref="titleUpload"
 			:multiple="galeryImages"
-			@added="fileAdded($event, galeryImages)"
+			@added="fileAdded($event, false)"
 		/>
 	</div>
 </template>
@@ -43,12 +43,15 @@
 			titleImgUrl: String,
 			galeryImages: Boolean,
 			TripId: String,
+			trip: Boolean,
 		},
 		data() {
 			return {
 				uploadDisabled: false,
 				uploading: false,
 				uploadProgress: 0,
+				lastEvent: null,
+				lastGaleryImages: false,
 			};
 		},
 		methods: {
@@ -56,9 +59,25 @@
 			 * call this from @added event from q-uploader
 			 * @param galeryImages if its a galery or title upload
 			 */
-			fileAdded(event, galeryImages) {
+			fileAdded(event, fromLastTime) {
 				let files = event;
 				let uploadIndex = 0;
+				let basePath = "Roundtrips";
+				let galeryImages;
+
+				if (fromLastTime) {
+					files = this.lastEvent;
+					galeryImages = this.lastGaleryImages;
+				} else {
+					galeryImages = this.galeryImages;
+
+					this.lastEvent = event;
+					this.lastGaleryImages = this.galeryImages;
+				}
+
+				if (!this.trip) {
+					basePath = "Tips";
+				}
 
 				// disable another upload
 				this.uploadDisabled = true;
@@ -66,16 +85,16 @@
 					// delete current title img
 					const fileRef = storage
 						.ref()
-						.child("Images/Roundtrips/" + this.TripId + "/Title/titleImg");
+						.child("Images/" + basePath + "/" + this.TripId + "/Title/titleImg");
 					fileRef.delete();
 				}
 
-				this.uploadNext(files, galeryImages, uploadIndex);
+				this.uploadNext(files, galeryImages, uploadIndex, fromLastTime);
 
 				if (this.$refs.titleUpload) this.$refs.titleUpload.reset();
 				if (this.$refs.galeryUpload) this.$refs.galeryUpload.reset();
 			},
-			uploadNext(files, galeryImages, uploadIndex) {
+			uploadNext(files, galeryImages, uploadIndex, fromLastTime) {
 				if (!this.uploading) {
 					let length = 1;
 					if (galeryImages) {
@@ -88,22 +107,37 @@
 						uploadIndex + length,
 						uploadIndex === files.length - 1,
 						files.length,
-						uploadIndex
+						uploadIndex,
+						fromLastTime
 					).then(() => {
 						this.uploading = false;
 						uploadIndex++;
 
 						if (uploadIndex < files.length) {
-							this.uploadNext(files, galeryImages, uploadIndex);
+							this.uploadNext(files, galeryImages, uploadIndex, fromLastTime);
 						} else {
 							this.uploadDisabled = false;
 						}
 					});
 				}
 			},
-			upload(file, galeryImages, count, lastItem, absoluteFiles, uploadIndex) {
+			upload(
+				file,
+				galeryImages,
+				count,
+				lastItem,
+				absoluteFiles,
+				uploadIndex,
+				fromLastTime
+			) {
 				this.uploading = true;
 				let context = this;
+
+				let basePath = "Roundtrips";
+
+				if (!this.trip) {
+					basePath = "Tips";
+				}
 
 				return new Promise((resolve) => {
 					let imagePath = "Title/titleImg";
@@ -114,7 +148,7 @@
 
 					const fileRef = storage
 						.ref()
-						.child("Images/Roundtrips/" + context.TripId + "/" + imagePath);
+						.child("Images/" + basePath + "/" + context.TripId + "/" + imagePath);
 
 					let uploadTask = fileRef.put(file);
 					uploadTask.on(
@@ -140,13 +174,16 @@
 						},
 						() => {
 							// upload succesful
-							sharedMethods.showSuccessNotification(
-								"Bild " +
-									(uploadIndex + 1) +
-									" von " +
-									absoluteFiles +
-									" wurde erfolgreich hochgeladen"
-							);
+
+							if (fromLastTime) {
+								sharedMethods.showSuccessNotification(
+									"Bild " +
+										(uploadIndex + 1) +
+										" von " +
+										absoluteFiles +
+										" wurde erfolgreich hochgeladen"
+								);
+							}
 
 							if (lastItem) {
 								context.visible = false;

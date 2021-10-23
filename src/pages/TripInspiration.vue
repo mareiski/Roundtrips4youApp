@@ -24,7 +24,7 @@
 				<q-img
 					cover
 					height="200px"
-					src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimages.hellogiggles.com%2Fuploads%2F2017%2F07%2F10085540%2FPuertoRicoSummer-e1500342104215.jpg&f=1&nofb=1"
+					:src="tips[selectedTipIndex].imageUrl"
 				/>
 				<q-card-section>
 					<q-item-label class="text-primary">{{tips[selectedTipIndex].title}}</q-item-label>
@@ -45,7 +45,7 @@
 			</q-card>
 		</q-dialog>
 		<q-scroll-area
-			v-if="tips"
+			v-if="tips && tips.length > 0"
 			horizontal
 			style="height: 280px; width: 100vw; padding-left:10px;"
 			class="bg-grey-1 rounded-borders"
@@ -54,26 +54,40 @@
 				<q-card
 					v-for="(tip, index) in tips"
 					:key="tip.TipId"
-					@click="selectedTipIndex = index; tipDialogShowed = true"
 					style="width:200px; margin:5px;"
 				>
-					<q-img src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fimages.hellogiggles.com%2Fuploads%2F2017%2F07%2F10085540%2FPuertoRicoSummer-e1500342104215.jpg&f=1&nofb=1" />
-					<q-card-section>
-						<q-item-label class="text-primary">{{tip.title}}</q-item-label>
-						<q-item-label
-							caption
-							class="ellipsis"
-						>
-							<q-icon name="location_on" />
-							{{tip.location.label}}
-						</q-item-label>
-					</q-card-section>
-					<q-card-section
-						class="text-grey ellipsis-3-lines	"
-						style="padding-top:0; height:65px;"
-						v-html="tip.content"
+					<q-btn
+						v-if="tip.creator === user.uid"
+						icon="delete"
+						flat
+						style="position:absolute; right:0; z-index:1"
+						round
+						color="white"
+						@click="deleteDialogShowed = true; tipToDelete = tip"
 					>
-					</q-card-section>
+					</q-btn>
+					<div
+						@click="selectedTipIndex = index; tipDialogShowed = true"
+						class="cursor-pointer"
+					>
+						<q-img :src="tip.imageUrl" />
+						<q-card-section>
+							<q-item-label class="text-primary">{{tip.title}}</q-item-label>
+							<q-item-label
+								caption
+								class="ellipsis"
+							>
+								<q-icon name="location_on" />
+								{{tip.location.label}}
+							</q-item-label>
+						</q-card-section>
+						<q-card-section
+							class="text-grey ellipsis-3-lines	"
+							style="padding-top:0; height:65px;"
+							v-html="tip.content"
+						>
+						</q-card-section>
+					</div>
 				</q-card>
 			</div>
 		</q-scroll-area>
@@ -149,6 +163,32 @@
 				</q-card> -->
 			</div>
 		</q-scroll-area>
+		<q-dialog
+			persistent
+			v-model="deleteDialogShowed"
+		>
+			<q-card>
+				<q-card-section class="row items-center">
+					<span class="q-ml-sm color-secondary">Willst du diesen Tipp löschen? <br> Dies kann nicht mehr rückgängig gemacht werden.</span>
+				</q-card-section>
+
+				<q-card-actions class="flex">
+					<q-btn
+						flat
+						label="Abbrechen"
+						color="primary"
+						v-close-popup
+					/>
+					<q-btn
+						outline
+						label="Tipp Löschen"
+						@click="deleteTip()"
+						color="primary"
+						v-close-popup
+					/>
+				</q-card-actions>
+			</q-card>
+		</q-dialog>
 		<p class="text-secondary q-px-lg">coming soon</p>
 	</q-page>
 </template>
@@ -156,6 +196,8 @@
 <script>
 	import Geocoder from "src/components/Geocoder.vue";
 	import CloseButton from "src/components/Buttons/CloseButton.vue";
+	import { auth } from "src/firebaseInit";
+	import sharedMethods from "app/sharedMethods";
 	export default {
 		components: {
 			Geocoder,
@@ -165,11 +207,20 @@
 			return {
 				country: "Deutschland",
 				publicTrips: [],
-				tips: [],
 				disableAdding: false,
 				selectedTipIndex: 0,
 				tipDialogShowed: false,
+				deleteDialogShowed: false,
+				tipToDelete: null,
 			};
+		},
+		computed: {
+			user() {
+				return auth.user();
+			},
+			tips() {
+				return this.$store.getters["tipList/getTipList"];
+			},
 		},
 		watch: {
 			country: function (newCountry, oldCountry) {
@@ -188,11 +239,16 @@
 					});
 			},
 			fetchTips() {
-				this.$store
-					.dispatch("tipList/fetchPublicTipsForCountry", this.country)
-					.then((tips) => {
-						this.tips = tips;
-					});
+				this.$store.dispatch("tipList/fetchPublicTipsForCountry", this.country);
+			},
+			deleteTip() {
+				if (this.tipToDelete) {
+					this.$store.dispatch("tipList/deleteTip", this.tipToDelete.TipId);
+				} else {
+					sharedMethods.showErrorNotification(
+						"Tipp konnte nicht gelöscht werden: null"
+					);
+				}
 			},
 		},
 		created() {

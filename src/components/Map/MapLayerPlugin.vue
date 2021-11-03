@@ -50,16 +50,6 @@
 					>
 						<q-item-section>Outdoor</q-item-section>
 					</q-item>
-
-					<q-separator />
-
-					<q-item
-						clickable
-						@click="switchMapStyle('rivers')"
-						v-close-popup
-					>
-						<q-item-section>Flüsse</q-item-section>
-					</q-item>
 				</q-list>
 			</q-menu>
 		</q-btn>
@@ -80,9 +70,7 @@
 			switchMapStyle(styleName) {
 				let parent = sharedMethods.getParent("map", this);
 
-				if (styleName !== "rivers") {
-					this.styleName = styleName;
-				}
+				this.styleName = styleName;
 
 				switch (styleName) {
 					case "nav":
@@ -103,13 +91,11 @@
 						break;
 				}
 
-				if (styleName !== "rivers") {
-					// wait to ensure style fully loaded
-					let context = this;
-					setTimeout(function () {
-						context.$emit("styleChanged");
-					}, 500);
-				}
+				// wait to ensure style fully loaded
+				let context = this;
+				setTimeout(function () {
+					context.$emit("styleChanged");
+				}, 500);
 			},
 		},
 	};

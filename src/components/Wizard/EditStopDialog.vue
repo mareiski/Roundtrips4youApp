@@ -30,6 +30,15 @@
 				v-model="stop.notes"
 				content-class="text-secondary"
 				placeholder="Notizen zu diesem Stopp"
+				:definitions="{
+					upload: {
+					tip: 'Upload to cloud',
+					icon: 'cloud_upload',
+					label: 'Upload',
+					handler: uploadImage
+					}
+				}"
+				:toolbar="sharedMethods.toolbar($q, true)"
 			></q-editor>
 		</q-card-section>
 	</q-card>
@@ -67,6 +76,9 @@
 				set: function (newValue) {
 					this.stop.profile = this.revertProfile(newValue);
 				},
+			},
+			sharedMethods() {
+				return sharedMethods;
 			},
 		},
 		created() {
@@ -109,6 +121,7 @@
 					});
 				}
 			},
+			uploadImage() {},
 			getCheckOutDate() {
 				let date = sharedMethods.getDateFromString(this.stop.date);
 				date.setDate(date.getDate() + this.stop.dayDuration);

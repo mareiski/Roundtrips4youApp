@@ -1,7 +1,6 @@
 import Stop from "./stop";
 import PointLocation from "./pointLocation";
 import { date } from "quasar";
-import sharedMethods from "app/sharedMethods";
 
 export default class Trip {
   private TripId: string;
@@ -34,6 +33,7 @@ export default class Trip {
   childrenAges: Array<number>;
   startDate: Date;
   totalDistance: number;
+  showRoutes: boolean;
 
   getTripId() {
     return this.TripId;
@@ -115,6 +115,8 @@ export default class Trip {
     this.rooms = 1;
     this.adults = 2;
     this.childrenAges = [];
+
+    this.showRoutes = true;
   }
 
   /**
@@ -139,11 +141,10 @@ export default class Trip {
     this.offerWholeYear = obj.offerWholeYear;
     this.createdAt = obj.createdAt;
 
-    // if (obj.departureDate) {
-    //   this.departureDate = sharedMethods.getDateFromTimeStamp(
-    //     obj.departureDate
-    //   );
-    // }
+    if (typeof obj.showRoutes !== "undefined") {
+      this.showRoutes = obj.showRoutes;
+    }
+
     this.transportProfile = obj.transportProfile;
     this.origin = obj.origin;
     this.destination = obj.destination;
@@ -215,7 +216,8 @@ export default class Trip {
       adults: this.adults,
       childrenAges: this.childrenAges,
       startDate: this.startDate,
-      totalDistance: this.totalDistance
+      totalDistance: this.totalDistance,
+      showRoutes: this.showRoutes
     };
   }
 

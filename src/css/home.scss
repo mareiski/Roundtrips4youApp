@@ -68,7 +68,7 @@
             font-size: 18px;
         }
 
-        @include xs-screen {
+        @include sm-screen {
             font-size: 16px;
             line-height: normal;
         }
@@ -254,6 +254,10 @@
     justify-content: space-between;
     flex-wrap: wrap;
     padding: 40px 0 50px 0;
+
+    @include sm-screen {
+        justify-content: center;
+    }
 
     .card-wrap {
         display: flex;

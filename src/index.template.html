@@ -3,159 +3,205 @@
   <head>
     <title><%= productName %></title>
 
-    <meta charset="utf-8">
-    <meta name="description" content="<%= productDescription %>">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="msapplication-tap-highlight" content="no">
-    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>">
+    <meta charset="utf-8" />
+    <meta name="description" content="<%= productDescription %>" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta
+      name="viewport"
+      content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width<% if (ctx.mode.cordova || ctx.mode.capacitor) { %>, viewport-fit=cover<% } %>"
+    />
 
-    <link rel="icon" type="image/svg" href="/icons/favicon.svg">
-    <link rel="icon" type="image/svg" sizes="16x16" href="/icons/favicon.svg">
-    <link rel="icon" type="image/svg" sizes="32x32" href="/icons/favicon.svg">
-    <link rel="icon" type="image/svg" sizes="96x96" href="/icons/favicon.svg">
-    <link rel="icon" type="image/ssvg" href="/icons/favicon.svg">
-    <link href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css" rel="stylesheet">
+    <link rel="icon" type="image/svg" href="/icons/favicon.svg" />
+    <link rel="icon" type="image/svg" sizes="16x16" href="/icons/favicon.svg" />
+    <link rel="icon" type="image/svg" sizes="32x32" href="/icons/favicon.svg" />
+    <link rel="icon" type="image/svg" sizes="96x96" href="/icons/favicon.svg" />
+    <link rel="icon" type="image/ssvg" href="/icons/favicon.svg" />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.3.0/mapbox-gl.js"></script>
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://roundtrips4you.de/">
-    <meta property="og:title" content="roundtrips4you">
-    <meta property="og:description"
-      content="Orte planen, Hotels finden, Reisen teilen und die beste Route finden. Reise mit unserem Reiseplaner kostenlos erstellen & online planen">
-    <meta property="og:image" content="https://roundtrips4you.de/statics/bagan-1137015_1280.jpg">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://roundtrips4you.de/" />
+    <meta property="og:title" content="roundtrips4you" />
+    <meta
+      property="og:description"
+      content="Orte planen, Hotels finden, Reisen teilen und die beste Route finden. Reise mit unserem Reiseplaner kostenlos erstellen & online planen"
+    />
+    <meta
+      property="og:image"
+      content="https://roundtrips4you.de/statics/bagan-1137015_1280.jpg"
+    />
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:site" content="@roundtrips4you" />
     <meta property="twitter:creator" content="@roundtrips4you" />
-    <meta property=" twitter:url" content="https://roundtrips4you.de/">
-    <meta property="twitter:title" content="roundtrips4you">
-    <meta property="twitter:description"
-      content="Orte planen, Hotels finden, Reisen teilen und die beste Route finden. Reise mit unserem Reiseplaner kostenlos erstellen & online planen">
-    <meta property="twitter:image" content="https://roundtrips4you.de/statics/bagan-1137015_1280.jpg">
+    <meta property=" twitter:url" content="https://roundtrips4you.de/" />
+    <meta property="twitter:title" content="roundtrips4you" />
+    <meta
+      property="twitter:description"
+      content="Orte planen, Hotels finden, Reisen teilen und die beste Route finden. Reise mit unserem Reiseplaner kostenlos erstellen & online planen"
+    />
+    <meta
+      property="twitter:image"
+      content="https://roundtrips4you.de/statics/bagan-1137015_1280.jpg"
+    />
     <!-- seo -->
-    <meta name="keywords"
-      content="roadtrip planen, reiseplaner, reise planen online, reise planen app, reise planen tool, reise planen website, roundtrips4you" />
+    <meta
+      name="keywords"
+      content="roadtrip planen, reiseplaner, reise planen online, reise planen app, reise planen tool, reise planen website, roundtrips4you"
+    />
     <!-- google page verfication-->
-    <meta name="google-site-verification" content="z2N-10QbQdQVnN5Dud5KARbVblFf19F-hQ0b3rGdVig" />
+    <meta
+      name="google-site-verification"
+      content="z2N-10QbQdQVnN5Dud5KARbVblFf19F-hQ0b3rGdVig"
+    />
     <!-- Hotjar Tracking Code for https://roundtrips4you.de -->
     <script>
-      if (window.location.hostname !== 'localhost' && window.location.hostname !== 'roundtrips4you.netlify.app') {
-        (function (h, o, t, j, a, r) {
-          h.hj = h.hj || function () { (h.hj.q = h.hj.q || []).push(arguments) };
+      if (
+        window.location.hostname !== "localhost" &&
+        window.location.hostname !== "roundtrips4you.netlify.app"
+      ) {
+        (function(h, o, t, j, a, r) {
+          h.hj =
+            h.hj ||
+            function() {
+              (h.hj.q = h.hj.q || []).push(arguments);
+            };
           h._hjSettings = { hjid: 1554806, hjsv: 6 };
-          a = o.getElementsByTagName('head')[0];
-          r = o.createElement('script'); r.async = 1;
+          a = o.getElementsByTagName("head")[0];
+          r = o.createElement("script");
+          r.async = 1;
           r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
           a.appendChild(r);
-        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+        })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
       }
     </script>
+    <script
+      src="./widget/tripviewWidget.js"
+      data-config="/widget/widgetConfig.json"
+      data-id="tripViewWidget"
+    ></script>
     <!-- Google Analytics -->
     <script>
-      if (window.location.hostname !== 'localhost') {
-        let cookiesAllowed = false
-        var acc = 'UA-160605825-1'
+      if (window.location.hostname !== "localhost") {
+        let cookiesAllowed = false;
+        var acc = "UA-160605825-1";
 
-        if (!cookiesAllowed) { //functions you've defined elsewhere
-          window['ga-disable-' + acc] = true;
+        if (!cookiesAllowed) {
+          //functions you've defined elsewhere
+          window["ga-disable-" + acc] = true;
         }
 
         var _gaq = _gaq || [];
-        _gaq.push(['_setAccount', acc]);
-        _gaq.push(['_trackPageview']);
+        _gaq.push(["_setAccount", acc]);
+        _gaq.push(["_trackPageview"]);
 
-        (function () {
-          var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-          ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-          var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        (function() {
+          var ga = document.createElement("script");
+          ga.type = "text/javascript";
+          ga.async = true;
+          ga.src =
+            ("https:" == document.location.protocol
+              ? "https://ssl"
+              : "http://www") + ".google-analytics.com/ga.js";
+          var s = document.getElementsByTagName("script")[0];
+          s.parentNode.insertBefore(ga, s);
         })();
 
-        function onOptIn() { // have this run when/if they opt-in.
-          window['ga-disable-UA-160605825-1'] = false
+        function onOptIn() {
+          // have this run when/if they opt-in.
+          window["ga-disable-UA-160605825-1"] = false;
           // set a cookie to express that the user has opted-in to tracking, for future pageviews
-          _gaq.push(['_trackPageview']) // now run the pageview that you 'missed'
+          _gaq.push(["_trackPageview"]); // now run the pageview that you 'missed'
         }
       }
     </script>
     <style>
-         @font-face {
-      font-family: 'Raleway';
-      font-style: normal;
-      font-weight: 200;
-      src: url('../fonts/raleway-v14-latin-200.eot');
-      /* IE9 Compat Modes */
-      src: local('Raleway ExtraLight'), local('Raleway-ExtraLight'),
-        url('../fonts/raleway-v14-latin-200.eot?#iefix') format('embedded-opentype'),
-        /* IE6-IE8 */
-        url('../fonts/raleway-v14-latin-200.woff2') format('woff2'),
-        /* Super Modern Browsers */
-        url('../fonts/raleway-v14-latin-200.woff') format('woff'),
-        /* Modern Browsers */
-        url('../fonts/raleway-v14-latin-200.ttf') format('truetype'),
-        /* Safari, Android, iOS */
-        url('../fonts/raleway-v14-latin-200.svg#Raleway') format('svg');
-      /* Legacy iOS */
-    }
+      @font-face {
+        font-family: "Raleway";
+        font-style: normal;
+        font-weight: 200;
+        src: url("../fonts/raleway-v14-latin-200.eot");
+        /* IE9 Compat Modes */
+        src: local("Raleway ExtraLight"), local("Raleway-ExtraLight"),
+          url("../fonts/raleway-v14-latin-200.eot?#iefix")
+            format("embedded-opentype"),
+          /* IE6-IE8 */ url("../fonts/raleway-v14-latin-200.woff2")
+            format("woff2"),
+          /* Super Modern Browsers */ url("../fonts/raleway-v14-latin-200.woff")
+            format("woff"),
+          /* Modern Browsers */ url("../fonts/raleway-v14-latin-200.ttf")
+            format("truetype"),
+          /* Safari, Android, iOS */
+            url("../fonts/raleway-v14-latin-200.svg#Raleway") format("svg");
+        /* Legacy iOS */
+      }
 
-    /* raleway-300 - latin */
-    @font-face {
-      font-family: 'Raleway';
-      font-style: normal;
-      font-weight: 300;
-      src: url('../fonts/raleway-v14-latin-300.eot');
-      /* IE9 Compat Modes */
-      src: local('Raleway Light'), local('Raleway-Light'),
-        url('../fonts/raleway-v14-latin-300.eot?#iefix') format('embedded-opentype'),
-        /* IE6-IE8 */
-        url('../fonts/raleway-v14-latin-300.woff2') format('woff2'),
-        /* Super Modern Browsers */
-        url('../fonts/raleway-v14-latin-300.woff') format('woff'),
-        /* Modern Browsers */
-        url('../fonts/raleway-v14-latin-300.ttf') format('truetype'),
-        /* Safari, Android, iOS */
-        url('../fonts/raleway-v14-latin-300.svg#Raleway') format('svg');
-      /* Legacy iOS */
-    }
+      /* raleway-300 - latin */
+      @font-face {
+        font-family: "Raleway";
+        font-style: normal;
+        font-weight: 300;
+        src: url("../fonts/raleway-v14-latin-300.eot");
+        /* IE9 Compat Modes */
+        src: local("Raleway Light"), local("Raleway-Light"),
+          url("../fonts/raleway-v14-latin-300.eot?#iefix")
+            format("embedded-opentype"),
+          /* IE6-IE8 */ url("../fonts/raleway-v14-latin-300.woff2")
+            format("woff2"),
+          /* Super Modern Browsers */ url("../fonts/raleway-v14-latin-300.woff")
+            format("woff"),
+          /* Modern Browsers */ url("../fonts/raleway-v14-latin-300.ttf")
+            format("truetype"),
+          /* Safari, Android, iOS */
+            url("../fonts/raleway-v14-latin-300.svg#Raleway") format("svg");
+        /* Legacy iOS */
+      }
 
-    /* raleway-regular - latin */
-    @font-face {
-      font-family: 'Raleway';
-      font-style: normal;
-      font-weight: 400;
-      src: url('../fonts/raleway-v14-latin-regular.eot');
-      /* IE9 Compat Modes */
-      src: local('Raleway'), local('Raleway-Regular'),
-        url('../fonts/raleway-v14-latin-regular.eot?#iefix') format('embedded-opentype'),
-        /* IE6-IE8 */
-        url('../fonts/raleway-v14-latin-regular.woff2') format('woff2'),
-        /* Super Modern Browsers */
-        url('../fonts/raleway-v14-latin-regular.woff') format('woff'),
-        /* Modern Browsers */
-        url('../fonts/raleway-v14-latin-regular.ttf') format('truetype'),
-        /* Safari, Android, iOS */
-        url('../fonts/raleway-v14-latin-regular.svg#Raleway') format('svg');
-      /* Legacy iOS */
-    }
+      /* raleway-regular - latin */
+      @font-face {
+        font-family: "Raleway";
+        font-style: normal;
+        font-weight: 400;
+        src: url("../fonts/raleway-v14-latin-regular.eot");
+        /* IE9 Compat Modes */
+        src: local("Raleway"), local("Raleway-Regular"),
+          url("../fonts/raleway-v14-latin-regular.eot?#iefix")
+            format("embedded-opentype"),
+          /* IE6-IE8 */ url("../fonts/raleway-v14-latin-regular.woff2")
+            format("woff2"),
+          /* Super Modern Browsers */
+            url("../fonts/raleway-v14-latin-regular.woff") format("woff"),
+          /* Modern Browsers */ url("../fonts/raleway-v14-latin-regular.ttf")
+            format("truetype"),
+          /* Safari, Android, iOS */
+            url("../fonts/raleway-v14-latin-regular.svg#Raleway") format("svg");
+        /* Legacy iOS */
+      }
 
-    /* raleway-500 - latin */
-    @font-face {
-      font-family: 'Raleway';
-      font-style: normal;
-      font-weight: 500;
-      src: url('../fonts/raleway-v14-latin-500.eot');
-      /* IE9 Compat Modes */
-      src: local('Raleway Medium'), local('Raleway-Medium'),
-        url('../fonts/raleway-v14-latin-500.eot?#iefix') format('embedded-opentype'),
-        /* IE6-IE8 */
-        url('../fonts/raleway-v14-latin-500.woff2') format('woff2'),
-        /* Super Modern Browsers */
-        url('../fonts/raleway-v14-latin-500.woff') format('woff'),
-        /* Modern Browsers */
-        url('../fonts/raleway-v14-latin-500.ttf') format('truetype'),
-        /* Safari, Android, iOS */
-        url('../fonts/raleway-v14-latin-500.svg#Raleway') format('svg');
-      /* Legacy iOS */
-    }
+      /* raleway-500 - latin */
+      @font-face {
+        font-family: "Raleway";
+        font-style: normal;
+        font-weight: 500;
+        src: url("../fonts/raleway-v14-latin-500.eot");
+        /* IE9 Compat Modes */
+        src: local("Raleway Medium"), local("Raleway-Medium"),
+          url("../fonts/raleway-v14-latin-500.eot?#iefix")
+            format("embedded-opentype"),
+          /* IE6-IE8 */ url("../fonts/raleway-v14-latin-500.woff2")
+            format("woff2"),
+          /* Super Modern Browsers */ url("../fonts/raleway-v14-latin-500.woff")
+            format("woff"),
+          /* Modern Browsers */ url("../fonts/raleway-v14-latin-500.ttf")
+            format("truetype"),
+          /* Safari, Android, iOS */
+            url("../fonts/raleway-v14-latin-500.svg#Raleway") format("svg");
+        /* Legacy iOS */
+      }
     </style>
   </head>
   <body>
@@ -163,22 +209,25 @@
     <div id="q-app"></div>
   </body>
 
-    <script type="application/ld+json">
-        {
-          "@context" : "http://schema.org",
-          "@type" : "Organization",
-          "name" : "Roundtrips4you",
-         "url" : "https://roundtrips4you.de",
-         "sameAs" : [
-           "https://www.instagram.com/roundtrips4you",
-           "https://www.facebook.com/roundtrips4you/"
-           ]
-        }
-        </script>
-      <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
-      <link rel="stylesheet"
-        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css">
-      <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
-      <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "Organization",
+      "name": "Roundtrips4you",
+      "url": "https://roundtrips4you.de",
+      "sameAs": [
+        "https://www.instagram.com/roundtrips4you",
+        "https://www.facebook.com/roundtrips4you/"
+      ]
+    }
+  </script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css"
+    type="text/css"
+  />
+  <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
 </html>

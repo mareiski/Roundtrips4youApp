@@ -17,6 +17,10 @@
 			autogrow
 			label="Beschreibung"
 		></q-input>
+		<q-toggle
+			v-model="trip.showRoutes"
+			label="Routen anzeigen"
+		></q-toggle>
 		<image-upload
 			:titleImgUrl="trip.titleImageUrl"
 			:galeryImages="false"

@@ -8,21 +8,24 @@
 				class="bg-white full-width flex justify-between text-secondary"
 				style="height:35px; padding: 5px 10px;"
 			>
-				<div>
+				<div v-if="!asComponent || isOnRoundtripsPage">
 					<close-button
 						:top="0"
 						size="md"
-						@click="$router.push('/')"
+						@click="asComponent ? $router.go(-1) : $router.push('/')"
 						v-if="user"
 					></close-button>
 					<save-button
 						:top="0"
 						size="md"
 						@click="$router.push('/Registrieren?TripId=' + trip.TripId)"
-						v-else
+						v-else-if="!asComponent"
 					></save-button>
 				</div>
-				<b class="raleway text-primary">{{ trip.title }}</b>
+				<h1
+					class="text-primary bold q-pt-xs"
+					style="font-size:16px; margin:0; z-index:1; line-height:normal;"
+				>{{ trip.title }}</h1>
 				<q-icon
 					style="z-index:1;"
 					@click="$router.push('/Einstellungen/' + trip.TripId)"
@@ -51,7 +54,7 @@
 				v-if="accTo"
 				:accessToken="accTo"
 				:mapStyle.sync="mapStyle"
-				style="height: 85vh"
+				:style="asComponent ? 'height: 60vh' : 'height: 85vh'"
 				:center="centerLocation"
 				:zoom="6"
 				:mapboxGl="mapbox"
@@ -98,7 +101,10 @@
 
 				<zoom-to-route @clicked="fitToBounds()"></zoom-to-route>
 
-				<MapAutoRoute @clicked="setToBestRoute()"></MapAutoRoute>
+				<MapAutoRoute
+					v-if="isCreator && !asComponent"
+					@clicked="setToBestRoute()"
+				></MapAutoRoute>
 
 				<!-- popups for routes -->
 				<template v-if="cachedRouteLayers">
@@ -193,6 +199,7 @@
 			v-model="bottomDialogShowed"
 			:data="dialogObject"
 			@poiClicked="flyTo($event)"
+			@showHeadline="$emit('showHeadline', $event);"
 		></bottom-dialog>
 	</div>
 </template>
@@ -289,9 +296,19 @@
 				return (
 					(this.$route.params.tripId &&
 						this.$route.params.tripId.includes("temp")) ||
-					this.$store.getters["user/user"].uid === this.trip.userId
+					(this.$store.getters["user/user"] &&
+						this.$store.getters["user/user"].uid === this.trip.userId)
 				);
 			},
+			isOnRoundtripsPage() {
+				return (
+					window.location.hostname === "localhost" ||
+					window.location.hostname === "roundtrips4you.de"
+				);
+			},
+		},
+		props: {
+			asComponent: Boolean,
 		},
 		data() {
 			return {
@@ -371,6 +388,15 @@
 						curve: 1,
 						zoom: 14,
 					});
+
+					this.showBottomDialog(
+						{
+							title: "Standort",
+							location: this.geolocationCoordinates,
+						},
+						false,
+						true
+					);
 				}
 			},
 			flyTo(event) {
@@ -420,7 +446,7 @@
 						this.bounds.push([stop.location.lng, stop.location.lat]);
 
 						// add route from last to this stop
-						if (index > 0) {
+						if (index > 0 && this.trip.showRoutes) {
 							promiseList.push(
 								this.addRoute(
 									this.trip.stopList[index - 1],
@@ -543,12 +569,14 @@
 						this.trip.stopList[this.trip.stopList.length - 1]
 					)
 					.then((route) => {
-						this.trip.stopList = route;
-						this.$store.dispatch("tripList/updateTrip", this.trip);
+						if (route) {
+							this.trip.stopList = route;
+							this.$store.dispatch("tripList/updateTrip", this.trip);
+						}
 					});
 			},
 			getTrip(done) {
-				let userTrip = auth.user() !== null || this.isCreator;
+				let userTrip = this.isCreator;
 
 				this.$store
 					.dispatch("tripList/fetchSingleTrip", {
@@ -947,6 +975,7 @@
 					locationIcon: subtitle === stop.location.label,
 					trip: this.trip,
 					ableToDelete: index !== 0 && index !== this.trip.stopList.length - 1,
+					showHeadlineButton: this.asComponent,
 				};
 
 				let context = this;
@@ -1071,6 +1100,22 @@
 		beforeRouteLeave(to, from, next) {
 			this.hideBottomDialog();
 			next();
+		},
+		beforeRouteEnter(to, from, next) {
+			next((vm) => {
+				if (vm && vm.trip) {
+					if (!vm.trip.showRoutes) {
+						vm.routeIds.forEach((idObject) => {
+							map.setLayoutProperty(idObject.routeId, "visibility", "none");
+						});
+					} else if (!vm.routeIds.length) {
+						// wait to ensure page is loaded
+						setTimeout(function () {
+							vm.getTrip();
+						}, 500);
+					}
+				}
+			});
 		},
 	};
 </script>

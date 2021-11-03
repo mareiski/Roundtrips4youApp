@@ -118,6 +118,15 @@
               "
 								:label="data.alreadyAdded ? 'Bearbeiten' : 'Hinzufügen'"
 							/>
+
+							<!-- jump to headline button -->
+							<q-btn
+								v-show="data.showHeadlineButton && data.alreadyAdded"
+								outline
+								color="primary"
+								@click="$emit('showHeadline', data.stop.stopId)"
+								label="Zum Eintrag"
+							/>
 						</div>
 					</q-card-section>
 					<q-card-section

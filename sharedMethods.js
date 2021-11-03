@@ -1,4 +1,6 @@
-import { Notify, date } from "quasar";
+import { Notify, date, scroll } from "quasar";
+const { setScrollPosition, getScrollTarget } = scroll;
+
 import axios from "axios";
 import wiki from "wikijs";
 import { Loader } from "@googlemaps/js-api-loader";
@@ -7,6 +9,53 @@ import Geonames from "geonames.js";
 let cachedWikivoyageData = [];
 
 export default {
+  toolbar($q, uploadButton) {
+    const bar = [
+      [
+        {
+          label: $q.lang.editor.align,
+          icon: $q.iconSet.editor.align,
+          fixedLabel: true,
+          list: "only-icons",
+          options: ["left", "center", "right", "justify"]
+        }
+      ],
+      ["bold", "italic", "underline", "subscript", "superscript"],
+      ["token", "hr", "link", "fullscreen"],
+      [
+        {
+          label: $q.lang.editor.formatting,
+          icon: $q.iconSet.editor.formatting,
+          list: "no-icons",
+          options: ["p", "h1", "h2", "h3", "h4", "h5", "h6", "code"]
+        },
+        {
+          label: $q.lang.editor.fontSize,
+          icon: $q.iconSet.editor.fontSize,
+          fixedLabel: true,
+          fixedIcon: true,
+          list: "no-icons",
+          options: [
+            "size-1",
+            "size-2",
+            "size-3",
+            "size-4",
+            "size-5",
+            "size-6",
+            "size-7"
+          ]
+        },
+        "removeFormat"
+      ],
+      ["quote", "unordered", "ordered"],
+      ["undo", "redo"]
+    ];
+
+    if (uploadButton) {
+      bar.push(["upload"]);
+    }
+    return bar;
+  },
   /**
    * Display a quasar notify error message
    */
@@ -154,7 +203,7 @@ export default {
    * @param startStop which stop to start with (mandatory!)
    * @param endStop which stop to end (set startStop and endStop to the same for a roundtrip) optional
    */
-  async getBestRoute(stopList, startStop, endStop) {
+  getBestRoute(stopList, startStop, endStop) {
     return new Promise(resolve => {
       const jobs = [];
       stopList.forEach((stop, index) => {
@@ -233,11 +282,25 @@ export default {
           resolve(newStopList);
         })
         .catch(e => {
+          this.showErrorNotification("Route konnte nicht opitmiert werden");
           console.log(e);
           resolve(false);
         });
     });
   },
+  /**
+   * Scrolls to a element
+   * @param refName element get via $refs
+   */
+  scrollToRef(el) {
+    const target = getScrollTarget(el);
+    const offset = el.offsetTop;
+    setScrollPosition(target, offset, 400);
+  },
+  /**
+   * get a wikivoyage image for given page name
+   * @param {string} pageName
+   */
   async getWikivoyageImage(pageName) {
     let index = cachedWikivoyageData.findIndex(x => x.title === pageName);
     if (index >= 0) {

@@ -32,6 +32,7 @@
 				v-model="tip.content"
 				placeholder="Dein Tipp..."
 				class="text-secondary"
+				:toolbar="sharedMethods.toolbar($q)"
 			></q-editor>
 			<p
 				class="full-width text-primary"
@@ -72,6 +73,7 @@
 	import Tip from "../classes/tip.ts";
 	import Geocoder from "../components/Geocoder.vue";
 	import ImageUpload from "src/components/ImageUpload.vue";
+	import sharedMethods from "../../sharedMethods.js";
 
 	export default {
 		components: { Geocoder, ImageUpload },
@@ -91,6 +93,11 @@
 				let timestamp = Date.now();
 				this.tip = new Tip("", user.uid, "", new Date(timestamp), "", "");
 			}
+		},
+		computed: {
+			sharedMethods() {
+				return sharedMethods;
+			},
 		},
 		methods: {
 			createTip() {

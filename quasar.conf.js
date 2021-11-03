@@ -7,7 +7,6 @@
 // https://v1.quasar.dev/quasar-cli/quasar-conf-js
 /* eslint-env node */
 const ESLintPlugin = require("eslint-webpack-plugin");
-const SitemapPlugin = require("sitemap-webpack-plugin");
 
 module.exports = function(/* ctx */) {
   return {

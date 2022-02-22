@@ -96,11 +96,6 @@ const routes = [
     component: () => import("pages/PublicTripView.vue")
   },
   {
-    path: "/Test",
-    name: "test",
-    component: () => import("src/pages/Test.vue")
-  },
-  {
     path: "/Impressum",
     name: "impress",
     component: () => import("src/pages/Legal/Impressum.vue")

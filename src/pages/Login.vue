@@ -186,7 +186,9 @@ export default {
               .then(() => {
                 // if profile was created, we add the trip of vuex store to users profile
                 if (trip) {
-                  this.$store.dispatch("tripList/addTrip", trip);
+                  setTimeout(() => {
+                    this.$store.dispatch("tripList/addTrip", trip);
+                  }, 200);
                 }
 
                 this.$store.dispatch("tripList/fetchAllUserTrips");

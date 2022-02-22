@@ -201,7 +201,6 @@ export default {
         // add arrival departure
         if (payload.transportProfile) {
           newTripObject.setArrivalDeparture(
-            payload.depatureDate,
             payload.transportProfile,
             payload.origin,
             payload.destination,
